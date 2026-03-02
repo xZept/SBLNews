@@ -1,6 +1,7 @@
 using SBLNews.Client.Pages;
 using SBLNews.Components;
 using MudBlazor.Services;
+using SBLNews.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +10,9 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
-// Register mudblazor services
+// Register more services
 builder.Services.AddMudServices();
+builder.Services.AddHttpClient<IScienceNewsService, PubMedService>();
 
 var app = builder.Build();
 

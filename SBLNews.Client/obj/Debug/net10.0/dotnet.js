@@ -5,7 +5,7 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
   "mainAssemblyName": "SBLNews.Client",
   "applicationEnvironment": "Development",
   "resources": {
-    "hash": "sha256-YeOfKTARtZu002mKmXCeTT3CBrujBmNWjn1wgdFRTnY=",
+    "hash": "sha256-Lc1Sw0heYbaPtg9RnIHhg/Fhluiqm93VlcYhmm3sFWs=",
     "jsModuleNative": [
       {
         "name": "dotnet.native.69poregybn.js"
@@ -1242,16 +1242,16 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
       },
       {
         "virtualPath": "SBLNews.Client.wasm",
-        "name": "SBLNews.Client.neqahfu411.wasm",
-        "integrity": "sha256-L9EMriThqCxcBNfwXK52D2aYWFnH6Lvo1qQvwnQK5uE=",
+        "name": "SBLNews.Client.nu1lc1dync.wasm",
+        "integrity": "sha256-n3x8Xkwu2y11g6BHcblKFOK5ZOjtipHcz/r7DHMQ6rw=",
         "cache": "force-cache"
       }
     ],
     "pdb": [
       {
         "virtualPath": "SBLNews.Client.pdb",
-        "name": "SBLNews.Client.kqcfrxd2ur.pdb",
-        "integrity": "sha256-xKKngw8ecR+3J9ZmsFa4/Us1VV1oD7oIXYRtSyuhnVk=",
+        "name": "SBLNews.Client.c0y2prdq3s.pdb",
+        "integrity": "sha256-VJIETpAGMO/IgVcbuvxWo8rDyuvUIMNVnIoZie/8Sh8=",
         "cache": "force-cache"
       }
     ],

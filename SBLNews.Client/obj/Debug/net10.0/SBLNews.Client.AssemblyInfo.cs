@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SBLNews.Client")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f1c3340f6a0eab5d3014955d22cdee3ed850643f")]
 [assembly: System.Reflection.AssemblyProductAttribute("SBLNews.Client")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SBLNews.Client")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -207,8 +207,6 @@ C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\
 C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\icudt_CJK.tjcz0u77k5.dat
 C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\icudt_EFIGS.tptq2av103.dat
 C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\icudt_no_CJK.lfu7j35m59.dat
-C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\SBLNews.Client.neqahfu411.wasm
-C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\SBLNews.Client.kqcfrxd2ur.pdb
 C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\dotnet.js
 C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\blazor.webassembly.js.gz
 C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\Microsoft.AspNetCore.Authorization.3ur142rhlk.wasm.gz
@@ -418,8 +416,6 @@ C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\
 C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\icudt_CJK.tjcz0u77k5.dat.gz
 C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\icudt_EFIGS.tptq2av103.dat.gz
 C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\icudt_no_CJK.lfu7j35m59.dat.gz
-C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\SBLNews.Client.neqahfu411.wasm.gz
-C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\SBLNews.Client.kqcfrxd2ur.pdb.gz
 C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\dotnet.js.gz
 C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\SBLNews.Client.staticwebassets.runtime.json
 C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\SBLNews.Client.staticwebassets.endpoints.json
@@ -1059,9 +1055,6 @@ C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\compressed\l8hj50on
 C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\compressed\os9zbjnhlw-{0}-tjcz0u77k5-tjcz0u77k5.gz
 C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\compressed\k8a9nehb5l-{0}-tptq2av103-tptq2av103.gz
 C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\compressed\c42tvuhvh5-{0}-lfu7j35m59-lfu7j35m59.gz
-C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\compressed\tilan7t7ur-{0}-neqahfu411-neqahfu411.gz
-C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\compressed\c5fl4rndja-{0}-kqcfrxd2ur-kqcfrxd2ur.gz
-C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\compressed\adt3k9ab84-{0}-tg6ubvj97p-tg6ubvj97p.gz
 C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\staticwebassets.build.json
 C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\staticwebassets.build.json.cache
 C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\staticwebassets.development.json
@@ -1072,3 +1065,11 @@ C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\SBLNews.Client.dll
 C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\refint\SBLNews.Client.dll
 C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\SBLNews.Client.pdb
 C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\ref\SBLNews.Client.dll
+C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\SBLNews.Client.nu1lc1dync.wasm
+C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\SBLNews.Client.c0y2prdq3s.pdb
+C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\SBLNews.Client.nu1lc1dync.wasm.gz
+C:\Users\allaxamana\SBLNews\SBLNews.Client\bin\Debug\net10.0\wwwroot\_framework\SBLNews.Client.c0y2prdq3s.pdb.gz
+C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\SBLNews.Client.sourcelink.json
+C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\compressed\tilan7t7ur-{0}-nu1lc1dync-nu1lc1dync.gz
+C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\compressed\c5fl4rndja-{0}-c0y2prdq3s-c0y2prdq3s.gz
+C:\Users\allaxamana\SBLNews\SBLNews.Client\obj\Debug\net10.0\compressed\adt3k9ab84-{0}-bk8c62lo4y-bk8c62lo4y.gz

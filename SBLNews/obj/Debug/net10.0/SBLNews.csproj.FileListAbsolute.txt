@@ -111,3 +111,4 @@ C:\Users\allaxamana\SBLNews\SBLNews\obj\Debug\net10.0\SBLNews.genruntimeconfig.c
 C:\Users\allaxamana\SBLNews\SBLNews\obj\Debug\net10.0\ref\SBLNews.dll
 C:\Users\allaxamana\SBLNews\SBLNews\obj\Debug\net10.0\compressed\mufootpfc6-{0}-ww8qn3on9i-ww8qn3on9i.gz
 C:\Users\allaxamana\SBLNews\SBLNews\obj\Debug\net10.0\compressed\90qdy79jxp-{0}-ww8qn3on9i-ww8qn3on9i.gz
+C:\Users\allaxamana\SBLNews\SBLNews\obj\Debug\net10.0\SBLNews.sourcelink.json
