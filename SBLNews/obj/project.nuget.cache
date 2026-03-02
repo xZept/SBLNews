@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "83vJp/j/Ctg=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\allaxamana\\SBLNews\\SBLNews\\SBLNews.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\allaxamana\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.3\\microsoft.aspnetcore.app.internal.assets.10.0.3.nupkg.sha512",
+    "C:\\Users\\allaxamana\\.nuget\\packages\\microsoft.aspnetcore.components.webassembly\\10.0.3\\microsoft.aspnetcore.components.webassembly.10.0.3.nupkg.sha512",
+    "C:\\Users\\allaxamana\\.nuget\\packages\\microsoft.aspnetcore.components.webassembly.server\\10.0.3\\microsoft.aspnetcore.components.webassembly.server.10.0.3.nupkg.sha512",
+    "C:\\Users\\allaxamana\\.nuget\\packages\\microsoft.dotnet.hotreload.webassembly.browser\\10.0.103\\microsoft.dotnet.hotreload.webassembly.browser.10.0.103.nupkg.sha512",
+    "C:\\Users\\allaxamana\\.nuget\\packages\\microsoft.jsinterop.webassembly\\10.0.3\\microsoft.jsinterop.webassembly.10.0.3.nupkg.sha512",
+    "C:\\Users\\allaxamana\\.nuget\\packages\\mudblazor\\9.0.0\\mudblazor.9.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

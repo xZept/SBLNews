@@ -1,0 +1,63 @@
+﻿@inherits LayoutComponentBase
+@using MudBlazor
+
+<MudThemeProvider Theme="@_sblTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="0" Style="background-color: var(--mud-palette-primary);">
+        <MudText Typo="Typo.h5" Class="mr-4" Style="font-weight: bold; color: white; display: flex; align-items: center;">
+            SBLNews
+        </MudText>
+
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <MudLink Href="#" Class="mx-2" Underline="Underline.None" Style="color: white; font-weight: 500;">new</MudLink>
+            <MudLink Href="#" Class="mx-2" Underline="Underline.None" Style="color: white; font-weight: 500;">past</MudLink>
+            <MudLink Href="#" Class="mx-2" Underline="Underline.None" Style="color: white; font-weight: 500;">comments</MudLink>
+            <MudLink Href="#" Class="mx-2" Underline="Underline.None" Style="color: white; font-weight: 500;">ask</MudLink>
+            <MudLink Href="#" Class="mx-2" Underline="Underline.None" Style="color: white; font-weight: 500;">show</MudLink>
+            <MudLink Href="#" Class="mx-2" Underline="Underline.None" Style="color: white; font-weight: 500;">submit</MudLink>
+        </MudHidden>
+
+        <MudSpacer />
+
+        <MudButton Variant="Variant.Filled" Style="background-color: white; color: var(--mud-palette-primary); font-weight: bold; text-transform: lowercase;">
+            login
+        </MudButton>
+    </MudAppBar>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Large" Class="pt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+<div class="page">
+
+    <main>
+        <div class="top-row px-4">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div>
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    private MudTheme _sblTheme = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#2563EB", 
+            Background = "#F8FAFC", 
+            AppbarBackground = "#2563EB",
+            TextPrimary = "#0F172A",
+            // Secondary color for upvote arrows, etc.
+            Secondary = "#64748B" 
+        }
+    };
+}
