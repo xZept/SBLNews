@@ -100,7 +100,7 @@ export function SecondaryCommentaryForm({
               onChange={(e) =>
                 setPlatform(e.target.value as CommentaryPlatformType)
               }
-              className="flex h-10 w-full rounded-md border-2 border-ink bg-surface px-3 py-2 font-sans text-sm text-ink shadow-[2px_2px_0px_#0F172A]"
+              className="flex h-10 w-full rounded-md border-2 border-border bg-surface px-3 py-2 font-sans text-sm text-ink shadow-control"
             >
               <option value="YouTube">YouTube</option>
               <option value="Podcast">Podcast</option>

@@ -143,3 +143,18 @@ Task: "T010 Create UserAvatar in web/src/components/profile/user-avatar.tsx"
 - [X] T031 Wire `AccountProfileProvider.setThemeLocalAndPersist()` in `web/src/components/layout/account-profile-provider.tsx` to persist theme changes through `updateThemePreferenceAction` (`web/src/lib/actions/profile.ts`) instead of direct browser `.from("profiles").update(...)` so theme toggles enforce Zod boundary validation and trigger `/profile` revalidation per FR-011 / contracts: 4.1 (`partial`)
 - [X] T032 Sync `AvatarUploadControl` in `web/src/components/profile/avatar-upload-control.tsx` with `useAccountProfile().profile?.display_name` (falling back to the `displayName` prop) so the initials preview on `/profile` updates immediately after saving a new display name without a full page reload per US2/AC2 / SC-002 (`partial`)
 - [X] T033 Update or retire exported `fetchIsAdmin()` in `web/src/components/layout/top-nav.tsx` (and update `web/tests/top-nav.test.ts`) so no helper queries the revoked `profiles.role` column directly instead of `supabase.rpc("get_my_account_profile")` per plan: column-level grants (`contradicts`)
+
+
+---
+
+## Phase 8: Convergence
+
+- [X] T034 CRITICAL: Replace hardcoded light-only `border-ink` and `shadow-[2px_2px_0px_#0F172A]` classes on the Platform `<select>` in `web/src/components/admin/secondary-commentary-form.tsx` (line 103) with tokenized `border-border` and `shadow-control` for Dark Theme compliance per Constitution III (`contradicts`)
+- [X] T035 CRITICAL: Fix Dark Theme contrast on the invalid-search-parameters error card in `web/src/app/search/page.tsx` (lines 221-243) by replacing `text-ink` on the `<h2>`, `<p>`, and `<ul>` children inside the pastel `bg-badge-abstract` `<Card>` with `text-accent-ink` (and `border-accent-ink` on the pastel card border) per Constitution III (`contradicts`)
+
+
+---
+
+## Phase 9: Convergence
+
+- [X] T036 CRITICAL: Replace hardcoded light-only `border-ink`, `shadow-[2px_2px_0px_#0F172A]`, and `hover:bg-accent` (missing `hover:text-accent-ink`) on the "Back to Research Feed" `<Link>` in `web/src/app/study/[id]/page.tsx` (line 62) with tokenized `border-border`, `shadow-control`, and `hover:bg-accent hover:text-accent-ink` for Dark Theme contrast compliance per Constitution III / FR-012 (`contradicts`)

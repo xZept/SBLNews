@@ -59,7 +59,7 @@ export default async function StudyDetailPage({ params }: StudyPageProps) {
       <div>
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 rounded-sm border-[1.5px] border-ink bg-surface px-3 py-1 font-mono text-xs font-semibold text-ink shadow-[2px_2px_0px_#0F172A] hover:bg-accent"
+          className="inline-flex items-center gap-1.5 rounded-sm border-[1.5px] border-border bg-surface px-3 py-1 font-mono text-xs font-semibold text-ink shadow-control hover:bg-accent hover:text-accent-ink"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>Back to Research Feed</span>

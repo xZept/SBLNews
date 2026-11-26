@@ -220,22 +220,22 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       {validationErrors.length > 0 ? (
         <Card
           role="alert"
-          className="border-2 border-border bg-badge-abstract p-6 text-accent-ink"
+          className="border-2 border-accent-ink bg-badge-abstract p-6 text-accent-ink"
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 shrink-0" aria-hidden="true" />
-                <h2 className="font-display text-lg font-bold text-ink">
+                <h2 className="font-display text-lg font-bold text-accent-ink">
                   Invalid search parameters
                 </h2>
               </div>
-              <p className="max-w-[65ch] text-sm text-ink">
+              <p className="max-w-[65ch] text-sm text-accent-ink">
                 Your search could not be executed because one or more query or
                 filter values are invalid. Reset filters or adjust your inputs
                 and try again.
               </p>
-              <ul className="list-disc space-y-1 pl-5 font-mono text-xs text-ink">
+              <ul className="list-disc space-y-1 pl-5 font-mono text-xs text-accent-ink">
                 {validationErrors.map((err, idx) => (
                   <li key={idx}>{err}</li>
                 ))}
