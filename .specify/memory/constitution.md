@@ -1,16 +1,14 @@
 <!--
 Sync Impact Report
-- Version change: N/A (uninitialized template) -> 1.0.0
+- Version change: 1.0.1 -> 1.1.0
 - Modified principles:
-  - Template Principle 1 -> I. Architecture & $0/Month Free-Tier First (NON-NEGOTIABLE)
-  - Template Principle 2 -> II. Scientific Integrity & Deterministic AI Pipeline (NON-NEGOTIABLE)
-  - Template Principle 3 -> III. Neo-Brutalist Sky Blue Design System (NON-NEGOTIABLE)
-  - Template Principle 4 -> IV. Performance, Egress & Security Guardrails (NON-NEGOTIABLE)
-  - Template Principle 5 -> V. Scoped MVP Route Discipline
+  - I. Architecture & $0/Month Free-Tier First -> I. Architecture & $0/Month Free-Tier First (added Supabase Storage free-tier avatar bucket constraint)
+  - III. Neo-Brutalist Sky Blue Design System -> III. Neo-Brutalist Sky Blue Design System (codified opt-in Neo-Brutalist Dark Theme tokens while preserving Light Mode as the mandatory default)
+  - IV. Performance, Egress & Security Guardrails -> IV. Performance, Egress & Security Guardrails (added avatar thumbnail size/egress limits and profile/storage RLS rules)
+  - V. Scoped MVP Route Discipline -> V. Scoped Route Discipline (expanded approved route inventory from 6 to 8 routes by adding `/profile` and `/profile/[id]` for Option C)
 - Added sections:
-  - Principle VI. Verification & Deterministic Code Quality (NON-NEGOTIABLE)
-  - Stack, Design Token & Route Reference (populated template Section 2)
-  - Development Workflow & Quality Gates (populated template Section 3)
+  - Approved routes `/profile` (Authenticated User Profile & Account Settings) and `/profile/[id]` (Public Commenter Profile View) under Principle V
+  - Opt-in Neo-Brutalist Dark Theme token row in Stack, Design Token & Route Reference
 - Removed sections: None
 - Templates requiring updates:
   - ✅ .specify/templates/plan-template.md (aligned; Constitution Check consumes this file dynamically)
@@ -28,7 +26,7 @@ SBL News MUST operate as a sustainable $0/month hobby-tier system with clean wor
 
 - **Monorepo Separation**: The repository MUST cleanly isolate the web application (`/web`) and the automated research ingestion worker (`/pipeline`) within a single monorepo.
 - **Web Application (`/web`)**: `/web` MUST use Next.js (App Router, TypeScript `strict: true`), Tailwind CSS v4, and shadcn/ui deployed on Vercel Hobby ($0/month). Public feeds (`/`) and training guidelines (`/guidelines`) MUST use Incremental Static Regeneration (ISR) so public reads remain fast and NEVER block on serverless or external cold starts.
-- **Database & Authentication**: Persistence and search MUST run on Supabase Free ($0/month) using PostgreSQL with `pgvector` for semantic search. Every database schema or policy change MUST be authored and versioned via Git-first SQL migrations. User authentication MUST use OAuth (Google and GitHub) via Supabase Auth and MUST NOT rely on Supabase's built-in email mailer for user signups.
+- **Database, Storage & Authentication**: Persistence, search, and avatar object storage MUST run on Supabase Free ($0/month) using PostgreSQL with `pgvector` for semantic search and Supabase Storage for compact user avatar thumbnails. Every database schema, storage bucket, or policy change MUST be authored and versioned via Git-first SQL migrations. User authentication MUST use OAuth (Google and GitHub) via Supabase Auth and MUST NOT rely on Supabase's built-in email mailer for user signups.
 - **Scheduled Ingestion Worker (`/pipeline`)**: Daily literature ingestion MUST be implemented in Python with Pydantic and executed via GitHub Actions scheduled cron ($0/month). Ingestion MUST NOT require an always-on backend server.
 - **AI Extraction & Decoupled RAG**: Structured extraction and embedding generation MUST use the Google Gemini API Free Tier (`gemini-3.5-flash-lite` plus Gemini embeddings). Any future on-demand RAG or FastAPI service hosted on Render Free MUST be strictly decoupled from the main feed (`/`) and guidelines (`/guidelines`) pages so cold starts or service unavailability NEVER degrade core browsing.
 - **Stack & Dependency Discipline**: Specifications, plans, and implementations MUST NOT introduce paid third-party services, ORMs, or extra UI component libraries outside this defined stack without explicit owner approval and a formal constitution amendment.
@@ -50,40 +48,45 @@ Evidence synthesis and feed curation MUST ground every claim in peer-reviewed pr
 
 Every screen in `/web` MUST implement the high-contrast Neo-Brutalist Sky Blue visual language (combining Hugging Face Daily Papers feed density with Examine evidence organization) and reject generic AI styling patterns:
 
-- **Anti-Vibecoding & Anti-Purple Guardrails**: The UI MUST NOT use purple, violet, or indigo hues (even where Examine uses purple), color gradients, mesh backgrounds, glassmorphism (`backdrop-blur`), blurry drop-shadows, or dark-mode-by-default themes.
+- **Anti-Vibecoding & Anti-Purple Guardrails**: The UI MUST NOT use purple, violet, or indigo hues (even where Examine uses purple), color gradients, mesh backgrounds, glassmorphism (`backdrop-blur`), blurry drop-shadows, or dark-mode-by-default themes. Light Mode MUST always be the default theme for new and unauthenticated visitors, while an opt-in user-selectable Neo-Brutalist Dark Theme is supported via the top-right account menu and `/profile` settings.
 - **Tailwind CSS v4 Namespace Reset**: `/web` (`globals.css`) MUST clear default Tailwind color namespaces (`--color-*: initial;` inside `@theme`) so only explicitly defined Neo-Brutalist Sky Blue tokens exist as utility classes.
 - **Primitive-Level shadcn/ui Overrides**: Default shadcn/ui soft borders, rings, and diffused shadows MUST be overridden directly at the primitive component level (`Card`, `Badge`, `Button`, `Input`, `Tabs`) so no unstyled default primitives appear anywhere in the app.
-- **Color Tokens**: Page canvas MUST use `#F8FAFC`; card and container surfaces MUST use `#FFFFFF`; primary accent (active tabs, primary CTAs, active upvote state) MUST use `#38BDF8` (Sky Blue) paired with `#0F172A` ink text; primary ink and structural borders MUST use `#0F172A`; muted secondary text MUST use `#475569`. Semantic evidence badges MUST use `1.5px solid #0F172A` borders, `JetBrains Mono` text, and solid pastel fills: Meta-Analysis / Systematic Review `#A7F3D0`, RCT (>=8 weeks, Human) `#BAE6FD`, Trained Population `#FDE68A`, Open-Access Full Text `#BBF7D0`, and Abstract-Only Warning `#FED7AA`.
-- **Borders, Corners & Hard Elevation**: Cards, filter bars, inputs, and buttons MUST render `2px solid #0F172A` borders. Primary cards MUST use hard zero-blur offset shadows (`4px 4px 0px #0F172A`); buttons and filter pills MUST use `2px 2px 0px #0F172A` with a `translate(2px, 2px)` active press state. Corner radii MUST NOT exceed `rounded-md` (`6px`) on cards/containers and `rounded-sm` (`4px`) on metadata badges—NEVER `rounded-2xl` or pill-shaped cards.
-- **Typography**: Headings and brand wordmark MUST use `Space Grotesk` (`700`/`800` weight, tight tracking). Body copy and study takeaways MUST use `Inter` capped at a `65ch-75ch` line measure. Study metrics and counts (`n=42`, `10w`, `p<0.05`, upvote counts, dates) MUST use `JetBrains Mono`.
+- **Color Tokens**:
+  - **Default Light Theme**: Page canvas MUST use `#F8FAFC`; card and container surfaces MUST use `#FFFFFF`; primary accent (active tabs, primary CTAs, active upvote state) MUST use `#38BDF8` (Sky Blue) paired with `#0F172A` ink text; primary ink and structural borders MUST use `#0F172A`; muted secondary text MUST use `#475569`.
+  - **Opt-In Neo-Brutalist Dark Theme (`[data-theme="dark"]`)**: Page canvas MUST use `#0B1120`; card and container surfaces MUST use `#1E293B`; primary ink MUST use `#F8FAFC`; muted secondary text MUST use `#94A3B8`; primary accent MUST remain `#38BDF8` (Sky Blue) paired with `#0F172A` ink text; structural borders and hard offset shadows MUST use high-contrast `#38BDF8` or `#E2E8F0` (`#020617` shadow offset) with zero blur and zero purple/violet/indigo hues.
+  - **Semantic Evidence & Transparency Badges**: MUST use `1.5px solid #0F172A` borders, `#0F172A` dark ink text, `JetBrains Mono` font, and solid pastel fills in both themes: Meta-Analysis / Systematic Review `#A7F3D0`, RCT (>=8 weeks, Human) `#BAE6FD`, Trained Population `#FDE68A`, Open-Access Full Text `#BBF7D0`, and Abstract-Only Warning `#FED7AA`.
+- **Borders, Corners & Hard Elevation**: Cards, filter bars, popovers, inputs, and buttons MUST render `2px solid` structural borders (`var(--color-border)`). Primary cards MUST use hard zero-blur offset shadows (`var(--shadow-card)`); buttons, avatars, and filter pills MUST use `var(--shadow-control)` with a `translate(2px, 2px)` active press state. Corner radii MUST NOT exceed `rounded-md` (`6px`) on cards/containers and `rounded-sm` (`4px`) on metadata badges—NEVER `rounded-2xl` or pill-shaped cards.
+- **Typography**: Headings and brand wordmark MUST use `Space Grotesk` (`700`/`800` weight, tight tracking). Body copy and study takeaways MUST use `Inter` capped at a `65ch-75ch` line measure. Study metrics and counts (`n=42`, `10w`, `p<0.05`, upvote counts, dates, avatar initials) MUST use `JetBrains Mono`.
 - **Hybrid Page Layout Geometry**:
-  - **Main Feed (`/`)**: MUST follow the Hugging Face Daily Papers layout in a light Neo-Brutalist skin—opening directly into a sticky top filter/search bar (`Daily | Weekly | Top` tabs plus study-type filter pills) with NO marketing hero banner. Studies MUST render as high-contrast cards with a left upvote column, bold title, journal/year, monospace metadata badges, a concise 2-sentence takeaway, and direct `Discussion` plus `PubMed/DOI` actions.
+  - **Main Feed (`/`)**: MUST follow the Hugging Face Daily Papers layout in a Neo-Brutalist skin—opening directly into a sticky top filter/search bar (`Daily | Weekly | Top` tabs plus study-type filter pills) with NO marketing hero banner. Studies MUST render as high-contrast cards with a left upvote column, bold title, journal/year, monospace metadata badges, a concise 2-sentence takeaway, and direct `Discussion` plus `PubMed/DOI` actions.
   - **Training Guidelines (`/guidelines`)**: MUST follow the Examine information architecture in a Neo-Brutalist skin—rendering a top 3-column grid of core evidence hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*) followed by a 4-column indexed directory of specific training variables (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Protein Intake*), each displaying an evidence grade badge and anchor meta-analysis citations.
 
-**Rationale**: Locking tokens at the CSS `@theme` and primitive component layers enforces unmistakable editorial clarity, accessible contrast, and zero drift into generic AI aesthetics.
+**Rationale**: Locking tokens at the CSS `@theme` and primitive component layers enforces unmistakable editorial clarity, accessible contrast across default light and opt-in dark themes, and zero drift into generic AI aesthetics.
 
 ### IV. Performance, Egress & Security Guardrails (NON-NEGOTIABLE)
 
-All database queries, API routes, and mutations MUST defend free-tier bandwidth quotas and enforce defense-in-depth access control:
+All database queries, storage uploads, API routes, and mutations MUST defend free-tier bandwidth quotas and enforce defense-in-depth access control:
 
-- **Egress Protection**: List, feed, and search endpoints MUST NEVER execute `SELECT *`. Queries MUST explicitly project only required summary columns and MUST exclude raw abstracts, full-text payloads, and `pgvector` embedding vectors from feed/list queries to stay well within Supabase Free's 5 GB monthly egress cap.
-- **Row-Level Security & RBAC**: PostgreSQL Row-Level Security (RLS) MUST be enabled on all tables. Unauthenticated public users MUST have read-only access restricted to published studies and guidelines; authenticated users MUST have scoped write access limited to their own comments and votes. All moderation, study approval, and guideline publishing routes (`/admin/review`) MUST enforce strict server-side Role-Based Access Control (RBAC) alongside RLS policies.
-- **Boundary Input Validation**: Every external API boundary, route handler, server action, and ingestion interface MUST validate inputs at runtime using Zod in TypeScript (`/web`) and Pydantic in Python (`/pipeline`).
+- **Egress & Storage Protection**: List, feed, search, and profile activity endpoints MUST NEVER execute `SELECT *`. Queries MUST explicitly project only required summary columns and MUST exclude raw abstracts, full-text payloads, and `pgvector` embedding vectors from feed/list/profile queries to stay well within Supabase Free's 5 GB monthly egress cap. User-uploaded profile photos MUST be downscaled client-side to compact square thumbnails (`<= 256x256` WebP/JPEG, max `200 KB`) and stored in a size- and MIME-restricted Supabase Storage bucket (`<= 500 KB` hard bucket limit) so avatar storage and delivery stay well within the 1 GB storage and 5 GB egress limits.
+- **Row-Level Security & RBAC**: PostgreSQL Row-Level Security (RLS) MUST be enabled on all tables and storage buckets. Unauthenticated public users MUST have read-only access restricted to published studies, published guidelines, public comments, and public profile fields (`display_name`, `avatar_url`, community role tag, bio); authenticated users MUST have scoped write access limited to their own profile row (`public.profiles`), their own avatar storage objects (`avatars/{user_id}/*`), and their own comments and votes. Private account metadata (such as email or internal preferences) MUST NOT be exposed on public profile views (`/profile/[id]`). All moderation, study approval, and guideline publishing routes (`/admin/review`) MUST enforce strict server-side Role-Based Access Control (RBAC) alongside RLS policies.
+- **Boundary Input Validation**: Every external API boundary, route handler, server action, profile update, and ingestion interface MUST validate inputs at runtime using Zod in TypeScript (`/web`) and Pydantic in Python (`/pipeline`).
 
-**Rationale**: Explicit column projection prevents vector/text egress exhaustion, while layered RLS + server-side RBAC + schema validation eliminates privilege escalation and malformed state.
+**Rationale**: Explicit column projection and thumbnail compression prevent vector/text/image egress exhaustion, while layered RLS + server-side RBAC + schema validation eliminates privilege escalation and malformed state.
 
-### V. Scoped MVP Route Discipline
+### V. Scoped Route Discipline
 
-Initial product specifications, implementation plans, and task breakdowns MUST confine application surface area to the 6 core MVP routes:
+Product specifications, implementation plans, and task breakdowns MUST confine application surface area to the 8 approved routes:
 
 - **`/` (Main Research Feed)**: `Daily` / `Weekly` / `Top` tabs, structured Neo-Brutalist study cards, and deterministic badge filters.
-- **`/study/[id]` (Study Detail & Discussion)**: Structured AI metadata breakdown, `Full-Text` vs. `Abstract-Only` transparency badge, primary `PubMed/DOI` link, optional secondary creator video links, and nested discussion thread.
+- **`/study/[id]` (Study Detail & Discussion)**: Structured AI metadata breakdown, `Full-Text` vs. `Abstract-Only` transparency badge, primary `PubMed/DOI` link, optional secondary creator video links, and nested discussion thread with clickable commenter avatars/names linking to `/profile/[id]`.
 - **`/guidelines` (Living Evidence Matrix)**: Practical training guidelines organized into the 3-column hub grid and 4-column variable directory with evidence strength grades, anchor meta-analyses, and last-updated changelog.
 - **`/search` (Hybrid Search)**: Hybrid keyword + `pgvector` semantic search paired with deterministic SQL filters (study type, minimum duration in weeks, training status).
 - **`/methodology` (Transparency Hub)**: Static documentation of primary literature ingestion sources, deterministic scoring rubric, inspection-level rules, and HITL guideline governance.
 - **`/admin/review` (Moderation & Drift Queue)**: Server-side RBAC-protected queue for approving ingested studies and reviewing `Consensus Drift` alerts.
+- **`/profile` (Authenticated User Profile & Account Settings)**: Dedicated profile and account management route reached from the top-right account menu bubble where signed-in users manage their profile photo (with 2-letter name initials fallback), display name, training/professional role tag, short bio/credentials, theme preference (`Light` / `Dark`), and upvoted study / comment activity history.
+- **`/profile/[id]` (Public Commenter Profile View)**: Read-only public profile route reached by clicking a commenter's name or avatar in study discussions, displaying their public avatar (or initials badge), display name, training/professional role badge, bio/credentials, and public comment history.
 
-**Rationale**: Enforcing a strict 6-route boundary prevents scope creep and ensures every core scientific discovery and review workflow ships complete and verified.
+**Rationale**: Enforcing an explicit 8-route boundary prevents uncontrolled route sprawl while giving signed-in users and community readers dedicated, well-scoped surfaces for profile customization and commenter context.
 
 ### VI. Verification & Deterministic Code Quality (NON-NEGOTIABLE)
 
@@ -101,35 +104,36 @@ No specification, task, or pull request may be marked complete without objective
 |-------|-----------------|--------------|----------------|
 | Monorepo Layout | `/web` + `/pipeline` | $0 | Strict workspace boundary; no coupled runtime |
 | Frontend (`/web`) | Next.js App Router, TS Strict, Tailwind v4, shadcn/ui | $0 (Vercel Hobby) | ISR for `/` and `/guidelines`; no ORMs or extra UI libs |
-| Database & Auth | Supabase PostgreSQL + `pgvector` + OAuth (Google/GitHub) | $0 (Supabase Free) | Git-first SQL migrations; RLS on all tables; no built-in email signup mailer |
+| Database, Storage & Auth | Supabase PostgreSQL + `pgvector` + Storage + OAuth (Google/GitHub) | $0 (Supabase Free) | Git-first SQL migrations; RLS on all tables & `avatars` bucket; no built-in email signup mailer |
 | Ingestion (`/pipeline`) | Python + Pydantic on GitHub Actions Cron | $0 | Scheduled batch only; no always-on worker server |
 | AI Layer | Gemini API Free Tier (`gemini-3.5-flash-lite` + embeddings) | $0 | Structured extraction only; optional Render Free RAG strictly decoupled |
 
 | Token Category | Token Role | Normative Value |
 |----------------|------------|-----------------|
-| Surface | Page Canvas / Card Surface | `#F8FAFC` / `#FFFFFF` |
-| Ink & Accent | Primary Ink & Borders / Sky Blue Accent / Muted Text | `#0F172A` / `#38BDF8` (with `#0F172A` text) / `#475569` |
-| Evidence Badges | Meta-Analysis / >=8w Human RCT / Trained Pop. | `#A7F3D0` / `#BAE6FD` / `#FDE68A` (`1.5px solid #0F172A`, `JetBrains Mono`) |
-| Transparency Badges | Open-Access Full Text / Abstract-Only Warning | `#BBF7D0` / `#FED7AA` (`1.5px solid #0F172A`, `JetBrains Mono`) |
-| Geometry | Borders / Card Shadow / Control Shadow & Active Press | `2px solid #0F172A` / `4px 4px 0px #0F172A` / `2px 2px 0px #0F172A` + `translate(2px, 2px)` |
+| Surface (Default Light) | Page Canvas / Card Surface | `#F8FAFC` / `#FFFFFF` |
+| Ink & Accent (Default Light) | Primary Ink & Borders / Sky Blue Accent / Muted Text | `#0F172A` / `#38BDF8` (with `#0F172A` text) / `#475569` |
+| Surface & Ink (Opt-In Dark) | Page Canvas / Card Surface / Primary Ink / Border / Muted Text | `#0B1120` / `#1E293B` / `#F8FAFC` / `#E2E8F0` / `#94A3B8` (Accent remains `#38BDF8` with `#0F172A` text) |
+| Evidence Badges | Meta-Analysis / >=8w Human RCT / Trained Pop. | `#A7F3D0` / `#BAE6FD` / `#FDE68A` (`1.5px solid #0F172A`, `#0F172A` text, `JetBrains Mono`) |
+| Transparency Badges | Open-Access Full Text / Abstract-Only Warning | `#BBF7D0` / `#FED7AA` (`1.5px solid #0F172A`, `#0F172A` text, `JetBrains Mono`) |
+| Geometry | Borders / Card Shadow / Control Shadow & Active Press | `2px solid var(--color-border)` / `4px 4px 0px` hard offset / `2px 2px 0px` hard offset + `translate(2px, 2px)` |
 | Radii & Fonts | Max Radius (Card / Badge) / Headings / Body / Metrics | `6px` (`rounded-md`) / `4px` (`rounded-sm`) / `Space Grotesk` / `Inter` (`65ch-75ch`) / `JetBrains Mono` |
 
 ## Development Workflow & Quality Gates
 
-1. **Constitution Check Gate**: Every `/speckit-plan` artifact MUST evaluate compliance against Principles I-VI before Phase 0 research and again after Phase 1 design. Any proposed deviation (paid service, ORM, additional route, non-token color, or `SELECT *` feed query) MUST be rejected or halted pending a constitution amendment.
-2. **Database & Migration Workflow**: Schema updates, indexes, `pgvector` functions, and RLS policies MUST be committed as sequential SQL migration files before dependent `/web` or `/pipeline` code merges.
+1. **Constitution Check Gate**: Every `/speckit-plan` artifact MUST evaluate compliance against Principles I-VI before Phase 0 research and again after Phase 1 design. Any proposed deviation (paid service, ORM, unapproved route outside the 8 defined routes, non-token color, or `SELECT *` feed/profile query) MUST be rejected or halted pending a constitution amendment.
+2. **Database & Migration Workflow**: Schema updates, storage bucket definitions, indexes, `pgvector` functions, and RLS policies MUST be committed as sequential SQL migration files before dependent `/web` or `/pipeline` code merges.
 3. **Editorial & HITL Safety**: `/pipeline` jobs write newly extracted studies in a pending/staged state or deterministic publish threshold per spec, and MUST route all guideline-matching systematic reviews/meta-analyses exclusively to `/admin/review` as `Consensus Drift` alerts—never mutating published `/guidelines` rows directly.
-4. **Definition of Done**: A task or PR is complete ONLY when acceptance criteria are verified, `tsc --noEmit` and linting pass in `/web`, `pytest` unit/schema tests pass for deterministic scoring in `/pipeline`, and UI components pass visual inspection against Principle III anti-vibecoding and anti-purple rules.
+4. **Definition of Done**: A task or PR is complete ONLY when acceptance criteria are verified, `tsc --noEmit` and linting pass in `/web`, `pytest` unit/schema tests pass for deterministic scoring in `/pipeline`, and UI components pass visual inspection against Principle III anti-vibecoding and anti-purple rules across both default light and opt-in dark themes.
 
 ## Governance
 
 This Constitution is the supreme technical, scientific, and design authority for SBL News and supersedes conflicting conventions, third-party defaults, or ad-hoc implementation shortcuts.
 
-- **Amendment Procedure**: Any change to stack components, free-tier budgets, evidence-scoring rules, Neo-Brutalist Sky Blue tokens, or MVP route scope MUST be proposed via an explicit amendment updating `.specify/memory/constitution.md`, accompanied by rationale, impact assessment across `/web` and `/pipeline`, and project owner approval prior to implementation.
+- **Amendment Procedure**: Any change to stack components, free-tier budgets, evidence-scoring rules, Neo-Brutalist Sky Blue tokens, or approved route scope MUST be proposed via an explicit amendment updating `.specify/memory/constitution.md`, accompanied by rationale, impact assessment across `/web` and `/pipeline`, and project owner approval prior to implementation.
 - **Versioning Policy**: Constitution versions follow Semantic Versioning (`MAJOR.MINOR.PATCH`):
   - `MAJOR`: Backward-incompatible removals or redefinitions of non-negotiable architectural, scientific, security, or design-system principles.
   - `MINOR`: Addition of a new principle, new approved post-MVP route/capability, or material expansion of governance guidance.
   - `PATCH`: Wording clarifications, formatting improvements, or non-semantic refinements.
 - **Compliance Review**: Every specification (`/speckit-specify`), plan (`/speckit-plan`), task list (`/speckit-tasks`), consistency audit (`/speckit-analyze`), and code review (`/speckit-implement`) MUST verify strict adherence to all six core principles.
 
-**Version**: 1.0.1 | **Ratified**: 2026-11-26 | **Last Amended**: 2026-11-26
+**Version**: 1.1.0 | **Ratified**: 2026-11-26 | **Last Amended**: 2026-11-26
