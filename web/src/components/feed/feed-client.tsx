@@ -3,6 +3,7 @@
 import * as React from "react";
 import { FilterBar } from "@/components/feed/filter-bar";
 import { StudyCard } from "@/components/feed/study-card";
+import { BrandLogo } from "@/components/layout/brand-logo";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import type { StudyDesignType, StudySummary } from "@/lib/queries/projections";
@@ -107,6 +108,9 @@ export function FeedClient({ initialStudies }: FeedClientProps) {
 
       {filteredAndSorted.length === 0 ? (
         <div className="rounded-md border-2 border-ink bg-surface p-8 text-center shadow-[4px_4px_0px_#0F172A]">
+          <div className="mb-3 flex justify-center">
+            <BrandLogo size="md" />
+          </div>
           <h2 className="font-display text-lg font-bold text-ink">
             No matching studies found
           </h2>

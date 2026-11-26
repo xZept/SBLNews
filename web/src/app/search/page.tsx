@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AlertTriangle, Search, RotateCcw } from "lucide-react";
+import { BrandLogo } from "@/components/layout/brand-logo";
 import { StudyCard } from "@/components/feed/study-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -250,6 +251,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </Card>
       ) : results.length === 0 ? (
         <Card className="p-8 text-center">
+          <div className="mb-3 flex justify-center">
+            <BrandLogo size="md" />
+          </div>
           <h2 className="font-display text-lg font-bold text-ink">
             No matching studies found
           </h2>

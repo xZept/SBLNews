@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { LogOut, Search, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { BrandLogo } from "@/components/layout/brand-logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -79,9 +80,7 @@ export function TopNav() {
             href="/"
             className="flex items-center gap-2 font-display text-xl font-extrabold tracking-tight text-ink"
           >
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-sm border-2 border-ink bg-accent font-mono text-xs font-bold text-ink shadow-[2px_2px_0px_#0F172A]">
-              SBL
-            </span>
+            <BrandLogo size="sm" />
             <span>SBL News</span>
           </Link>
 

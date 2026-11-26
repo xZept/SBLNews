@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BrandLogo } from "@/components/layout/brand-logo";
 import { Badge } from "@/components/ui/badge";
 import { HubGrid } from "@/components/guidelines/hub-grid";
 import { VariableDirectory } from "@/components/guidelines/variable-directory";
@@ -22,9 +23,12 @@ export default async function GuidelinesPage() {
           <Badge variant="accent">LIVING EVIDENCE MATRIX</Badge>
           <Badge variant="meta">HITL VERIFIED</Badge>
         </div>
-        <h1 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-          Training Guidelines
-        </h1>
+        <div className="flex items-center gap-3">
+          <BrandLogo size="md" />
+          <h1 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+            Training Guidelines
+          </h1>
+        </div>
         <p className="max-w-[70ch] text-base leading-relaxed text-muted">
           Practical resistance-training recommendations synthesized from
           peer-reviewed meta-analyses and long-term human trials. Automated

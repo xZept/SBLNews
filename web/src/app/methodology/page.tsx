@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/layout/brand-logo";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
@@ -69,7 +70,8 @@ export default function MethodologyPage() {
   return (
     <div className="space-y-8">
       <header className="space-y-2 border-b-2 border-ink pb-4">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
+          <BrandLogo size="lg" />
           <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
             Methodology &amp; Transparency Standards
           </h1>
