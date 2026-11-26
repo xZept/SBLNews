@@ -1,5 +1,5 @@
 import os
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class PipelineSettings(BaseModel):
@@ -7,7 +7,16 @@ class PipelineSettings(BaseModel):
     supabase_service_role_key: str | None = Field(default=None)
     gemini_api_key: str | None = Field(default=None)
     pubmed_email: str = Field(default="sblnews-pipeline@example.com")
+    ncbi_api_key: str | None = Field(default=None)
     openalex_mailto: str = Field(default="sblnews-pipeline@example.com")
+
+    @field_validator("ncbi_api_key", mode="before")
+    @classmethod
+    def _empty_str_to_none(cls, value: str | None) -> str | None:
+        if isinstance(value, str):
+            stripped = value.strip()
+            return stripped if stripped else None
+        return value
 
 
 def load_settings(require_secrets: bool = True) -> PipelineSettings:
@@ -16,6 +25,7 @@ def load_settings(require_secrets: bool = True) -> PipelineSettings:
         supabase_service_role_key=os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or None,
         gemini_api_key=os.environ.get("GEMINI_API_KEY") or None,
         pubmed_email=os.environ.get("PUBMED_EMAIL") or "sblnews-pipeline@example.com",
+        ncbi_api_key=os.environ.get("NCBI_API_KEY") or None,
         openalex_mailto=os.environ.get("OPENALEX_MAILTO") or "sblnews-pipeline@example.com",
     )
 

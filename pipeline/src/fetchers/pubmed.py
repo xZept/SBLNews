@@ -1,5 +1,7 @@
 from datetime import date, datetime, timedelta, timezone
 import logging
+import re
+import time
 import xml.etree.ElementTree as ET
 import httpx
 
@@ -8,6 +10,8 @@ from src.models import MIN_FULL_TEXT_CHARS, RawLiteratureRecord
 logger = logging.getLogger(__name__)
 
 EUTILS_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+RATE_LIMIT_WITH_API_KEY = 0.11
+RATE_LIMIT_WITHOUT_API_KEY = 0.35
 PUBMED_QUERY = (
     '("resistance training"[Title/Abstract] OR "strength training"[Title/Abstract] '
     'OR "muscle hypertrophy"[Title/Abstract]) AND (hypertrophy OR strength OR volume OR protein)'
@@ -45,19 +49,49 @@ def _parse_pub_date(article: ET.Element) -> date:
     return date(year, month, day)
 
 
+def _normalize_api_key(api_key: str | None) -> str | None:
+    if isinstance(api_key, str):
+        stripped = api_key.strip()
+        return stripped if stripped else None
+    return None
+
+
+def _build_eutils_params(
+    email: str, api_key: str | None = None, **extra: str | int
+) -> dict[str, str | int]:
+    params: dict[str, str | int] = {
+        **extra,
+        "tool": "sbl-news",
+        "email": email,
+    }
+    if api_key:
+        params["api_key"] = api_key
+    return params
+
+
+def _sanitize_error_message(exc: Exception, api_key: str | None = None) -> str:
+    msg = re.sub(r"(api_key=)[^&\s'\"]+", r"\1[REDACTED]", str(exc))
+    if api_key:
+        msg = msg.replace(api_key, "[REDACTED]")
+    return msg
+
+
 def _fetch_pmc_full_text(
-    client: httpx.Client, pmc_id: str, email: str
+    client: httpx.Client,
+    pmc_id: str,
+    email: str,
+    api_key: str | None = None,
 ) -> str | None:
     try:
         resp = client.get(
             f"{EUTILS_BASE}/efetch.fcgi",
-            params={
-                "db": "pmc",
-                "id": pmc_id,
-                "retmode": "xml",
-                "tool": "sbl-news",
-                "email": email,
-            },
+            params=_build_eutils_params(
+                email=email,
+                api_key=api_key,
+                db="pmc",
+                id=pmc_id,
+                retmode="xml",
+            ),
         )
         resp.raise_for_status()
         root = ET.fromstring(resp.text)
@@ -68,7 +102,11 @@ def _fetch_pmc_full_text(
         if len(combined) >= MIN_FULL_TEXT_CHARS:
             return combined
     except Exception as exc:
-        logger.debug("PMC full-text fetch failed for %s: %s", pmc_id, exc)
+        logger.debug(
+            "PMC full-text fetch failed for %s: %s",
+            pmc_id,
+            _sanitize_error_message(exc, api_key),
+        )
     return None
 
 
@@ -76,9 +114,14 @@ def fetch_pubmed_records(
     lookback_days: int = 3,
     max_papers: int = 15,
     email: str = "sblnews-pipeline@example.com",
+    api_key: str | None = None,
 ) -> list[RawLiteratureRecord]:
     since = (datetime.now(timezone.utc).date() - timedelta(days=lookback_days)).strftime(
         "%Y/%m/%d"
+    )
+    normalized_api_key = _normalize_api_key(api_key)
+    rate_limit_delay = (
+        RATE_LIMIT_WITH_API_KEY if normalized_api_key else RATE_LIMIT_WITHOUT_API_KEY
     )
     records: list[RawLiteratureRecord] = []
 
@@ -86,31 +129,32 @@ def fetch_pubmed_records(
         with httpx.Client(timeout=20.0) as client:
             search_resp = client.get(
                 f"{EUTILS_BASE}/esearch.fcgi",
-                params={
-                    "db": "pubmed",
-                    "term": PUBMED_QUERY,
-                    "retmax": max_papers,
-                    "retmode": "json",
-                    "datetype": "pdat",
-                    "mindate": since,
-                    "tool": "sbl-news",
-                    "email": email,
-                },
+                params=_build_eutils_params(
+                    email=email,
+                    api_key=normalized_api_key,
+                    db="pubmed",
+                    term=PUBMED_QUERY,
+                    retmax=max_papers,
+                    retmode="json",
+                    datetype="pdat",
+                    mindate=since,
+                ),
             )
             search_resp.raise_for_status()
             id_list = search_resp.json().get("esearchresult", {}).get("idlist", [])
             if not id_list:
                 return []
 
+            time.sleep(rate_limit_delay)
             fetch_resp = client.get(
                 f"{EUTILS_BASE}/efetch.fcgi",
-                params={
-                    "db": "pubmed",
-                    "id": ",".join(id_list),
-                    "retmode": "xml",
-                    "tool": "sbl-news",
-                    "email": email,
-                },
+                params=_build_eutils_params(
+                    email=email,
+                    api_key=normalized_api_key,
+                    db="pubmed",
+                    id=",".join(id_list),
+                    retmode="xml",
+                ),
             )
             fetch_resp.raise_for_status()
             root = ET.fromstring(fetch_resp.text)
@@ -143,9 +187,13 @@ def fetch_pubmed_records(
                     elif id_type == "pmc" and aid.text:
                         pmc_id = aid.text.strip()
 
-                full_text = (
-                    _fetch_pmc_full_text(client, pmc_id, email) if pmc_id else None
-                )
+                if pmc_id:
+                    time.sleep(rate_limit_delay)
+                    full_text = _fetch_pmc_full_text(
+                        client, pmc_id, email, api_key=normalized_api_key
+                    )
+                else:
+                    full_text = None
                 inspection_depth = (
                     "Full-Text"
                     if full_text and len(full_text.strip()) >= MIN_FULL_TEXT_CHARS
@@ -171,6 +219,9 @@ def fetch_pubmed_records(
                 except Exception as exc:
                     logger.debug("Skipping invalid PubMed record %s: %s", pmid, exc)
     except Exception as exc:
-        logger.warning("PubMed fetcher failed: %s", exc)
+        logger.warning(
+            "PubMed fetcher failed: %s",
+            _sanitize_error_message(exc, normalized_api_key),
+        )
 
     return records

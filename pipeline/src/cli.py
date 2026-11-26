@@ -29,6 +29,7 @@ def run_ingest(lookback_days: int, max_papers: int, dry_run: bool) -> int:
             lookback_days=lookback_days,
             max_papers=per_source_limit,
             email=settings.pubmed_email,
+            api_key=settings.ncbi_api_key,
         )
     )
     raw_records.extend(
