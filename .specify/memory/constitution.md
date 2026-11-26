@@ -58,7 +58,7 @@ Every screen in `/web` MUST implement the high-contrast Neo-Brutalist Sky Blue v
 - **Typography**: Headings and brand wordmark MUST use `Space Grotesk` (`700`/`800` weight, tight tracking). Body copy and study takeaways MUST use `Inter` capped at a `65ch-75ch` line measure. Study metrics and counts (`n=42`, `10w`, `p<0.05`, upvote counts, dates) MUST use `JetBrains Mono`.
 - **Hybrid Page Layout Geometry**:
   - **Main Feed (`/`)**: MUST follow the Hugging Face Daily Papers layout in a light Neo-Brutalist skin—opening directly into a sticky top filter/search bar (`Daily | Weekly | Top` tabs plus study-type filter pills) with NO marketing hero banner. Studies MUST render as high-contrast cards with a left upvote column, bold title, journal/year, monospace metadata badges, a concise 2-sentence takeaway, and direct `Discussion` plus `PubMed/DOI` actions.
-  - **Training Guidelines (`/guidelines`)**: MUST follow the Examine information architecture in a Neo-Brutalist skin—rendering a top 3-column grid of core evidence hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*) followed by a 4-column indexed directory of specific training variables (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Lengthened Partials*, *Protein Intake*), each displaying an evidence grade badge and anchor meta-analysis citations.
+  - **Training Guidelines (`/guidelines`)**: MUST follow the Examine information architecture in a Neo-Brutalist skin—rendering a top 3-column grid of core evidence hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*) followed by a 4-column indexed directory of specific training variables (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Protein Intake*), each displaying an evidence grade badge and anchor meta-analysis citations.
 
 **Rationale**: Locking tokens at the CSS `@theme` and primitive component layers enforces unmistakable editorial clarity, accessible contrast, and zero drift into generic AI aesthetics.
 
@@ -132,4 +132,4 @@ This Constitution is the supreme technical, scientific, and design authority for
   - `PATCH`: Wording clarifications, formatting improvements, or non-semantic refinements.
 - **Compliance Review**: Every specification (`/speckit-specify`), plan (`/speckit-plan`), task list (`/speckit-tasks`), consistency audit (`/speckit-analyze`), and code review (`/speckit-implement`) MUST verify strict adherence to all six core principles.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-26 | **Last Amended**: 2026-11-26
+**Version**: 1.0.1 | **Ratified**: 2026-11-26 | **Last Amended**: 2026-11-26

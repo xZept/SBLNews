@@ -60,7 +60,7 @@ Every day on an automated schedule, the research ingestion pipeline fetches newl
 
 ### User Story 4 - Explore Living Evidence Matrix & Training Guidelines (Priority: P2)
 
-A coach or lifter visits `/guidelines` to see practical, evidence-graded training recommendations organized cleanly by domain. At the top, they see a 3-column grid of core evidence hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*), followed by a 4-column indexed directory of specific training variables (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Lengthened Partials*, *Protein Intake*). Each guideline entry displays an evidence strength grade badge, practical consensus summary, anchor meta-analysis citations, and a last-updated changelog.
+A coach or lifter visits `/guidelines` to see practical, evidence-graded training recommendations organized cleanly by domain. At the top, they see a 3-column grid of core evidence hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*), followed by a 4-column indexed directory of specific training variables (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Protein Intake*). Each guideline entry displays an evidence strength grade badge, practical consensus summary, anchor meta-analysis citations, and a last-updated changelog.
 
 **Why this priority**: Translating individual papers into structured, practical training guidelines delivers high long-term retention and clarity for lifters and coaches.
 
@@ -68,7 +68,7 @@ A coach or lifter visits `/guidelines` to see practical, evidence-graded trainin
 
 **Acceptance Scenarios**:
 
-1. **Given** published guidelines exist, **When** a visitor opens `/guidelines`, **Then** the page displays the 3-column core evidence hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*) and the 4-column variable directory (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Lengthened Partials*, *Protein Intake*).
+1. **Given** published guidelines exist, **When** a visitor opens `/guidelines`, **Then** the page displays the 3-column core evidence hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*) and the 4-column variable directory (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Protein Intake*).
 2. **Given** a visitor inspects any guideline variable, **When** viewing its entry, **Then** they see its evidence grade badge, concise recommendation, linked anchor meta-analysis citations, and last-updated changelog entry.
 
 ---
@@ -149,7 +149,7 @@ An authorized administrator signs in and opens `/admin/review` to inspect newly 
 ### Key Entities
 
 - **Study**: Represents a peer-reviewed primary research paper with canonical identifiers (DOI, PubMed ID, OpenAlex ID), title, journal, publication date/year, structured extracted metadata (`study_design`, `population`, `sample_size_n`, `duration_weeks`, `primary_outcome`, `summary_takeaway`, `limitations`), inspection depth (`Full-Text` vs. `Abstract-Only`), deterministic quality score, publication status (`pending`, `published`, `rejected`), upvote count, and search representation.
-- **Guideline**: Represents a practical training recommendation within one of the 3 core hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*) and 4-column variable directory (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Lengthened Partials*, *Protein Intake*), including evidence grade, consensus summary, anchor study references, and update changelog.
+- **Guideline**: Represents a practical training recommendation within one of the 3 core hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*) and 4-column variable directory (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Protein Intake*), including evidence grade, consensus summary, anchor study references, and update changelog.
 - **Consensus Drift Alert**: Represents a pending human-review item linking a newly ingested systematic review or meta-analysis to an affected Guideline topic, tracking alert status (`pending`, `approved`, `dismissed`), reviewer notes, and resolution timestamp.
 - **Comment**: Represents a user-authored discussion entry on a Study, supporting nested parent-child replies, author ownership, and timestamps.
 - **Vote**: Represents a unique user upvote on a Study, enforcing one active vote per user per study.
@@ -172,5 +172,5 @@ An authorized administrator signs in and opens `/admin/review` to inspect newly 
 
 - **Default Publish Threshold**: Newly ingested studies that pass deterministic quality thresholds (human resistance-training meta-analyses, systematic reviews, or controlled trials without extraction errors) are published automatically to the feed, while low-confidence, incomplete, or borderline extractions enter `pending` status for `/admin/review`.
 - **Target Audience & Language**: MVP content and UI are in English, targeting evidence-based lifters, strength coaches, and exercise-science readers.
-- **Initial Seed Guidelines**: The 3 core hubs and 6 primary training variables on `/guidelines` will be seeded via initial migration/seed data so the Living Evidence Matrix is immediately populated at launch.
+- **Initial Seed Guidelines**: The 3 core hubs and 5 primary training variables on `/guidelines` will be seeded via initial migration/seed data so the Living Evidence Matrix is immediately populated at launch.
 - **Administrator Provisioning**: Initial admin roles will be assigned directly in the database/auth metadata for project maintainers rather than via a public self-service admin signup flow.

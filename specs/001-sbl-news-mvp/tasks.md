@@ -41,7 +41,7 @@ description: "Actionable, dependency-ordered implementation tasks for SBL News M
 - [X] T006 Create all 7 tables (`profiles`, `studies`, `secondary_commentaries`, `guidelines`, `consensus_drift_alerts`, `votes`, `comments` including `is_deleted boolean NOT NULL DEFAULT false`) with `vector(768)` embedding, generated `search_tsv`, canonical identifier `CHECK` constraints, and HNSW/GIN/feed indexes in `supabase/migrations/0002_tables_and_indexes.sql`
 - [X] T007 Enable Row-Level Security (RLS) on all 7 tables, create OAuth profile-sync trigger on `auth.users`, and add atomic `upvote_count` / `comment_count` triggers in `supabase/migrations/0003_rls_policies_and_triggers.sql`
 - [X] T008 [P] Implement `search_studies_hybrid` PostgreSQL RPC using Reciprocal Rank Fusion (RRF) over `search_tsv` and `embedding` cosine similarity projecting summary columns only in `supabase/migrations/0004_hybrid_search_rpc.sql`
-- [X] T009 [P] Seed initial 3 core hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*) and 6 training variables (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Lengthened Partials*, *Protein Intake*) in `supabase/migrations/0005_seed_guidelines.sql`
+- [X] T009 [P] Seed initial 3 core hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*) and 5 training variables (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Protein Intake*) in `supabase/migrations/0005_seed_guidelines.sql`
 - [X] T010 Configure Tailwind CSS v4 `@theme` with `--color-*: initial;` namespace reset and Neo-Brutalist Sky Blue tokens (`#F8FAFC` canvas, `#FFFFFF` card, `#0F172A` ink/border, `#38BDF8` accent, `#475569` muted, and semantic badge pastels `#A7F3D0`, `#BAE6FD`, `#FDE68A`, `#BBF7D0`, `#FED7AA`) in `web/src/app/globals.css`
 - [X] T011 [P] Implement overridden `shadcn/ui` primitives (`Badge`, `Button`, `Card`, `Input`, `Tabs`) with `2px solid #0F172A` borders, hard zero-blur offset shadows (`4px 4px 0px #0F172A` / `2px 2px 0px #0F172A` + `translate(2px, 2px)` active press), and max `rounded-md` (`6px`) / `rounded-sm` (`4px`) radii in `web/src/components/ui/badge.tsx`, `web/src/components/ui/button.tsx`, `web/src/components/ui/card.tsx`, `web/src/components/ui/input.tsx`, and `web/src/components/ui/tabs.tsx`
 - [X] T012 [P] Implement Supabase browser client, SSR cookie server client, and server-side RBAC admin guard (`role === 'admin'`) in `web/src/lib/supabase/client.ts`, `web/src/lib/supabase/server.ts`, and `web/src/lib/supabase/admin-guard.ts`
@@ -120,14 +120,14 @@ description: "Actionable, dependency-ordered implementation tasks for SBL News M
 
 ## Phase 6: User Story 4 - Explore Living Evidence Matrix & Training Guidelines (Priority: P2)
 
-**Goal**: Deliver `/guidelines` styled after Examine in Neo-Brutalist Sky Blue with the 3-column core evidence hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*) and 4-column indexed variable directory (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Lengthened Partials*, *Protein Intake*) displaying evidence grades, anchor meta-analyses, and changelogs.
+**Goal**: Deliver `/guidelines` styled after Examine in Neo-Brutalist Sky Blue with the 3-column core evidence hubs (*Hypertrophy*, *Maximal Strength*, *Recovery & Nutrition*) and 4-column indexed variable directory (*Weekly Volume*, *RIR / Failure*, *Frequency*, *Rest Intervals*, *Protein Intake*) displaying evidence grades, anchor meta-analyses, and changelogs.
 
 **Independent Test**: Navigate to `/guidelines` and verify the 3-column hub grid and 4-column variable directory render with evidence grade badges, clickable anchor citations linking to `/study/[id]`, and last-updated changelogs.
 
-- [ ] T043 [US4] Implement `getLivingGuidelines()` query fetching published guidelines and linked anchor study summaries in `web/src/lib/queries/guidelines.ts`
-- [ ] T044 [P] [US4] Build `HubGrid` 3-column core evidence hubs component in `web/src/components/guidelines/hub-grid.tsx`
-- [ ] T045 [P] [US4] Build `VariableDirectory` 4-column indexed directory component with evidence grade badges, anchor citations, and changelog display in `web/src/components/guidelines/variable-directory.tsx`
-- [ ] T046 [US4] Implement Living Evidence Matrix page (`/guidelines`) with ISR (`export const revalidate = 3600`) in `web/src/app/guidelines/page.tsx`
+- [X] T043 [US4] Implement `getLivingGuidelines()` query fetching published guidelines and linked anchor study summaries in `web/src/lib/queries/guidelines.ts`
+- [X] T044 [P] [US4] Build `HubGrid` 3-column core evidence hubs component in `web/src/components/guidelines/hub-grid.tsx`
+- [X] T045 [P] [US4] Build `VariableDirectory` 4-column indexed directory component with evidence grade badges, anchor citations, and changelog display in `web/src/components/guidelines/variable-directory.tsx`
+- [X] T046 [US4] Implement Living Evidence Matrix page (`/guidelines`) with ISR (`export const revalidate = 3600`) in `web/src/app/guidelines/page.tsx`
 
 **Checkpoint**: User Story 4 (`/guidelines`) is independently functional.
 

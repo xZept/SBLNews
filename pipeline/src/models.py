@@ -18,7 +18,6 @@ GuidelineSlugLiteral = Literal[
     "rir-failure",
     "frequency",
     "rest-intervals",
-    "lengthened-partials",
     "protein-intake",
 ]
 
