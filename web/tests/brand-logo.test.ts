@@ -102,36 +102,42 @@ describe("Static brand assets & RootLayout icon metadata (T007)", () => {
     }
   });
 
-  it("configures RootLayout metadata.icons for /img/logo.png, /favicon.ico, and /apple-touch-icon.png", () => {
+  it("configures RootLayout metadata.icons prioritizing cache-busted /favicon.ico and /img/logo.png", () => {
     const icons = rootMetadata.icons as {
       icon: Array<{ url: string; type?: string; sizes?: string }>;
-      shortcut: string[];
       apple: Array<{ url: string; type?: string; sizes?: string }>;
     };
 
-    expect(icons.icon).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          url: "/img/logo.png",
-          type: "image/png",
-          sizes: "512x512",
-        }),
-        expect.objectContaining({
-          url: "/favicon.ico",
-          sizes: "any",
-        }),
-      ])
-    );
-    expect(icons.shortcut).toContain("/img/logo.png");
+    expect(icons.icon[0]).toMatchObject({
+      url: "/favicon.ico?v=2",
+      sizes: "any",
+    });
+    expect(icons.icon[1]).toMatchObject({
+      url: "/img/logo.png?v=2",
+      type: "image/png",
+      sizes: "512x512",
+    });
     expect(icons.apple).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          url: "/apple-touch-icon.png",
+          url: "/apple-touch-icon.png?v=2",
           sizes: "180x180",
           type: "image/png",
         }),
       ])
     );
+  });
+
+  it("encodes distinct 16x16, 32x32, and 48x48 frames in web/public/favicon.ico", () => {
+    const ico = fs.readFileSync(path.join(PUBLIC_DIR, "favicon.ico"));
+    const count = ico.readUInt16LE(4);
+    expect(count).toBe(3);
+
+    const dims = Array.from({ length: count }, (_, i) => {
+      const offset = 6 + i * 16;
+      return `${ico.readUInt8(offset)}x${ico.readUInt8(offset + 1)}`;
+    });
+    expect(dims).toEqual(["16x16", "32x32", "48x48"]);
   });
 });
 
