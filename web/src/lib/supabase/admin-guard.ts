@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Profile } from "@/lib/queries/projections";
+import type { AccountProfile } from "@/lib/queries/projections";
 
 export class AdminAuthError extends Error {
   readonly statusCode: 401 | 403;
@@ -27,11 +27,12 @@ export async function assertAdmin() {
     throw new AdminAuthError("Authentication required", 401);
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id, display_name, avatar_url, role, created_at")
-    .eq("id", user.id)
-    .single<Profile>();
+  const { data, error: profileError } = await supabase.rpc(
+    "get_my_account_profile"
+  );
+
+  const rows = data as AccountProfile[] | AccountProfile | null;
+  const profile = Array.isArray(rows) ? rows[0] ?? null : rows ?? null;
 
   if (profileError || !profile || profile.role !== "admin") {
     throw new AdminAuthError("Administrator role required", 403);

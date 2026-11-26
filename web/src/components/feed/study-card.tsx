@@ -42,7 +42,7 @@ export function StudyCard({ study, initialVoted = false }: StudyCardProps) {
           <h2 className="mt-1 font-display text-lg font-bold leading-snug tracking-tight text-ink sm:text-xl">
             <Link
               href={`/study/${study.id}`}
-              className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border"
             >
               {study.title}
             </Link>
@@ -69,7 +69,7 @@ export function StudyCard({ study, initialVoted = false }: StudyCardProps) {
             {study.summary_takeaway}
           </p>
 
-          <div className="mt-3.5 flex flex-wrap items-center gap-4 border-t border-ink/15 pt-2.5 font-mono text-xs font-semibold">
+          <div className="mt-3.5 flex flex-wrap items-center gap-4 border-t border-border/15 pt-2.5 font-mono text-xs font-semibold">
             <Link
               href={`/study/${study.id}#discussion`}
               className="inline-flex items-center gap-1.5 text-ink hover:underline"

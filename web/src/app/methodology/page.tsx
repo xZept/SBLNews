@@ -69,7 +69,7 @@ const SCORING_MODIFIERS = [
 export default function MethodologyPage() {
   return (
     <div className="space-y-8">
-      <header className="space-y-2 border-b-2 border-ink pb-4">
+      <header className="space-y-2 border-b-2 border-border pb-4">
         <div className="flex flex-wrap items-center gap-3">
           <BrandLogo size="lg" />
           <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
@@ -125,10 +125,10 @@ export default function MethodologyPage() {
               Scores (0–100) are computed deterministically in Python:
             </p>
 
-            <div className="overflow-x-auto rounded-md border-2 border-ink">
+            <div className="overflow-x-auto rounded-md border-2 border-border">
               <table className="w-full border-collapse text-left text-sm">
                 <thead>
-                  <tr className="border-b-2 border-ink bg-canvas font-mono text-xs uppercase text-ink">
+                  <tr className="border-b-2 border-border bg-canvas font-mono text-xs uppercase text-ink">
                     <th className="px-3 py-2.5">Study Design Tier</th>
                     <th className="px-3 py-2.5">Base Score</th>
                     <th className="px-3 py-2.5">Rule</th>
@@ -154,7 +154,7 @@ export default function MethodologyPage() {
               {SCORING_MODIFIERS.map((mod) => (
                 <div
                   key={mod.condition}
-                  className="flex items-center justify-between gap-3 rounded-md border-2 border-ink bg-canvas px-3 py-2"
+                  className="flex items-center justify-between gap-3 rounded-md border-2 border-border bg-canvas px-3 py-2"
                 >
                   <span className="text-xs font-medium text-ink">
                     {mod.condition}
@@ -187,7 +187,7 @@ export default function MethodologyPage() {
               know how much of the paper was available during extraction:
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-md border-2 border-ink bg-canvas p-3.5">
+              <div className="rounded-md border-2 border-border bg-canvas p-3.5">
                 <Badge variant="fulltext">Full-Text</Badge>
                 <p className="mt-2 text-xs leading-relaxed text-ink">
                   Methods, sample characteristics, and results were inspected
@@ -195,7 +195,7 @@ export default function MethodologyPage() {
                   never stored in the database.
                 </p>
               </div>
-              <div className="rounded-md border-2 border-ink bg-canvas p-3.5">
+              <div className="rounded-md border-2 border-border bg-canvas p-3.5">
                 <Badge variant="abstract">Abstract-Only</Badge>
                 <p className="mt-2 text-xs leading-relaxed text-ink">
                   Paywalled or abstract-only record. Metadata reflects only the

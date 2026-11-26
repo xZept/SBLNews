@@ -78,8 +78,8 @@ export function MetadataBreakdown({
 
       {/* Transparency banner */}
       <div
-        className={`mt-4 rounded-sm border-[1.5px] border-ink px-3.5 py-2.5 text-xs ${
-          isFullText ? "bg-badge-fulltext/50" : "bg-badge-abstract/60"
+        className={`mt-4 rounded-sm border-[1.5px] border-border px-3.5 py-2.5 text-xs text-accent-ink ${
+          isFullText ? "bg-badge-fulltext" : "bg-badge-abstract"
         }`}
       >
         <span className="font-mono font-bold uppercase">
@@ -101,8 +101,8 @@ export function MetadataBreakdown({
       </div>
 
       {/* Structured Metadata Grid */}
-      <dl className="mt-6 grid grid-cols-1 gap-3 border-t-2 border-ink/15 pt-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-sm border-[1.5px] border-ink bg-canvas p-3">
+      <dl className="mt-6 grid grid-cols-1 gap-3 border-t-2 border-border/15 pt-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-sm border-[1.5px] border-border bg-canvas p-3">
           <dt className="font-mono text-[11px] font-semibold uppercase text-muted">
             Population
           </dt>
@@ -111,7 +111,7 @@ export function MetadataBreakdown({
           </dd>
         </div>
 
-        <div className="rounded-sm border-[1.5px] border-ink bg-canvas p-3">
+        <div className="rounded-sm border-[1.5px] border-border bg-canvas p-3">
           <dt className="font-mono text-[11px] font-semibold uppercase text-muted">
             Sample Size (n)
           </dt>
@@ -120,7 +120,7 @@ export function MetadataBreakdown({
           </dd>
         </div>
 
-        <div className="rounded-sm border-[1.5px] border-ink bg-canvas p-3">
+        <div className="rounded-sm border-[1.5px] border-border bg-canvas p-3">
           <dt className="font-mono text-[11px] font-semibold uppercase text-muted">
             Duration
           </dt>
@@ -131,7 +131,7 @@ export function MetadataBreakdown({
           </dd>
         </div>
 
-        <div className="rounded-sm border-[1.5px] border-ink bg-canvas p-3">
+        <div className="rounded-sm border-[1.5px] border-border bg-canvas p-3">
           <dt className="font-mono text-[11px] font-semibold uppercase text-muted">
             Primary Outcome
           </dt>
@@ -143,7 +143,7 @@ export function MetadataBreakdown({
 
       {/* Limitations */}
       {study.limitations && study.limitations.length > 0 && (
-        <div className="mt-5 border-t-2 border-ink/15 pt-4">
+        <div className="mt-5 border-t-2 border-border/15 pt-4">
           <h2 className="font-display text-sm font-bold uppercase tracking-wide text-muted">
             Methodological Limitations
           </h2>
@@ -156,12 +156,12 @@ export function MetadataBreakdown({
       )}
 
       {/* Primary Source Action */}
-      <div className="mt-6 flex flex-wrap items-center gap-3 border-t-2 border-ink/15 pt-4">
+      <div className="mt-6 flex flex-wrap items-center gap-3 border-t-2 border-border/15 pt-4">
         <a
           href={study.primary_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-md border-2 border-ink bg-accent px-4 py-2 font-display text-sm font-bold text-ink shadow-[2px_2px_0px_#0F172A] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+          className="inline-flex items-center gap-2 rounded-md border-2 border-border bg-accent px-4 py-2 font-display text-sm font-bold text-accent-ink shadow-control transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
         >
           <ExternalLink className="h-4 w-4" />
           <span>Read Primary Source (PubMed / DOI)</span>

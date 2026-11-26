@@ -16,7 +16,7 @@ export default async function AdminReviewPage() {
 
   return (
     <div className="space-y-8">
-      <header className="space-y-1.5 border-b-2 border-ink pb-4">
+      <header className="space-y-1.5 border-b-2 border-border pb-4">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
             Moderation &amp; Consensus Drift Queue

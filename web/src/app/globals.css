@@ -11,6 +11,7 @@
   --color-surface: #FFFFFF;
   --color-ink: #0F172A;
   --color-accent: #38BDF8;
+  --color-accent-ink: #0F172A;
   --color-muted: #475569;
   --color-border: #0F172A;
 
@@ -29,6 +30,30 @@
   /* Hard Zero-Blur Offset Shadows */
   --shadow-card: 4px 4px 0px #0F172A;
   --shadow-control: 2px 2px 0px #0F172A;
+}
+
+:root {
+  color-scheme: light;
+  --color-canvas: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-ink: #0F172A;
+  --color-muted: #475569;
+  --color-border: #0F172A;
+  --color-accent-ink: #0F172A;
+  --shadow-card: 4px 4px 0px #0F172A;
+  --shadow-control: 2px 2px 0px #0F172A;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-canvas: #0B1120;
+  --color-surface: #1E293B;
+  --color-ink: #F8FAFC;
+  --color-muted: #94A3B8;
+  --color-border: #E2E8F0;
+  --color-accent-ink: #0F172A;
+  --shadow-card: 4px 4px 0px #020617;
+  --shadow-control: 2px 2px 0px #020617;
 }
 
 @layer base {

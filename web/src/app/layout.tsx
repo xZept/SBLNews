@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { AccountProfileProvider } from "@/components/layout/account-profile-provider";
 import { TopNav } from "@/components/layout/top-nav";
 import "./globals.css";
 
@@ -68,11 +69,24 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
+      <head>
+        <meta name="color-scheme" content="light" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{if(localStorage.getItem("sbl_theme")==="dark"){document.documentElement.dataset.theme="dark";var m=document.querySelector('meta[name="color-scheme"]');if(m)m.content="dark";}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="min-h-screen bg-canvas font-sans text-ink antialiased">
-        <TopNav />
-        <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">{children}</main>
+        <AccountProfileProvider>
+          <TopNav />
+          <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+            {children}
+          </main>
+        </AccountProfileProvider>
       </body>
     </html>
   );

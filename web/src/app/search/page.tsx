@@ -137,7 +137,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </div>
           </div>
 
-          <div className="grid gap-3 border-t border-ink/15 pt-3 sm:grid-cols-3">
+          <div className="grid gap-3 border-t border-border/15 pt-3 sm:grid-cols-3">
             <div className="space-y-1">
               <label
                 htmlFor="filter-study-design"
@@ -149,7 +149,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 id="filter-study-design"
                 name="study_design"
                 defaultValue={params.study_design ?? ""}
-                className="flex h-10 w-full rounded-md border-2 border-ink bg-surface px-3 py-2 font-sans text-sm text-ink shadow-[2px_2px_0px_#0F172A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                className="flex h-10 w-full rounded-md border-2 border-border bg-surface px-3 py-2 font-sans text-sm text-ink shadow-control focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border"
               >
                 <option value="">All Designs</option>
                 {StudyDesignEnum.options.map((design) => (
@@ -185,7 +185,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             <div className="flex items-end pb-1">
               <label
                 htmlFor="filter-trained-only"
-                className="flex cursor-pointer items-center gap-2.5 rounded-md border-2 border-ink bg-canvas px-3 py-2 font-mono text-xs font-semibold text-ink shadow-[2px_2px_0px_#0F172A]"
+                className="flex cursor-pointer items-center gap-2.5 rounded-md border-2 border-border bg-canvas px-3 py-2 font-mono text-xs font-semibold text-ink shadow-control"
               >
                 <input
                   id="filter-trained-only"
@@ -202,7 +202,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </form>
       </Card>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-ink pb-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-border pb-2">
         <p className="font-mono text-xs font-semibold text-ink">
           {results.length} {results.length === 1 ? "study" : "studies"} found
         </p>
@@ -220,7 +220,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       {validationErrors.length > 0 ? (
         <Card
           role="alert"
-          className="border-2 border-ink bg-badge-abstract p-6 text-ink"
+          className="border-2 border-border bg-badge-abstract p-6 text-accent-ink"
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-2">

@@ -29,6 +29,49 @@ export const STUDY_SUMMARY_COLUMNS = `
 
 export type UserRole = "member" | "admin";
 
+export type CommunityRoleType =
+  | "Lifter"
+  | "Strength Coach"
+  | "Exercise Researcher"
+  | "Clinician"
+  | "Student";
+
+export type ThemePreferenceType = "light" | "dark";
+
+export const PUBLIC_PROFILE_COLUMNS = `
+  id,
+  display_name,
+  avatar_url,
+  affiliation_role,
+  bio
+` as const;
+
+export const PROFILE_COMMENT_HISTORY_COLUMNS = `
+  id,
+  study_id,
+  body,
+  created_at,
+  study:studies!comments_study_id_fkey (
+    id,
+    title,
+    journal,
+    publication_year
+  )
+` as const;
+
+export const PROFILE_UPVOTED_STUDY_COLUMNS = `
+  study_id,
+  created_at,
+  study:studies!votes_study_id_fkey (
+    id,
+    title,
+    journal,
+    publication_year,
+    study_design,
+    quality_score
+  )
+` as const;
+
 export type StudyDesignType =
   | "meta_analysis"
   | "systematic_review"
@@ -64,6 +107,53 @@ export interface Profile {
   avatar_url: string | null;
   role: UserRole;
   created_at: string;
+}
+
+export interface PublicProfile {
+  id: string;
+  display_name: string;
+  avatar_url: string | null;
+  affiliation_role: CommunityRoleType | null;
+  bio: string | null;
+}
+
+export interface AccountProfile extends PublicProfile {
+  theme_preference: ThemePreferenceType;
+  role: UserRole;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProfileUpvotedStudyItem {
+  study_id: string;
+  voted_at: string;
+  study: {
+    id: string;
+    title: string;
+    journal: string;
+    publication_year: number;
+    study_design: StudyDesignType;
+    quality_score: number;
+  };
+}
+
+export interface ProfileCommentHistoryItem {
+  id: string;
+  study_id: string;
+  body_excerpt: string;
+  created_at: string;
+  study: {
+    id: string;
+    title: string;
+    journal: string;
+    publication_year: number;
+  };
+}
+
+export interface CursorPage<T, C> {
+  items: T[];
+  nextCursor: C | null;
+  hasMore: boolean;
 }
 
 export interface StudySummary {
@@ -118,7 +208,10 @@ export interface StudyComment {
   is_deleted: boolean;
   created_at: string;
   updated_at: string;
-  author?: Pick<Profile, "id" | "display_name" | "avatar_url">;
+  author?: Pick<
+    PublicProfile,
+    "id" | "display_name" | "avatar_url" | "affiliation_role"
+  >;
 }
 
 export interface GuidelineChangelogEntry {

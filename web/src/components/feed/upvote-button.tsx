@@ -89,15 +89,18 @@ export function UpvoteButton({
         aria-pressed={voted}
         aria-label={voted ? `Remove upvote (${count})` : `Upvote study (${count})`}
         className={cn(
-          "inline-flex items-center justify-center rounded-md border-2 border-ink font-mono font-bold text-ink shadow-[2px_2px_0px_#0F172A] transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-60 cursor-pointer",
+          "inline-flex items-center justify-center rounded-md border-2 border-border font-mono font-bold shadow-control transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-60 cursor-pointer",
           orientation === "vertical"
             ? "min-w-[54px] flex-col gap-0.5 px-2.5 py-2 text-xs"
             : "flex-row gap-1.5 px-3 py-1.5 text-sm",
-          voted ? "bg-accent" : "bg-surface hover:bg-canvas"
+          voted ? "bg-accent text-accent-ink" : "bg-surface text-ink hover:bg-canvas"
         )}
       >
         <ArrowBigUp
-          className={cn("h-4 w-4", voted ? "fill-ink text-ink" : "text-ink")}
+          className={cn(
+            "h-4 w-4",
+            voted ? "fill-accent-ink text-accent-ink" : "text-ink"
+          )}
         />
         <span>{count}</span>
       </button>
@@ -106,7 +109,7 @@ export function UpvoteButton({
         <div
           role="dialog"
           aria-label="Sign in required to upvote"
-          className="absolute top-full left-0 z-40 mt-2 w-60 rounded-md border-2 border-ink bg-surface p-3 shadow-[4px_4px_0px_#0F172A]"
+          className="absolute top-full left-0 z-40 mt-2 w-60 rounded-md border-2 border-border bg-surface p-3 shadow-card"
         >
           <p className="mb-2 text-xs font-semibold text-ink">
             Sign in to upvote studies:
@@ -115,14 +118,14 @@ export function UpvoteButton({
             <button
               type="button"
               onClick={() => handleOAuthSignIn("google")}
-              className="rounded-sm border-[1.5px] border-ink bg-accent px-2.5 py-1 font-display text-xs font-bold text-ink cursor-pointer"
+              className="rounded-sm border-[1.5px] border-border bg-accent px-2.5 py-1 font-display text-xs font-bold text-accent-ink cursor-pointer"
             >
               Google
             </button>
             <button
               type="button"
               onClick={() => handleOAuthSignIn("github")}
-              className="rounded-sm border-[1.5px] border-ink bg-surface px-2.5 py-1 font-display text-xs font-bold text-ink cursor-pointer"
+              className="rounded-sm border-[1.5px] border-border bg-surface px-2.5 py-1 font-display text-xs font-bold text-ink cursor-pointer"
             >
               GitHub
             </button>
