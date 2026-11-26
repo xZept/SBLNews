@@ -59,13 +59,13 @@ description: "Actionable, dependency-ordered implementation tasks for SBL News M
 
 **Independent Test**: Open `/` unauthenticated, switch `Daily | Weekly | Top` tabs, apply study-type filter pills, verify summary-only projections and `Full-Text` / `Abstract-Only` badges, and verify upvote prompts OAuth when signed out and toggles once per user when signed in.
 
-- [ ] T016 [P] [US1] Create `FeedFilterSchema` and `ToggleVoteSchema` Zod validators in `web/src/lib/validations/search.ts` and `web/src/lib/validations/mutations.ts`
-- [ ] T017 [US1] Implement `getFeedStudies()` projecting `STUDY_SUMMARY_COLUMNS` and filtering `publication_status = 'published'` (supporting `Daily`, `Weekly`, `Top` deterministic sorting) in `web/src/lib/queries/studies.ts`
-- [ ] T018 [US1] Implement `toggleVoteAction` server action with `ToggleVoteSchema` validation and authenticated user check in `web/src/lib/actions/votes.ts`
-- [ ] T019 [P] [US1] Build `UpvoteButton` client component (`#38BDF8` active state, `#0F172A` ink, OAuth prompt when signed out) in `web/src/components/feed/upvote-button.tsx`
-- [ ] T020 [P] [US1] Build sticky `FilterBar` (`Daily | Weekly | Top` tabs + study-type filter pills + trained-lifter toggle) in `web/src/components/feed/filter-bar.tsx`
-- [ ] T021 [US1] Build `StudyCard` component displaying upvote column, title, journal/year, `JetBrains Mono` evidence & `Full-Text`/`Abstract-Only` badges, 2-sentence takeaway, and `Discussion` + `PubMed/DOI` actions in `web/src/components/feed/study-card.tsx`
-- [ ] T022 [US1] Implement Main Research Feed page (`/`) with ISR (`export const revalidate = 3600`, no `searchParams` read so ISR stays active), client-side tab/filter state, and zero marketing hero banner in `web/src/app/page.tsx`
+- [X] T016 [P] [US1] Create `FeedFilterSchema` and `ToggleVoteSchema` Zod validators in `web/src/lib/validations/search.ts` and `web/src/lib/validations/mutations.ts`
+- [X] T017 [US1] Implement `getFeedStudies()` projecting `STUDY_SUMMARY_COLUMNS` and filtering `publication_status = 'published'` (supporting `Daily`, `Weekly`, `Top` deterministic sorting) in `web/src/lib/queries/studies.ts`
+- [X] T018 [US1] Implement `toggleVoteAction` server action with `ToggleVoteSchema` validation and authenticated user check in `web/src/lib/actions/votes.ts`
+- [X] T019 [P] [US1] Build `UpvoteButton` client component (`#38BDF8` active state, `#0F172A` ink, OAuth prompt when signed out) in `web/src/components/feed/upvote-button.tsx`
+- [X] T020 [P] [US1] Build sticky `FilterBar` (`Daily | Weekly | Top` tabs + study-type filter pills + trained-lifter toggle) in `web/src/components/feed/filter-bar.tsx`
+- [X] T021 [US1] Build `StudyCard` component displaying upvote column, title, journal/year, `JetBrains Mono` evidence & `Full-Text`/`Abstract-Only` badges, 2-sentence takeaway, and `Discussion` + `PubMed/DOI` actions in `web/src/components/feed/study-card.tsx`
+- [X] T022 [US1] Implement Main Research Feed page (`/`) with ISR (`export const revalidate = 3600`, no `searchParams` read so ISR stays active), client-side tab/filter state, and zero marketing hero banner in `web/src/app/page.tsx`
 
 **Checkpoint**: User Story 1 (`/`) is independently functional and deployable as the core MVP increment.
 
@@ -77,13 +77,13 @@ description: "Actionable, dependency-ordered implementation tasks for SBL News M
 
 **Independent Test**: Navigate to `/study/[id]` for both `Full-Text` and `Abstract-Only` studies, verify secondary commentary is visually separated from primary evidence, and verify authenticated users can post/reply and edit/delete only their own comments while unauthenticated visitors see read-only threads.
 
-- [ ] T023 [P] [US2] Add `CreateCommentSchema`, `UpdateCommentSchema`, and `DeleteCommentSchema` (`body` 1–4000 chars) to `web/src/lib/validations/mutations.ts`
-- [ ] T024 [US2] Implement `getStudyDetail(id)`, `getStudyComments(studyId)`, and `getSecondaryCommentaries(studyId)` queries in `web/src/lib/queries/studies.ts`
-- [ ] T025 [US2] Implement `createCommentAction`, `updateCommentAction`, and `deleteCommentAction` (soft-deleting via `is_deleted = true` when child replies exist, hard-deleting otherwise) server actions enforcing author ownership and Zod validation in `web/src/lib/actions/comments.ts`
-- [ ] T026 [P] [US2] Build `MetadataBreakdown` component rendering structured fields (`study_design`, `population`, `sample_size_n`, `duration_weeks`, `primary_outcome`, `summary_takeaway`, `limitations`) and transparency badge in `web/src/components/study/metadata-breakdown.tsx`
-- [ ] T027 [P] [US2] Build `SecondaryCommentaryList` component clearly separated from primary peer-reviewed evidence in `web/src/components/study/secondary-commentary-list.tsx`
-- [ ] T028 [US2] Build `DiscussionThread` component supporting nested replies, `[deleted]` placeholder rendering for soft-deleted parents with replies, OAuth prompt for signed-out visitors, and owner-only edit/delete controls in `web/src/components/study/discussion-thread.tsx`
-- [ ] T029 [US2] Implement Study Detail & Discussion page (`/study/[id]`) in `web/src/app/study/[id]/page.tsx`
+- [X] T023 [P] [US2] Add `CreateCommentSchema`, `UpdateCommentSchema`, and `DeleteCommentSchema` (`body` 1–4000 chars) to `web/src/lib/validations/mutations.ts`
+- [X] T024 [US2] Implement `getStudyDetail(id)`, `getStudyComments(studyId)`, and `getSecondaryCommentaries(studyId)` queries in `web/src/lib/queries/studies.ts`
+- [X] T025 [US2] Implement `createCommentAction`, `updateCommentAction`, and `deleteCommentAction` (soft-deleting via `is_deleted = true` when child replies exist, hard-deleting otherwise) server actions enforcing author ownership and Zod validation in `web/src/lib/actions/comments.ts`
+- [X] T026 [P] [US2] Build `MetadataBreakdown` component rendering structured fields (`study_design`, `population`, `sample_size_n`, `duration_weeks`, `primary_outcome`, `summary_takeaway`, `limitations`) and transparency badge in `web/src/components/study/metadata-breakdown.tsx`
+- [X] T027 [P] [US2] Build `SecondaryCommentaryList` component clearly separated from primary peer-reviewed evidence in `web/src/components/study/secondary-commentary-list.tsx`
+- [X] T028 [US2] Build `DiscussionThread` component supporting nested replies, `[deleted]` placeholder rendering for soft-deleted parents with replies, OAuth prompt for signed-out visitors, and owner-only edit/delete controls in `web/src/components/study/discussion-thread.tsx`
+- [X] T029 [US2] Implement Study Detail & Discussion page (`/study/[id]`) in `web/src/app/study/[id]/page.tsx`
 
 **Checkpoint**: User Stories 1 and 2 are both independently functional.
 
@@ -97,22 +97,22 @@ description: "Actionable, dependency-ordered implementation tasks for SBL News M
 
 ### Unit & Contract Tests for User Story 3 (Mandated by Constitution Principle VI)
 
-- [ ] T030 [P] [US3] Write Pydantic schema validation and null-safety tests (`sample_size_n` / `duration_weeks` remain `None` when unreported) in `pipeline/tests/test_models.py`
-- [ ] T031 [P] [US3] Write deterministic scoring unit tests verifying human meta-analysis (`>=85`), `>=8w` trained RCT (`>=90`), and `>=8w` `controlled_trial` (`65` base) priority over animal (`10`, `rejected`) and acute EMG-only (`-45`) studies in `pipeline/tests/test_scoring.py`
-- [ ] T032 [P] [US3] Write canonical identifier deduplication (`doi`, `pubmed_id`, `openalex_id`) and `Consensus Drift` alert creation tests (asserting zero `guidelines` mutations) in `pipeline/tests/test_deduplication.py` and `pipeline/tests/test_drift_alerts.py`
+- [X] T030 [P] [US3] Write Pydantic schema validation and null-safety tests (`sample_size_n` / `duration_weeks` remain `None` when unreported) in `pipeline/tests/test_models.py`
+- [X] T031 [P] [US3] Write deterministic scoring unit tests verifying human meta-analysis (`>=85`), `>=8w` trained RCT (`>=90`), and `>=8w` `controlled_trial` (`65` base) priority over animal (`10`, `rejected`) and acute EMG-only (`-45`) studies in `pipeline/tests/test_scoring.py`
+- [X] T032 [P] [US3] Write canonical identifier deduplication (`doi`, `pubmed_id`, `openalex_id`) and `Consensus Drift` alert creation tests (asserting zero `guidelines` mutations) in `pipeline/tests/test_deduplication.py` and `pipeline/tests/test_drift_alerts.py`
 
 ### Implementation for User Story 3
 
-- [ ] T033 [P] [US3] Implement validated environment settings (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`, `PUBMED_EMAIL`, `OPENALEX_MAILTO`) in `pipeline/src/config.py`
-- [ ] T034 [P] [US3] Implement `RawLiteratureRecord` and `StudyExtractionSchema` (using `is_trained_population` and omitting any LLM quality score field) in `pipeline/src/models.py`
-- [ ] T035 [US3] Implement 100% deterministic `compute_deterministic_score` (including `controlled_trial` `>=8w` = `65`) and `Consensus Drift` trigger evaluation in `pipeline/src/scoring.py`
-- [ ] T036 [P] [US3] Implement canonical identifier normalization and deduplication helper in `pipeline/src/deduplication.py`
-- [ ] T037 [P] [US3] Implement PubMed E-utilities + PMC Open Access XML full-text fetcher (`Full-Text` vs `Abstract-Only` detection) in `pipeline/src/fetchers/pubmed.py`
-- [ ] T038 [P] [US3] Implement OpenAlex API fetcher in `pipeline/src/fetchers/openalex.py`
-- [ ] T039 [P] [US3] Implement targeted exercise-science journal RSS fetcher in `pipeline/src/fetchers/rss.py`
-- [ ] T040 [P] [US3] Implement Gemini 3.5 Flash Lite (`gemini-3.5-flash-lite`) structured JSON extractor and 768-dim Gemini embedding generator in `pipeline/src/extraction/gemini_extractor.py` and `pipeline/src/extraction/embeddings.py`
-- [ ] T041 [US3] Implement Supabase storage client upserting `studies` and inserting `pending` `consensus_drift_alerts` (prohibited from mutating `guidelines`) in `pipeline/src/storage/supabase_store.py`
-- [ ] T042 [US3] Implement CLI entrypoint (`ingest --lookback-days --max-papers --dry-run`) in `pipeline/src/cli.py` and daily scheduled GitHub Actions workflow (`0 6 * * *` UTC) in `.github/workflows/daily-ingestion.yml`
+- [X] T033 [P] [US3] Implement validated environment settings (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`, `PUBMED_EMAIL`, `OPENALEX_MAILTO`) in `pipeline/src/config.py`
+- [X] T034 [P] [US3] Implement `RawLiteratureRecord` and `StudyExtractionSchema` (using `is_trained_population` and omitting any LLM quality score field) in `pipeline/src/models.py`
+- [X] T035 [US3] Implement 100% deterministic `compute_deterministic_score` (including `controlled_trial` `>=8w` = `65`) and `Consensus Drift` trigger evaluation in `pipeline/src/scoring.py`
+- [X] T036 [P] [US3] Implement canonical identifier normalization and deduplication helper in `pipeline/src/deduplication.py`
+- [X] T037 [P] [US3] Implement PubMed E-utilities + PMC Open Access XML full-text fetcher (`Full-Text` vs `Abstract-Only` detection) in `pipeline/src/fetchers/pubmed.py`
+- [X] T038 [P] [US3] Implement OpenAlex API fetcher in `pipeline/src/fetchers/openalex.py`
+- [X] T039 [P] [US3] Implement targeted exercise-science journal RSS fetcher in `pipeline/src/fetchers/rss.py`
+- [X] T040 [P] [US3] Implement Gemini 3.5 Flash Lite (`gemini-3.5-flash-lite`) structured JSON extractor and 768-dim Gemini embedding generator in `pipeline/src/extraction/gemini_extractor.py` and `pipeline/src/extraction/embeddings.py`
+- [X] T041 [US3] Implement Supabase storage client upserting `studies` and inserting `pending` `consensus_drift_alerts` (prohibited from mutating `guidelines`) in `pipeline/src/storage/supabase_store.py`
+- [X] T042 [US3] Implement CLI entrypoint (`ingest --lookback-days --max-papers --dry-run`) in `pipeline/src/cli.py` and daily scheduled GitHub Actions workflow (`0 6 * * *` UTC) in `.github/workflows/daily-ingestion.yml`
 
 **Checkpoint**: All three `P1` stories (`/`, `/study/[id]`, and `/pipeline`) are complete and verified.
 

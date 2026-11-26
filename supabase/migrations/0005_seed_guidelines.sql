@@ -1,6 +1,6 @@
 -- 0005_seed_guidelines.sql
 -- Seed initial 3 core hubs (Hypertrophy, Maximal Strength, Recovery & Nutrition)
--- and 6 indexed training variables for the Living Evidence Matrix (/guidelines).
+-- and 5 indexed training variables for the Living Evidence Matrix (/guidelines).
 
 INSERT INTO public.guidelines (
   slug,
@@ -37,21 +37,10 @@ VALUES
     '[{"updated_at": "2026-11-26T00:00:00Z", "summary": "Initial MVP consensus baseline seeded from proximity-to-failure meta-analyses.", "study_id": null}]'::jsonb
   ),
   (
-    'lengthened-partials',
-    'Hypertrophy',
-    'Lengthened Partials',
-    3,
-    'B',
-    'Training muscles at long muscle lengths—either via full range of motion emphasizing the stretched position or lengthened partial repetitions—consistently matches or exceeds standard full-ROM hypertrophy in several limb musculature trials.',
-    'Prioritize loaded stretch; add lengthened partials on isolations',
-    '{}',
-    '[{"updated_at": "2026-11-26T00:00:00Z", "summary": "Initial MVP consensus baseline seeded from long-length resistance training trials.", "study_id": null}]'::jsonb
-  ),
-  (
     'frequency',
     'Maximal Strength',
     'Frequency',
-    4,
+    3,
     'A',
     'When weekly volume is equated, training frequency has a modest direct effect on hypertrophy, while higher frequencies (2-4x/week per lift) facilitate higher-quality technical practice and heavier average bar speeds for maximal strength.',
     '2-4 sessions / muscle or lift / week',
@@ -62,7 +51,7 @@ VALUES
     'rest-intervals',
     'Maximal Strength',
     'Rest Intervals',
-    5,
+    4,
     'B',
     'Longer inter-set rest intervals (>=2-3 minutes) preserve total repetition volume and mechanical tension across multi-joint compound sets compared with <=60-second rests, supporting superior maximal strength and equal or greater hypertrophy.',
     '2-3+ min for compounds; 60-90s for isolations',
@@ -73,7 +62,7 @@ VALUES
     'protein-intake',
     'Recovery & Nutrition',
     'Protein Intake',
-    6,
+    5,
     'A',
     'Daily total protein intake is the primary nutritional driver of resistance-training-induced lean mass and recovery. Benefits plateau near ~1.6 g/kg/day for most lifters, with intakes up to 2.2 g/kg/day offering a practical buffer during energy restriction.',
     '1.6-2.2 g / kg bodyweight / day',
