@@ -119,7 +119,8 @@ export async function getStudyComments(
       author:profiles!comments_author_id_fkey (
         id,
         display_name,
-        avatar_url
+        avatar_url,
+        affiliation_role
       )
     `
     )

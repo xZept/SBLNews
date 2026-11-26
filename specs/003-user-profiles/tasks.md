@@ -86,10 +86,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T022 [P] [US3] Update `getStudyComments()` in `web/src/lib/queries/studies.ts` to include `affiliation_role` in the `author:profiles!comments_author_id_fkey(id, display_name, avatar_url, affiliation_role)` projection.
-- [ ] T023 [US3] Update `CommentItem` in `web/src/components/study/discussion-thread.tsx` to render `<UserAvatar size="sm" />`, display name, and optional `affiliation_role` `Badge` for non-deleted comments, wrapped in `<Link href={`/profile/${node.author_id}`}>` (and update `border-ink` / `shadow` tokens on discussion containers).
-- [ ] T024 [P] [US3] Create `web/src/app/profile/[id]/not-found.tsx` rendering a Neo-Brutalist `"Profile not found"` card with a link back to `/` (`Main Research Feed`).
-- [ ] T025 [US3] Create public route `web/src/app/profile/[id]/page.tsx` (`force-dynamic`) validating `id` UUID format (calling `notFound()` when invalid or missing), fetching `getPublicProfileById(id)` and initial 20 `getUserCommentHistory(id)` via `createPublicClient()`, and rendering public `UserAvatar`, `display_name`, optional `affiliation_role` `Badge`, optional `bio`, and `ProfileActivityLists` in public comment-only mode (strictly omitting `email`, `theme_preference`, `role`, and upvoted studies).
+- [X] T022 [P] [US3] Update `getStudyComments()` in `web/src/lib/queries/studies.ts` to include `affiliation_role` in the `author:profiles!comments_author_id_fkey(id, display_name, avatar_url, affiliation_role)` projection.
+- [X] T023 [US3] Update `CommentItem` in `web/src/components/study/discussion-thread.tsx` to render `<UserAvatar size="sm" />`, display name, and optional `affiliation_role` `Badge` for non-deleted comments, wrapped in `<Link href={`/profile/${node.author_id}`}>` (and update `border-ink` / `shadow` tokens on discussion containers).
+- [X] T024 [P] [US3] Create `web/src/app/profile/[id]/not-found.tsx` rendering a Neo-Brutalist `"Profile not found"` card with a link back to `/` (`Main Research Feed`).
+- [X] T025 [US3] Create public route `web/src/app/profile/[id]/page.tsx` (`force-dynamic`) validating `id` UUID format (calling `notFound()` when invalid or missing), fetching `getPublicProfileById(id)` and initial 20 `getUserCommentHistory(id)` via `createPublicClient()`, and rendering public `UserAvatar`, `display_name`, optional `affiliation_role` `Badge`, optional `bio`, and `ProfileActivityLists` in public comment-only mode (strictly omitting `email`, `theme_preference`, `role`, and upvoted studies).
 
 **Checkpoint**: All 3 user stories (8 approved Constitution routes + `AccountBubble` + `/study/[id]` attribution) are complete and independently testable.
 
@@ -99,9 +99,9 @@
 
 **Purpose**: Verify unit tests, egress-safe projections, TypeScript strictness, linting, ISR production build, and `/pipeline` non-regression.
 
-- [ ] T026 [P] Update `web/tests/projections.test.ts` to assert `PUBLIC_PROFILE_COLUMNS`, `PROFILE_COMMENT_HISTORY_COLUMNS`, and `PROFILE_UPVOTED_STUDY_COLUMNS` exclude `email`, `theme_preference`, `role`, `abstract_text`, and `embedding`.
-- [ ] T027 [P] Create `web/tests/profile.test.ts` covering `deriveInitials` (multi-word, single-word, whitespace/punctuation, empty fallback), `UpdateProfileSchema` (`2–50` chars, whitespace rejection, `160`-char bio limit, role enum), `UpvotedStudiesCursorSchema` / `CommentHistoryCursorSchema`, and `avatar-upload.ts` MIME/size validation helpers.
-- [ ] T028 Verify `/web` quality gates (`npm run typecheck`, `npm run lint`, `npm test`, `npm run build`), `/pipeline` regression gate (`pytest -v`), and the Light + Dark Theme visual contrast, zero-FOIT (on `/` and `/guidelines`), and anti-purple / anti-vibecoding inspection checklist per `specs/003-user-profiles/quickstart.md` (`SC-004`, `SC-006`).
+- [X] T026 [P] Update `web/tests/projections.test.ts` to assert `PUBLIC_PROFILE_COLUMNS`, `PROFILE_COMMENT_HISTORY_COLUMNS`, and `PROFILE_UPVOTED_STUDY_COLUMNS` exclude `email`, `theme_preference`, `role`, `abstract_text`, and `embedding`.
+- [X] T027 [P] Create `web/tests/profile.test.ts` covering `deriveInitials` (multi-word, single-word, whitespace/punctuation, empty fallback), `UpdateProfileSchema` (`2–50` chars, whitespace rejection, `160`-char bio limit, role enum), `UpvotedStudiesCursorSchema` / `CommentHistoryCursorSchema`, and `avatar-upload.ts` MIME/size validation helpers.
+- [X] T028 Verify `/web` quality gates (`npm run typecheck`, `npm run lint`, `npm test`, `npm run build`), `/pipeline` regression gate (`pytest -v`), and the Light + Dark Theme visual contrast, zero-FOIT (on `/` and `/guidelines`), and anti-purple / anti-vibecoding inspection checklist per `specs/003-user-profiles/quickstart.md` (`SC-004`, `SC-006`).
 
 ---
 

@@ -14,6 +14,18 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
+vi.mock("../src/components/layout/account-profile-provider", () => ({
+  useAccountProfile: () => ({
+    profile: null,
+    email: null,
+    loading: false,
+    theme: "light",
+    setThemeLocalAndPersist: async () => {},
+    refreshAccountProfile: async () => {},
+    signOutAndResetTheme: async () => {},
+  }),
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,

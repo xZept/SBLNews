@@ -1,8 +1,11 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MessageSquare, Pencil, Reply, Trash2 } from "lucide-react";
+import { UserAvatar } from "@/components/profile/user-avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -94,7 +97,7 @@ export function DiscussionThread({
   return (
     <section id="discussion" aria-labelledby="discussion-heading">
       <Card className="p-5 sm:p-6">
-        <div className="flex items-center gap-2 border-b-2 border-ink/15 pb-3">
+        <div className="flex items-center gap-2 border-b-2 border-border/15 pb-3">
           <MessageSquare className="h-5 w-5 text-ink" />
           <h2
             id="discussion-heading"
@@ -121,7 +124,7 @@ export function DiscussionThread({
                 value={newBody}
                 onChange={(e) => setNewBody(e.target.value)}
                 placeholder="Discuss methodology, effect sizes, or practical application..."
-                className="w-full rounded-md border-2 border-ink bg-canvas p-3 text-sm text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                className="w-full rounded-md border-2 border-border bg-canvas p-3 text-sm text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border"
               />
               {errorMsg && (
                 <p className="font-mono text-xs text-ink" role="alert">
@@ -140,7 +143,7 @@ export function DiscussionThread({
               </div>
             </form>
           ) : (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border-[1.5px] border-ink bg-canvas p-3.5">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border-[1.5px] border-border bg-canvas p-3.5">
               <p className="text-sm font-medium text-ink">
                 Sign in to post comments or reply to threads.
               </p>
@@ -274,14 +277,31 @@ function CommentItem({
   return (
     <div
       className={
-        depth > 0 ? "mt-3 border-l-2 border-ink/30 pl-4" : ""
+        depth > 0 ? "mt-3 border-l-2 border-border/30 pl-4" : ""
       }
     >
-      <div className="rounded-sm border-[1.5px] border-ink bg-canvas p-3.5">
+      <div className="rounded-sm border-[1.5px] border-border bg-canvas p-3.5">
         <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-muted">
-          <span className="font-bold text-ink">
-            {node.is_deleted ? "[deleted]" : authorName}
-          </span>
+          {node.is_deleted ? (
+            <span className="font-bold text-ink">[deleted]</span>
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href={`/profile/${node.author_id}`}
+                className="inline-flex items-center gap-2 font-bold text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border"
+              >
+                <UserAvatar
+                  displayName={authorName}
+                  avatarUrl={node.author?.avatar_url}
+                  size="sm"
+                />
+                <span>{authorName}</span>
+              </Link>
+              {node.author?.affiliation_role && (
+                <Badge variant="muted">{node.author.affiliation_role}</Badge>
+              )}
+            </div>
+          )}
           <span>{new Date(node.created_at).toLocaleDateString()}</span>
         </div>
 
@@ -292,7 +312,7 @@ function CommentItem({
               maxLength={4000}
               value={editBody}
               onChange={(e) => setEditBody(e.target.value)}
-              className="w-full rounded-sm border-[1.5px] border-ink bg-surface p-2.5 text-sm text-ink"
+              className="w-full rounded-sm border-[1.5px] border-border bg-surface p-2.5 text-sm text-ink"
             />
             <div className="flex gap-2">
               <Button type="submit" variant="primary" size="sm" disabled={busy}>
@@ -372,7 +392,7 @@ function CommentItem({
               value={replyBody}
               onChange={(e) => setReplyBody(e.target.value)}
               placeholder={`Reply to ${authorName}...`}
-              className="w-full rounded-sm border-[1.5px] border-ink bg-surface p-2.5 text-sm text-ink"
+              className="w-full rounded-sm border-[1.5px] border-border bg-surface p-2.5 text-sm text-ink"
             />
             <div className="flex gap-2">
               <Button

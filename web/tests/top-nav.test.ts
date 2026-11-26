@@ -8,6 +8,18 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
+vi.mock("../src/components/layout/account-profile-provider", () => ({
+  useAccountProfile: () => ({
+    profile: null,
+    email: null,
+    loading: false,
+    theme: "light",
+    setThemeLocalAndPersist: async () => {},
+    refreshAccountProfile: async () => {},
+    signOutAndResetTheme: async () => {},
+  }),
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -82,13 +94,18 @@ describe("TopNav admin RBAC visibility (rbac-issue)", () => {
     expect(html).not.toContain('href="/admin/review"');
   });
 
-  it("gates the /admin/review link behind isAdmin in TopNav", () => {
-    const src = fs.readFileSync(
+  it("gates the /admin/review link behind isAdmin in AccountBubble rendered by TopNav", () => {
+    const topNavSrc = fs.readFileSync(
       path.resolve(__dirname, "../src/components/layout/top-nav.tsx"),
       "utf8"
     );
+    const bubbleSrc = fs.readFileSync(
+      path.resolve(__dirname, "../src/components/layout/account-bubble.tsx"),
+      "utf8"
+    );
 
-    expect(src).toContain("{isAdmin && (");
-    expect(src).toContain('href="/admin/review"');
+    expect(topNavSrc).toContain("<AccountBubble />");
+    expect(bubbleSrc).toContain("{isAdmin && (");
+    expect(bubbleSrc).toContain('href="/admin/review"');
   });
 });
