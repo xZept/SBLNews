@@ -90,7 +90,7 @@ export function VariableDirectory({ guidelines }: VariableDirectoryProps) {
                     <CardTitle className="text-base leading-snug">
                       {guideline.variable_name}
                     </CardTitle>
-                    <div className="rounded-sm border-[1.5px] border-ink bg-accent px-2.5 py-1.5 font-mono text-xs font-semibold text-ink">
+                    <div className="rounded-sm border-[1.5px] border-accent-ink bg-accent px-2.5 py-1.5 font-mono text-xs font-semibold text-accent-ink">
                       {guideline.practical_prescription}
                     </div>
                   </CardHeader>
@@ -107,7 +107,7 @@ export function VariableDirectory({ guidelines }: VariableDirectoryProps) {
                       </div>
 
                       {guideline.anchorStudies.length === 0 ? (
-                        <p className="rounded-sm border-[1.5px] border-ink bg-canvas px-2.5 py-2 font-mono text-[11px] text-muted">
+                        <p className="rounded-sm border-[1.5px] border-border bg-canvas px-2.5 py-2 font-mono text-[11px] text-muted">
                           Baseline consensus seeded — awaiting linked anchor
                           meta-analysis.
                         </p>
@@ -117,16 +117,16 @@ export function VariableDirectory({ guidelines }: VariableDirectoryProps) {
                             <li key={study.id}>
                               <Link
                                 href={`/study/${study.id}`}
-                                className="group flex items-start justify-between gap-2 rounded-sm border-[1.5px] border-ink bg-canvas px-2.5 py-1.5 text-xs hover:bg-accent"
+                                className="group flex items-start justify-between gap-2 rounded-sm border-[1.5px] border-border bg-canvas px-2.5 py-1.5 text-xs hover:border-accent-ink hover:bg-accent"
                               >
-                                <span className="line-clamp-2 font-medium text-ink">
+                                <span className="line-clamp-2 font-medium text-ink group-hover:text-accent-ink">
                                   {study.title}
-                                  <span className="ml-1 font-mono text-[11px] text-muted group-hover:text-ink">
+                                  <span className="ml-1 font-mono text-[11px] text-muted group-hover:text-accent-ink">
                                     ({study.publication_year})
                                   </span>
                                 </span>
                                 <ArrowUpRight
-                                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink"
+                                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink group-hover:text-accent-ink"
                                   aria-hidden="true"
                                 />
                               </Link>
@@ -138,7 +138,7 @@ export function VariableDirectory({ guidelines }: VariableDirectoryProps) {
                   </CardContent>
                 </div>
 
-                <CardFooter className="flex-col items-start gap-2 border-t-2 border-ink bg-canvas px-5 py-3">
+                <CardFooter className="flex-col items-start gap-2 border-t-2 border-border bg-canvas px-5 py-3">
                   <div className="flex w-full items-center justify-between gap-2 font-mono text-[11px] text-muted">
                     <span className="inline-flex items-center gap-1 font-semibold text-ink">
                       <History className="h-3 w-3" aria-hidden="true" />
@@ -158,7 +158,7 @@ export function VariableDirectory({ guidelines }: VariableDirectoryProps) {
                       {latestChange.study_id && (
                         <Link
                           href={`/study/${latestChange.study_id}`}
-                          className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-ink underline underline-offset-2 hover:bg-accent"
+                          className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-ink underline underline-offset-2 hover:bg-accent hover:text-accent-ink"
                         >
                           View trigger study
                           <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
@@ -177,7 +177,7 @@ export function VariableDirectory({ guidelines }: VariableDirectoryProps) {
                         View {earlierChanges.length} earlier{" "}
                         {earlierChanges.length === 1 ? "entry" : "entries"}
                       </summary>
-                      <ul className="mt-2 space-y-1.5 border-l-2 border-ink pl-2.5">
+                      <ul className="mt-2 space-y-1.5 border-l-2 border-border pl-2.5">
                         {earlierChanges.map((entry, idx) => (
                           <li
                             key={`${entry.updated_at}-${idx}`}

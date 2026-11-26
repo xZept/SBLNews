@@ -32,50 +32,43 @@ vi.mock("next/link", () => ({
 import { fetchIsAdmin, TopNav } from "../src/components/layout/top-nav";
 
 function createMockSupabase(result: {
-  data: { role: string } | null;
+  data: { role: string }[] | { role: string } | null;
   error: { message: string } | null;
 }) {
-  const single = vi.fn().mockResolvedValue(result);
-  const eq = vi.fn().mockReturnValue({ single });
-  const select = vi.fn().mockReturnValue({ eq });
-  const from = vi.fn().mockReturnValue({ select });
+  const rpc = vi.fn().mockResolvedValue(result);
 
   return {
-    client: { from } as unknown as Parameters<typeof fetchIsAdmin>[0],
-    from,
-    select,
-    eq,
-    single,
+    client: { rpc } as unknown as Parameters<typeof fetchIsAdmin>[0],
+    rpc,
   };
 }
 
 describe("TopNav admin RBAC visibility (rbac-issue)", () => {
   it("returns false for newly created member accounts", async () => {
     const mock = createMockSupabase({
-      data: { role: "member" },
+      data: [{ role: "member" }],
       error: null,
     });
 
     const isAdmin = await fetchIsAdmin(mock.client, "user-member-1");
 
     expect(isAdmin).toBe(false);
-    expect(mock.from).toHaveBeenCalledWith("profiles");
-    expect(mock.select).toHaveBeenCalledWith("role");
-    expect(mock.eq).toHaveBeenCalledWith("id", "user-member-1");
+    expect(mock.rpc).toHaveBeenCalledWith("get_my_account_profile");
   });
 
-  it("returns true only when profiles.role is 'admin'", async () => {
+  it("returns true only when get_my_account_profile role is 'admin'", async () => {
     const mock = createMockSupabase({
-      data: { role: "admin" },
+      data: [{ role: "admin" }],
       error: null,
     });
 
     const isAdmin = await fetchIsAdmin(mock.client, "user-admin-1");
 
     expect(isAdmin).toBe(true);
+    expect(mock.rpc).toHaveBeenCalledWith("get_my_account_profile");
   });
 
-  it("returns false when profile lookup fails or returns null", async () => {
+  it("returns false when profile RPC fails or returns null", async () => {
     const errMock = createMockSupabase({
       data: null,
       error: { message: "Row not found" },

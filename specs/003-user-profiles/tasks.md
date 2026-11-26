@@ -132,3 +132,14 @@ Task: "T010 Create UserAvatar in web/src/components/profile/user-avatar.tsx"
 
 - **MVP First (Phase 1 + Phase 2 + Phase 3 / US1)**: Delivers the top-right `AccountBubble` with 2-letter initials, `Light`/`Dark` theme toggle with zero FOIT, and clean sign-out revert across all existing routes.
 - **Incremental Delivery**: Add Phase 4 (`US2` `/profile` customization + `256x256` WebP avatar upload + paginated personal activity) → Add Phase 5 (`US3` `/profile/[id]` public profiles + `/study/[id]` discussion attribution) → Run Phase 6 verification gates.
+
+
+---
+
+## Phase 7: Convergence
+
+- [X] T029 CRITICAL: Replace non-token `text-red-600 dark:text-red-400` classes (which are stripped by `--color-*: initial;` in `globals.css`) with compliant Neo-Brutalist token styling across `web/src/components/profile/avatar-upload-control.tsx`, `web/src/components/profile/profile-activity-lists.tsx`, and `web/src/components/profile/profile-settings-form.tsx` per Constitution III (`contradicts`)
+- [X] T030 CRITICAL: Fix Dark Theme contrast and hardcoded light-only token literals across `web/src/components/guidelines/variable-directory.tsx`, `web/src/components/guidelines/hub-grid.tsx`, `web/src/components/admin/consensus-drift-card.tsx`, `web/src/components/admin/pending-studies-table.tsx`, `web/src/components/admin/secondary-commentary-form.tsx`, `web/src/components/feed/feed-client.tsx`, `web/src/components/layout/brand-logo.tsx`, and `web/src/components/ui/badge.tsx` (use `text-accent-ink` on `bg-accent` / `hover:bg-accent` / pastel `bg-badge-*` surfaces, `border-accent-ink` on semantic evidence/transparency badges in `badge.tsx`, and tokenized `border-border` / `shadow-card` / `shadow-control`) per Constitution III (`contradicts`)
+- [X] T031 Wire `AccountProfileProvider.setThemeLocalAndPersist()` in `web/src/components/layout/account-profile-provider.tsx` to persist theme changes through `updateThemePreferenceAction` (`web/src/lib/actions/profile.ts`) instead of direct browser `.from("profiles").update(...)` so theme toggles enforce Zod boundary validation and trigger `/profile` revalidation per FR-011 / contracts: 4.1 (`partial`)
+- [X] T032 Sync `AvatarUploadControl` in `web/src/components/profile/avatar-upload-control.tsx` with `useAccountProfile().profile?.display_name` (falling back to the `displayName` prop) so the initials preview on `/profile` updates immediately after saving a new display name without a full page reload per US2/AC2 / SC-002 (`partial`)
+- [X] T033 Update or retire exported `fetchIsAdmin()` in `web/src/components/layout/top-nav.tsx` (and update `web/tests/top-nav.test.ts`) so no helper queries the revoked `profiles.role` column directly instead of `supabase.rpc("get_my_account_profile")` per plan: column-level grants (`contradicts`)

@@ -107,7 +107,7 @@ export function FeedClient({ initialStudies }: FeedClientProps) {
       />
 
       {filteredAndSorted.length === 0 ? (
-        <div className="rounded-md border-2 border-ink bg-surface p-8 text-center shadow-[4px_4px_0px_#0F172A]">
+        <div className="rounded-md border-2 border-border bg-surface p-8 text-center shadow-card">
           <div className="mb-3 flex justify-center">
             <BrandLogo size="md" />
           </div>

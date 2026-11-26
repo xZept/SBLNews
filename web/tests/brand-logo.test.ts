@@ -49,10 +49,10 @@ describe("BrandLogo component & Neo-Brutalist styling (T005)", () => {
     expect(html).toContain('src="/img/logo.png"');
     expect(html).toContain("[image-rendering:pixelated]");
     expect(html).toContain("border-2");
-    expect(html).toContain("border-ink");
+    expect(html).toContain("border-border");
     expect(html).toContain("bg-surface");
     expect(html).toContain("rounded-sm");
-    expect(html).toContain("shadow-[2px_2px_0px_#0F172A]");
+    expect(html).toContain("shadow-control");
     expect(html).toContain("h-8 w-8");
   });
 

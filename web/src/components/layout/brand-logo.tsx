@@ -35,7 +35,7 @@ export function BrandLogo({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-sm border-2 border-ink bg-surface shadow-[2px_2px_0px_#0F172A]",
+        "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-sm border-2 border-border bg-surface shadow-control",
         SIZE_CLASSES[size],
         className
       )}

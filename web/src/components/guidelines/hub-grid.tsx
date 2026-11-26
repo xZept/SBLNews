@@ -95,13 +95,13 @@ export function HubGrid({ guidelines }: HubGridProps) {
                       <li key={item.id}>
                         <a
                           href={`#var-${item.slug}`}
-                          className="group flex items-center justify-between gap-2 rounded-sm border-[1.5px] border-ink bg-canvas px-3 py-2 shadow-[2px_2px_0px_#0F172A] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:bg-accent"
+                          className="group flex items-center justify-between gap-2 rounded-sm border-[1.5px] border-border bg-canvas px-3 py-2 shadow-control transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:border-accent-ink hover:bg-accent"
                         >
                           <div className="min-w-0">
-                            <div className="truncate font-display text-sm font-bold text-ink">
+                            <div className="truncate font-display text-sm font-bold text-ink group-hover:text-accent-ink">
                               {item.variable_name}
                             </div>
-                            <div className="truncate font-mono text-[11px] text-muted group-hover:text-ink">
+                            <div className="truncate font-mono text-[11px] text-muted group-hover:text-accent-ink">
                               {item.practical_prescription}
                             </div>
                           </div>

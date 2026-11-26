@@ -67,8 +67,8 @@ export function ConsensusDriftCard({
 
   if (resolved && statusMsg) {
     return (
-      <Card className="bg-badge-fulltext p-4">
-        <p className="font-mono text-xs font-semibold text-ink">{statusMsg}</p>
+      <Card className="border-accent-ink bg-badge-fulltext p-4">
+        <p className="font-mono text-xs font-semibold text-accent-ink">{statusMsg}</p>
       </Card>
     );
   }
@@ -76,7 +76,7 @@ export function ConsensusDriftCard({
   return (
     <Card className="p-4 sm:p-5">
       <div className="space-y-4">
-        <div className="flex flex-wrap items-start justify-between gap-2 border-b border-ink/15 pb-3">
+        <div className="flex flex-wrap items-start justify-between gap-2 border-b border-border/15 pb-3">
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="trained" className="gap-1">
@@ -101,7 +101,7 @@ export function ConsensusDriftCard({
         </div>
 
         {alert.trigger_study && (
-          <div className="rounded-md border-2 border-ink bg-canvas p-3">
+          <div className="rounded-md border-2 border-border bg-canvas p-3">
             <div className="flex flex-wrap items-center gap-2 font-mono text-xs text-muted">
               <span className="font-semibold text-ink">Trigger Study:</span>
               <span>{formatStudyDesign(alert.trigger_study.study_design)}</span>
@@ -149,7 +149,7 @@ export function ConsensusDriftCard({
               id={`grade-${alert.id}`}
               value={grade}
               onChange={(e) => setGrade(e.target.value as EvidenceGradeType)}
-              className="flex h-10 w-full rounded-md border-2 border-ink bg-surface px-3 py-2 font-mono text-sm font-semibold text-ink shadow-[2px_2px_0px_#0F172A]"
+              className="flex h-10 w-full rounded-md border-2 border-border bg-surface px-3 py-2 font-mono text-sm font-semibold text-ink shadow-control"
             >
               <option value="A">Grade A (Strong Meta-Analytic)</option>
               <option value="B">Grade B (Moderate RCT)</option>
@@ -186,7 +186,7 @@ export function ConsensusDriftCard({
             rows={3}
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
-            className="w-full rounded-md border-2 border-ink bg-surface p-3 font-sans text-sm text-ink shadow-[2px_2px_0px_#0F172A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            className="w-full rounded-md border-2 border-border bg-surface p-3 font-sans text-sm text-ink shadow-control focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border"
           />
         </div>
 
@@ -208,7 +208,7 @@ export function ConsensusDriftCard({
         {errorMsg && (
           <p
             role="alert"
-            className="rounded-md border-2 border-ink bg-badge-abstract px-3 py-2 font-mono text-xs font-semibold text-ink"
+            className="rounded-md border-2 border-accent-ink bg-badge-abstract px-3 py-2 font-mono text-xs font-semibold text-accent-ink"
           >
             {errorMsg}
           </p>

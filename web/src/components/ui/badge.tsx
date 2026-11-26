@@ -8,12 +8,12 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default: "bg-surface text-ink",
-        accent: "bg-accent text-accent-ink",
-        meta: "bg-badge-meta text-accent-ink",
-        rct: "bg-badge-rct text-accent-ink",
-        trained: "bg-badge-trained text-accent-ink",
-        fulltext: "bg-badge-fulltext text-accent-ink",
-        abstract: "bg-badge-abstract text-accent-ink",
+        accent: "border-accent-ink bg-accent text-accent-ink",
+        meta: "border-accent-ink bg-badge-meta text-accent-ink",
+        rct: "border-accent-ink bg-badge-rct text-accent-ink",
+        trained: "border-accent-ink bg-badge-trained text-accent-ink",
+        fulltext: "border-accent-ink bg-badge-fulltext text-accent-ink",
+        abstract: "border-accent-ink bg-badge-abstract text-accent-ink",
         muted: "bg-canvas text-muted",
       },
     },

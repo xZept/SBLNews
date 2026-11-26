@@ -23,7 +23,8 @@ export function AvatarUploadControl({
   displayName,
   avatarUrl,
 }: AvatarUploadControlProps) {
-  const { refreshAccountProfile } = useAccountProfile();
+  const { profile, refreshAccountProfile } = useAccountProfile();
+  const effectiveDisplayName = profile?.display_name ?? displayName;
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [currentUrl, setCurrentUrl] = React.useState<string | null>(avatarUrl);
   const [busy, setBusy] = React.useState<"upload" | "remove" | null>(null);
@@ -100,7 +101,7 @@ export function AvatarUploadControl({
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-4">
         <UserAvatar
-          displayName={displayName}
+          displayName={effectiveDisplayName}
           avatarUrl={currentUrl}
           size="lg"
         />
@@ -167,7 +168,7 @@ export function AvatarUploadControl({
         <p
           role="alert"
           aria-live="assertive"
-          className="font-mono text-xs font-semibold text-red-600 dark:text-red-400 sm:basis-full"
+          className="rounded-md border-2 border-accent-ink bg-badge-abstract px-3 py-2 font-mono text-xs font-semibold text-accent-ink sm:basis-full"
         >
           {errorMessage}
         </p>

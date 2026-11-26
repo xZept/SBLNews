@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { updateThemePreferenceAction } from "@/lib/actions/profile";
 import { createClient } from "@/lib/supabase/client";
 import type {
   AccountProfile,
@@ -144,14 +145,12 @@ export function AccountProfileProvider({
         return;
       }
 
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("profiles")
-        .update({ theme_preference: nextTheme })
-        .eq("id", profile.id);
+      const result = await updateThemePreferenceAction({
+        themePreference: nextTheme,
+      });
 
-      if (error) {
-        console.error("Failed to persist theme preference:", error.message);
+      if (!result.ok) {
+        console.error("Failed to persist theme preference:", result.message);
       }
     },
     [profile]

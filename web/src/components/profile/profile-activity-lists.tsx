@@ -162,7 +162,7 @@ export function ProfileActivityLists({
       {commentsError && (
         <p
           role="alert"
-          className="font-mono text-xs font-semibold text-red-600 dark:text-red-400"
+          className="rounded-md border-2 border-accent-ink bg-badge-abstract px-3 py-2 font-mono text-xs font-semibold text-accent-ink"
         >
           {commentsError}
         </p>
@@ -266,7 +266,7 @@ export function ProfileActivityLists({
             {upvotesError && (
               <p
                 role="alert"
-                className="font-mono text-xs font-semibold text-red-600 dark:text-red-400"
+                className="rounded-md border-2 border-accent-ink bg-badge-abstract px-3 py-2 font-mono text-xs font-semibold text-accent-ink"
               >
                 {upvotesError}
               </p>

@@ -184,7 +184,7 @@ export function ProfileSettingsForm({
               {fieldErrors.displayName && (
                 <p
                   id={displayNameErrorId}
-                  className="mt-1 font-mono text-xs font-semibold text-red-600 dark:text-red-400"
+                  className="mt-1.5 inline-block rounded-sm border-[1.5px] border-accent-ink bg-badge-abstract px-2 py-0.5 font-mono text-xs font-semibold text-accent-ink"
                 >
                   {fieldErrors.displayName}
                 </p>
@@ -229,7 +229,7 @@ export function ProfileSettingsForm({
                   className={cn(
                     "font-mono text-xs font-semibold",
                     bioLength > 160
-                      ? "text-red-600 dark:text-red-400"
+                      ? "rounded-sm border-[1.5px] border-accent-ink bg-badge-abstract px-1.5 py-0.5 text-accent-ink"
                       : "text-muted"
                   )}
                 >
@@ -257,7 +257,7 @@ export function ProfileSettingsForm({
               {fieldErrors.bio && (
                 <p
                   id={bioErrorId}
-                  className="mt-1 font-mono text-xs font-semibold text-red-600 dark:text-red-400"
+                  className="mt-1.5 inline-block rounded-sm border-[1.5px] border-accent-ink bg-badge-abstract px-2 py-0.5 font-mono text-xs font-semibold text-accent-ink"
                 >
                   {fieldErrors.bio}
                 </p>
@@ -325,7 +325,7 @@ export function ProfileSettingsForm({
                 <p
                   role="alert"
                   aria-live="assertive"
-                  className="font-mono text-xs font-semibold text-red-600 dark:text-red-400"
+                  className="rounded-md border-2 border-accent-ink bg-badge-abstract px-3 py-2 font-mono text-xs font-semibold text-accent-ink"
                 >
                   {errorMessage}
                 </p>

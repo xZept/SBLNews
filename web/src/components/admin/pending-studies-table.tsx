@@ -48,7 +48,7 @@ export function PendingStudiesTable({ studies }: PendingStudiesTableProps) {
       {feedback && (
         <div
           role="status"
-          className="rounded-md border-2 border-ink bg-badge-fulltext px-4 py-2 font-mono text-xs font-semibold text-ink shadow-[2px_2px_0px_#0F172A]"
+          className="rounded-md border-2 border-accent-ink bg-badge-fulltext px-4 py-2 font-mono text-xs font-semibold text-accent-ink shadow-control"
         >
           {feedback}
         </div>
@@ -56,7 +56,7 @@ export function PendingStudiesTable({ studies }: PendingStudiesTableProps) {
       {errorMsg && (
         <div
           role="alert"
-          className="rounded-md border-2 border-ink bg-badge-abstract px-4 py-2 font-mono text-xs font-semibold text-ink shadow-[2px_2px_0px_#0F172A]"
+          className="rounded-md border-2 border-accent-ink bg-badge-abstract px-4 py-2 font-mono text-xs font-semibold text-accent-ink shadow-control"
         >
           {errorMsg}
         </div>

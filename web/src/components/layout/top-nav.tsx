@@ -20,19 +20,20 @@ const NAV_LINKS = [
 
 export async function fetchIsAdmin(
   supabase: ReturnType<typeof createClient>,
-  userId: string
+  _userId?: string
 ): Promise<boolean> {
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", userId)
-    .single<{ role: string }>();
+  void _userId;
+  const { data, error } = await supabase.rpc("get_my_account_profile");
 
   if (error || !data) {
     return false;
   }
 
-  return data.role === "admin";
+  const profile = Array.isArray(data)
+    ? (data[0] as { role?: string } | undefined)
+    : (data as { role?: string });
+
+  return profile?.role === "admin";
 }
 
 export function TopNav() {

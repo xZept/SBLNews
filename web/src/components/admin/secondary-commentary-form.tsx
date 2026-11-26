@@ -68,7 +68,7 @@ export function SecondaryCommentaryForm({
                 id="commentary-study"
                 value={studyId}
                 onChange={(e) => setStudyId(e.target.value)}
-                className="flex h-10 w-full rounded-md border-2 border-ink bg-surface px-3 py-2 font-sans text-sm text-ink shadow-[2px_2px_0px_#0F172A]"
+                className="flex h-10 w-full rounded-md border-2 border-border bg-surface px-3 py-2 font-sans text-sm text-ink shadow-control"
               >
                 {studies.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -164,7 +164,7 @@ export function SecondaryCommentaryForm({
         {feedback && (
           <p
             role="status"
-            className="rounded-md border-2 border-ink bg-badge-fulltext px-3 py-2 font-mono text-xs font-semibold text-ink"
+            className="rounded-md border-2 border-accent-ink bg-badge-fulltext px-3 py-2 font-mono text-xs font-semibold text-accent-ink"
           >
             {feedback}
           </p>
@@ -172,7 +172,7 @@ export function SecondaryCommentaryForm({
         {errorMsg && (
           <p
             role="alert"
-            className="rounded-md border-2 border-ink bg-badge-abstract px-3 py-2 font-mono text-xs font-semibold text-ink"
+            className="rounded-md border-2 border-accent-ink bg-badge-abstract px-3 py-2 font-mono text-xs font-semibold text-accent-ink"
           >
             {errorMsg}
           </p>
