@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+
+# Next.js / Web
+web/.next/
+web/out/
+web/build/
+web/dist/
+web/.vercel
+
+# Python / Pipeline
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+pipeline/dist/
+pipeline/build/
+.pytest_cache/
+
+# Environment & Secrets
+.env
+.env*.local
+!.env.example
+
+# Logs & OS
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/

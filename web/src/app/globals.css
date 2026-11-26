@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --color-*: initial;
+
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Core Neo-Brutalist Sky Blue Surfaces & Ink */
+  --color-canvas: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-ink: #0F172A;
+  --color-accent: #38BDF8;
+  --color-muted: #475569;
+  --color-border: #0F172A;
+
+  /* Semantic Evidence & Transparency Badge Pastels */
+  --color-badge-meta: #A7F3D0;
+  --color-badge-rct: #BAE6FD;
+  --color-badge-trained: #FDE68A;
+  --color-badge-fulltext: #BBF7D0;
+  --color-badge-abstract: #FED7AA;
+
+  /* Typography */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* Hard Zero-Blur Offset Shadows */
+  --shadow-card: 4px 4px 0px #0F172A;
+  --shadow-control: 2px 2px 0px #0F172A;
+}
+
+@layer base {
+  html,
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+  }
+}
