@@ -222,6 +222,6 @@ description: "Actionable, dependency-ordered implementation tasks for SBL News M
 
 ## Phase 11: Convergence
 
-- [ ] T059 Align `/search` query embedding model in `web/src/lib/queries/studies.ts` (`generateQueryEmbedding`) with `gemini-embedding-001` (768-dim) used by `pipeline/src/extraction/embeddings.py` so `pgvector` cosine similarity compares compatible vector spaces per FR-013 / US5/AC1 (contradicts)
-- [ ] T060 Fix changelog ordering in `web/src/components/guidelines/variable-directory.tsx` so newly approved Consensus Drift entries prepended by `resolveConsensusDriftAction` appear as the latest changelog entry on `/guidelines` (and older entries render under earlier history) per US4/AC2 / US7/AC3 (contradicts)
-- [ ] T061 Display a clear user-facing validation error message (with filter reset option) in `web/src/app/search/page.tsx` when `HybridSearchSchema.safeParse` fails instead of silently falling back to default search parameters per FR-006 / Edge Cases (partial)
+- [X] T059 Align `/search` query embedding model in `web/src/lib/queries/studies.ts` (`generateQueryEmbedding`) with `gemini-embedding-001` (768-dim) used by `pipeline/src/extraction/embeddings.py` so `pgvector` cosine similarity compares compatible vector spaces per FR-013 / US5/AC1 (contradicts)
+- [X] T060 Fix changelog ordering in `web/src/components/guidelines/variable-directory.tsx` so newly approved Consensus Drift entries prepended by `resolveConsensusDriftAction` appear as the latest changelog entry on `/guidelines` (and older entries render under earlier history) per US4/AC2 / US7/AC3 (contradicts)
+- [X] T061 Display a clear user-facing validation error message (with filter reset option) in `web/src/app/search/page.tsx` when `HybridSearchSchema.safeParse` fails instead of silently falling back to default search parameters per FR-006 / Edge Cases (partial)

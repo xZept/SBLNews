@@ -11,6 +11,12 @@ import {
   HybridSearchSchema,
   type HybridSearchInput,
 } from "@/lib/validations/search";
+import {
+  GEMINI_EMBEDDING_MODEL,
+  generateQueryEmbedding,
+} from "@/lib/queries/embeddings";
+
+export { GEMINI_EMBEDDING_MODEL, generateQueryEmbedding };
 
 const STUDY_DETAIL_COLUMNS = `
   ${STUDY_SUMMARY_COLUMNS},
@@ -169,60 +175,6 @@ export interface HybridSearchResult extends StudySummary {
 export interface HybridSearchResponse {
   results: HybridSearchResult[];
   usedSemantic: boolean;
-}
-
-/**
- * Generates a 768-dim Gemini embedding for a search query via native fetch.
- * Returns null on empty query, missing GEMINI_API_KEY, timeout, or API error
- * so hybrid search gracefully falls back to keyword-only matching.
- */
-export async function generateQueryEmbedding(
-  queryText: string
-): Promise<number[] | null> {
-  const trimmed = queryText.trim();
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!trimmed || !apiKey) {
-    return null;
-  }
-
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${encodeURIComponent(
-        apiKey
-      )}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "models/text-embedding-004",
-          content: { parts: [{ text: trimmed }] },
-          taskType: "RETRIEVAL_QUERY",
-          outputDimensionality: 768,
-        }),
-        signal: AbortSignal.timeout(4000),
-      }
-    );
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const payload = (await response.json()) as {
-      embedding?: { values?: unknown };
-    };
-    const values = payload.embedding?.values;
-    if (
-      !Array.isArray(values) ||
-      values.length !== 768 ||
-      !values.every((v) => typeof v === "number" && Number.isFinite(v))
-    ) {
-      return null;
-    }
-
-    return values as number[];
-  } catch {
-    return null;
-  }
 }
 
 /**
