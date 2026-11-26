@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import type { EvidenceGradeType } from "@/lib/queries/projections";
 import type { GuidelineWithAnchors } from "@/lib/queries/guidelines";
+import { orderChangelogEntries } from "@/lib/queries/changelog";
 
 function gradeBadgeVariant(grade: EvidenceGradeType) {
   switch (grade) {
@@ -66,8 +67,9 @@ export function VariableDirectory({ guidelines }: VariableDirectoryProps) {
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {guidelines.map((guideline) => {
-            const latestChange =
-              guideline.changelog[guideline.changelog.length - 1] ?? null;
+            const orderedChangelog = orderChangelogEntries(guideline.changelog);
+            const latestChange = orderedChangelog[0] ?? null;
+            const earlierChanges = orderedChangelog.slice(1);
 
             return (
               <Card
@@ -169,29 +171,24 @@ export function VariableDirectory({ guidelines }: VariableDirectoryProps) {
                     </p>
                   )}
 
-                  {guideline.changelog.length > 1 && (
+                  {earlierChanges.length > 0 && (
                     <details className="w-full pt-1">
                       <summary className="cursor-pointer font-mono text-[11px] font-semibold text-ink hover:underline">
-                        View {guideline.changelog.length - 1} earlier{" "}
-                        {guideline.changelog.length - 1 === 1
-                          ? "entry"
-                          : "entries"}
+                        View {earlierChanges.length} earlier{" "}
+                        {earlierChanges.length === 1 ? "entry" : "entries"}
                       </summary>
                       <ul className="mt-2 space-y-1.5 border-l-2 border-ink pl-2.5">
-                        {guideline.changelog
-                          .slice(0, -1)
-                          .reverse()
-                          .map((entry, idx) => (
-                            <li
-                              key={`${entry.updated_at}-${idx}`}
-                              className="text-[11px] leading-snug text-muted"
-                            >
-                              <span className="mr-1 font-mono font-semibold text-ink">
-                                [{formatIsoDate(entry.updated_at)}]
-                              </span>
-                              {entry.summary}
-                            </li>
-                          ))}
+                        {earlierChanges.map((entry, idx) => (
+                          <li
+                            key={`${entry.updated_at}-${idx}`}
+                            className="text-[11px] leading-snug text-muted"
+                          >
+                            <span className="mr-1 font-mono font-semibold text-ink">
+                              [{formatIsoDate(entry.updated_at)}]
+                            </span>
+                            {entry.summary}
+                          </li>
+                        ))}
                       </ul>
                     </details>
                   )}

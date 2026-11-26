@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Search, RotateCcw } from "lucide-react";
+import { AlertTriangle, Search, RotateCcw } from "lucide-react";
 import { StudyCard } from "@/components/feed/study-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,19 +26,34 @@ function pickFirst(value: string | string[] | undefined): string | undefined {
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const raw = await searchParams;
 
+  const rawQ = pickFirst(raw.q) ?? "";
+  const rawStudyDesign = pickFirst(raw.study_design);
+  const rawMinDuration = pickFirst(raw.min_duration_weeks);
+  const rawTrainedOnly = pickFirst(raw.trained_only);
+  const rawLimit = pickFirst(raw.limit);
+
   const parsed = HybridSearchSchema.safeParse({
-    q: pickFirst(raw.q) ?? "",
-    study_design: pickFirst(raw.study_design),
-    min_duration_weeks: pickFirst(raw.min_duration_weeks),
-    trained_only: pickFirst(raw.trained_only),
-    limit: pickFirst(raw.limit),
+    q: rawQ,
+    study_design: rawStudyDesign,
+    min_duration_weeks: rawMinDuration,
+    trained_only: rawTrainedOnly,
+    limit: rawLimit,
   });
+
+  const validationErrors = parsed.success
+    ? []
+    : parsed.error.issues.map((issue) => {
+        const field = issue.path[0];
+        return field ? `${String(field)}: ${issue.message}` : issue.message;
+      });
 
   const params = parsed.success
     ? parsed.data
-    : { q: "", limit: 20 };
+    : { q: rawQ.slice(0, 200), limit: 20 };
 
-  const { results, usedSemantic } = await searchStudiesHybrid(params);
+  const { results, usedSemantic } = parsed.success
+    ? await searchStudiesHybrid(params)
+    : { results: [], usedSemantic: false };
 
   let votedStudyIds = new Set<string>();
   if (
@@ -66,7 +81,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   }
 
   const hasActiveFilters = Boolean(
-    params.q ||
+    !parsed.success ||
+      params.q ||
       params.study_design ||
       params.min_duration_weeks !== undefined ||
       params.trained_only
@@ -200,7 +216,39 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </div>
 
-      {results.length === 0 ? (
+      {validationErrors.length > 0 ? (
+        <Card
+          role="alert"
+          className="border-2 border-ink bg-badge-abstract p-6 text-ink"
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 shrink-0" aria-hidden="true" />
+                <h2 className="font-display text-lg font-bold text-ink">
+                  Invalid search parameters
+                </h2>
+              </div>
+              <p className="max-w-[65ch] text-sm text-ink">
+                Your search could not be executed because one or more query or
+                filter values are invalid. Reset filters or adjust your inputs
+                and try again.
+              </p>
+              <ul className="list-disc space-y-1 pl-5 font-mono text-xs text-ink">
+                {validationErrors.map((err, idx) => (
+                  <li key={idx}>{err}</li>
+                ))}
+              </ul>
+            </div>
+            <Button asChild variant="primary" className="shrink-0 gap-1.5">
+              <Link href="/search">
+                <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>Reset Filters</span>
+              </Link>
+            </Button>
+          </div>
+        </Card>
+      ) : results.length === 0 ? (
         <Card className="p-8 text-center">
           <h2 className="font-display text-lg font-bold text-ink">
             No matching studies found
