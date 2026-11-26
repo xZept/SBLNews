@@ -3,9 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
-import { LogOut, Search, ShieldCheck } from "lucide-react";
+import { Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { AccountBubble } from "@/components/layout/account-bubble";
+import { useAccountProfile } from "@/components/layout/account-profile-provider";
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -36,52 +37,7 @@ export async function fetchIsAdmin(
 
 export function TopNav() {
   const pathname = usePathname();
-  const [user, setUser] = React.useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = React.useState(false);
-  const [authReady, setAuthReady] = React.useState(false);
-
-  React.useEffect(() => {
-    let mounted = true;
-    try {
-      const supabase = createClient();
-
-      const applySessionUser = async (nextUser: User | null) => {
-        if (!mounted) return;
-        setUser(nextUser);
-        if (!nextUser) {
-          setIsAdmin(false);
-          setAuthReady(true);
-          return;
-        }
-        const admin = await fetchIsAdmin(supabase, nextUser.id);
-        if (mounted) {
-          setIsAdmin(admin);
-          setAuthReady(true);
-        }
-      };
-
-      supabase.auth.getUser().then(({ data }) => {
-        void applySessionUser(data.user ?? null);
-      });
-
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
-        void applySessionUser(session?.user ?? null);
-      });
-
-      return () => {
-        mounted = false;
-        subscription.unsubscribe();
-      };
-    } catch {
-      // Env vars may be absent during static build/test environments
-      setAuthReady(true);
-      return () => {
-        mounted = false;
-      };
-    }
-  }, []);
+  const { profile, loading } = useAccountProfile();
 
   async function handleOAuthSignIn(provider: "google" | "github") {
     const supabase = createClient();
@@ -94,15 +50,8 @@ export function TopNav() {
     });
   }
 
-  async function handleSignOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    setUser(null);
-    setIsAdmin(false);
-  }
-
   return (
-    <header className="sticky top-0 z-40 border-b-2 border-ink bg-surface">
+    <header className="sticky top-0 z-40 border-b-2 border-border bg-surface">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-6">
           <Link
@@ -127,10 +76,10 @@ export function TopNav() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-sm border-[1.5px] px-3 py-1 font-display text-sm font-bold text-ink transition-none",
+                    "inline-flex items-center gap-1.5 rounded-sm border-[1.5px] px-3 py-1 font-display text-sm font-bold transition-none",
                     isActive
-                      ? "border-ink bg-accent shadow-[2px_2px_0px_#0F172A]"
-                      : "border-transparent hover:border-ink hover:bg-canvas"
+                      ? "border-border bg-accent text-accent-ink shadow-control"
+                      : "border-transparent text-ink hover:border-border hover:bg-canvas"
                   )}
                 >
                   {link.href === "/search" && <Search className="h-3.5 w-3.5" />}
@@ -142,35 +91,10 @@ export function TopNav() {
         </div>
 
         <div className="flex items-center gap-2">
-          {authReady && user ? (
-            <>
-              {isAdmin && (
-                <Link
-                  href="/admin/review"
-                  className="hidden items-center gap-1 rounded-sm border-[1.5px] border-ink bg-canvas px-2.5 py-1 font-mono text-xs font-semibold text-ink hover:bg-accent sm:inline-flex"
-                  title="Moderation & Consensus Drift Review"
-                >
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>Admin</span>
-                </Link>
-              )}
-              <span className="hidden font-mono text-xs text-muted sm:inline">
-                {user.user_metadata?.full_name ||
-                  user.user_metadata?.user_name ||
-                  user.email ||
-                  "Signed in"}
-              </span>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={handleSignOut}
-                aria-label="Sign out"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                <span>Sign out</span>
-              </Button>
-            </>
+          {loading ? (
+            <div className="h-9 w-9" aria-hidden="true" />
+          ) : profile ? (
+            <AccountBubble />
           ) : (
             <div className="flex items-center gap-2">
               <Button
@@ -198,7 +122,7 @@ export function TopNav() {
       {/* Mobile navigation strip */}
       <nav
         aria-label="Mobile navigation"
-        className="flex items-center gap-1 overflow-x-auto border-t-2 border-ink bg-canvas px-4 py-2 md:hidden"
+        className="flex items-center gap-1 overflow-x-auto border-t-2 border-border bg-canvas px-4 py-2 md:hidden"
       >
         {NAV_LINKS.map((link) => {
           const isActive =
@@ -210,10 +134,10 @@ export function TopNav() {
               key={link.href}
               href={link.href}
               className={cn(
-                "shrink-0 rounded-sm border-[1.5px] px-2.5 py-1 font-display text-xs font-bold text-ink",
+                "shrink-0 rounded-sm border-[1.5px] px-2.5 py-1 font-display text-xs font-bold",
                 isActive
-                  ? "border-ink bg-accent shadow-[2px_2px_0px_#0F172A]"
-                  : "border-transparent bg-surface"
+                  ? "border-border bg-accent text-accent-ink shadow-control"
+                  : "border-transparent bg-surface text-ink"
               )}
             >
               {link.label}
