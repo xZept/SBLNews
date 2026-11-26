@@ -20,3 +20,30 @@ export const FeedFilterSchema = z.object({
 
 export type FeedTab = z.infer<typeof FeedTabEnum>;
 export type FeedFilterInput = z.infer<typeof FeedFilterSchema>;
+
+export const HybridSearchSchema = z.object({
+  q: z.string().trim().max(200, "Query must be 200 characters or fewer").default(""),
+  study_design: z.preprocess(
+    (val) => (val === "" || val === null || val === undefined ? undefined : val),
+    StudyDesignEnum.optional()
+  ),
+  min_duration_weeks: z.preprocess(
+    (val) => (val === "" || val === null || val === undefined ? undefined : val),
+    z.coerce.number().int().min(0).max(520).optional()
+  ),
+  trained_only: z.preprocess(
+    (val) => {
+      if (val === "" || val === null || val === undefined) return undefined;
+      if (val === true || val === "true" || val === "on" || val === "1") return true;
+      if (val === false || val === "false" || val === "0") return false;
+      return val;
+    },
+    z.boolean().optional()
+  ),
+  limit: z.preprocess(
+    (val) => (val === "" || val === null || val === undefined ? undefined : val),
+    z.coerce.number().int().min(1).max(50).default(20)
+  ),
+});
+
+export type HybridSearchInput = z.infer<typeof HybridSearchSchema>;

@@ -139,9 +139,9 @@ description: "Actionable, dependency-ordered implementation tasks for SBL News M
 
 **Independent Test**: Open `/search`, submit a query, apply combinations of `study_design`, `min_duration_weeks`, and `trained_only` filters, verify summary-only projections return, and verify empty state + filter reset.
 
-- [ ] T047 [P] [US5] Add `HybridSearchSchema` (`q` max 200 chars, `min_duration_weeks` 0–520, `limit` 1–50) to `web/src/lib/validations/search.ts`
-- [ ] T048 [US5] Implement server-side Gemini query-embedding helper (via native `fetch` with `GEMINI_API_KEY`, falling back to `query_embedding = NULL` keyword search on empty query or API error) and `searchStudiesHybrid(params)` calling `search_studies_hybrid` RPC in `web/src/lib/queries/studies.ts`
-- [ ] T049 [US5] Implement Hybrid Search page (`/search`) with search input, deterministic filter controls, summary `StudyCard` results, and empty-state reset in `web/src/app/search/page.tsx`
+- [X] T047 [P] [US5] Add `HybridSearchSchema` (`q` max 200 chars, `min_duration_weeks` 0–520, `limit` 1–50) to `web/src/lib/validations/search.ts`
+- [X] T048 [US5] Implement server-side Gemini query-embedding helper (via native `fetch` with `GEMINI_API_KEY`, falling back to `query_embedding = NULL` keyword search on empty query or API error) and `searchStudiesHybrid(params)` calling `search_studies_hybrid` RPC in `web/src/lib/queries/studies.ts`
+- [X] T049 [US5] Implement Hybrid Search page (`/search`) with search input, deterministic filter controls, summary `StudyCard` results, and empty-state reset in `web/src/app/search/page.tsx`
 
 **Checkpoint**: User Story 5 (`/search`) is independently functional.
 
@@ -153,11 +153,11 @@ description: "Actionable, dependency-ordered implementation tasks for SBL News M
 
 **Independent Test**: Verify unauthenticated and `role = 'member'` requests to `/admin/review` or moderation actions are rejected server-side; sign in as `admin`, approve a pending study, and approve a `Consensus Drift` alert verifying `/guidelines` updates.
 
-- [ ] T050 [P] [US7] Create `ModerateStudySchema`, `ResolveConsensusDriftSchema`, and `AddSecondaryCommentarySchema` Zod validators in `web/src/lib/validations/moderation.ts`
-- [ ] T051 [US7] Implement `getPendingReviewQueue()` admin query guarded by `requireAdmin()` in `web/src/lib/queries/admin.ts`
-- [ ] T052 [US7] Implement `moderateStudyAction`, `resolveConsensusDriftAction` (deduplicating and appending `trigger_study_id` to `guidelines.anchor_study_ids` on approval), and `addSecondaryCommentaryAction` server actions enforcing `requireAdmin()`, updating `studies`/`consensus_drift_alerts`/`guidelines`/`secondary_commentaries`, and calling `revalidatePath('/')`, `revalidatePath('/guidelines')`, and `revalidatePath('/study/[id]')` in `web/src/lib/actions/moderation.ts`
-- [ ] T053 [P] [US7] Build `PendingStudiesTable`, `ConsensusDriftCard`, and secondary-commentary attachment form in `web/src/components/admin/pending-studies-table.tsx` and `web/src/components/admin/consensus-drift-card.tsx`
-- [ ] T054 [US7] Implement RBAC-protected Moderation & Drift Queue page (`/admin/review`, `export const dynamic = "force-dynamic"`) in `web/src/app/admin/review/page.tsx`
+- [X] T050 [P] [US7] Create `ModerateStudySchema`, `ResolveConsensusDriftSchema`, and `AddSecondaryCommentarySchema` Zod validators in `web/src/lib/validations/moderation.ts`
+- [X] T051 [US7] Implement `getPendingReviewQueue()` admin query guarded by `requireAdmin()` in `web/src/lib/queries/admin.ts`
+- [X] T052 [US7] Implement `moderateStudyAction`, `resolveConsensusDriftAction` (deduplicating and appending `trigger_study_id` to `guidelines.anchor_study_ids` on approval), and `addSecondaryCommentaryAction` server actions enforcing `requireAdmin()`, updating `studies`/`consensus_drift_alerts`/`guidelines`/`secondary_commentaries`, and calling `revalidatePath('/')`, `revalidatePath('/guidelines')`, and `revalidatePath('/study/[id]')` in `web/src/lib/actions/moderation.ts`
+- [X] T053 [P] [US7] Build `PendingStudiesTable`, `ConsensusDriftCard`, and secondary-commentary attachment form in `web/src/components/admin/pending-studies-table.tsx` and `web/src/components/admin/consensus-drift-card.tsx`
+- [X] T054 [US7] Implement RBAC-protected Moderation & Drift Queue page (`/admin/review`, `export const dynamic = "force-dynamic"`) in `web/src/app/admin/review/page.tsx`
 
 **Checkpoint**: User Story 7 (`/admin/review`) is independently functional and enforces server-side RBAC.
 
@@ -169,7 +169,7 @@ description: "Actionable, dependency-ordered implementation tasks for SBL News M
 
 **Independent Test**: Navigate to `/methodology` and verify all four transparency pillars render statically with Neo-Brutalist Sky Blue formatting and `65ch-75ch` prose measure.
 
-- [ ] T055 [US6] Implement static Transparency Hub page (`/methodology`, `export const dynamic = "force-static"`) documenting primary sources, deterministic scoring rubric, inspection badges, and HITL governance in `web/src/app/methodology/page.tsx`
+- [X] T055 [US6] Implement static Transparency Hub page (`/methodology`, `export const dynamic = "force-static"`) documenting primary sources, deterministic scoring rubric, inspection badges, and HITL governance in `web/src/app/methodology/page.tsx`
 
 **Checkpoint**: All 6 core MVP routes and the daily ingestion pipeline are implemented.
 
@@ -179,9 +179,9 @@ description: "Actionable, dependency-ordered implementation tasks for SBL News M
 
 **Purpose**: Final verification gates (`tsc --noEmit`, lint, `pytest`, egress/validation unit tests, and Neo-Brutalist design-token audit).
 
-- [ ] T056 [P] Add unit tests verifying `STUDY_SUMMARY_COLUMNS` excludes `abstract_text` and `embedding` and Zod boundary schemas reject invalid inputs in `web/tests/projections.test.ts` and `web/tests/validations.test.ts`
-- [ ] T057 [P] Audit all `/web/src` components and CSS against Constitution Principle III (zero purple/violet/indigo hues, no gradients or blur shadows, `2px solid #0F172A` borders, `65ch-75ch` body measure)
-- [ ] T058 Run full `quickstart.md` validation gates (`npx tsc --noEmit`, `npm run lint`, `npm test`, `npm run build` in `/web`, and `pytest -v` in `/pipeline`)
+- [X] T056 [P] Add unit tests verifying `STUDY_SUMMARY_COLUMNS` excludes `abstract_text` and `embedding` and Zod boundary schemas reject invalid inputs in `web/tests/projections.test.ts` and `web/tests/validations.test.ts`
+- [X] T057 [P] Audit all `/web/src` components and CSS against Constitution Principle III (zero purple/violet/indigo hues, no gradients or blur shadows, `2px solid #0F172A` borders, `65ch-75ch` body measure)
+- [X] T058 Run full `quickstart.md` validation gates (`npx tsc --noEmit`, `npm run lint`, `npm test`, `npm run build` in `/web`, and `pytest -v` in `/pipeline`)
 
 ---
 
@@ -216,3 +216,12 @@ description: "Actionable, dependency-ordered implementation tasks for SBL News M
 2. Complete Phase 3 (`US1`: `/` feed) and Phase 5 (`US3`: `/pipeline` ingestion & deterministic scoring) in parallel.
 3. **STOP and VALIDATE**: Verify `pytest -v`, `tsc --noEmit`, and `/` ISR feed rendering with real ingested studies.
 4. Incrementally layer `US2` (`/study/[id]`), `US4` (`/guidelines`), `US5` (`/search`), `US7` (`/admin/review`), and `US6` (`/methodology`).
+
+
+---
+
+## Phase 11: Convergence
+
+- [ ] T059 Align `/search` query embedding model in `web/src/lib/queries/studies.ts` (`generateQueryEmbedding`) with `gemini-embedding-001` (768-dim) used by `pipeline/src/extraction/embeddings.py` so `pgvector` cosine similarity compares compatible vector spaces per FR-013 / US5/AC1 (contradicts)
+- [ ] T060 Fix changelog ordering in `web/src/components/guidelines/variable-directory.tsx` so newly approved Consensus Drift entries prepended by `resolveConsensusDriftAction` appear as the latest changelog entry on `/guidelines` (and older entries render under earlier history) per US4/AC2 / US7/AC3 (contradicts)
+- [ ] T061 Display a clear user-facing validation error message (with filter reset option) in `web/src/app/search/page.tsx` when `HybridSearchSchema.safeParse` fails instead of silently falling back to default search parameters per FR-006 / Edge Cases (partial)
