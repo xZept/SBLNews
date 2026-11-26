@@ -17,29 +17,57 @@ const NAV_LINKS = [
   { href: "/methodology", label: "Methodology" },
 ] as const;
 
+export async function fetchIsAdmin(
+  supabase: ReturnType<typeof createClient>,
+  userId: string
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .single<{ role: string }>();
+
+  if (error || !data) {
+    return false;
+  }
+
+  return data.role === "admin";
+}
+
 export function TopNav() {
   const pathname = usePathname();
   const [user, setUser] = React.useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = React.useState(false);
   const [authReady, setAuthReady] = React.useState(false);
 
   React.useEffect(() => {
     let mounted = true;
     try {
       const supabase = createClient();
-      supabase.auth.getUser().then(({ data }) => {
+
+      const applySessionUser = async (nextUser: User | null) => {
+        if (!mounted) return;
+        setUser(nextUser);
+        if (!nextUser) {
+          setIsAdmin(false);
+          setAuthReady(true);
+          return;
+        }
+        const admin = await fetchIsAdmin(supabase, nextUser.id);
         if (mounted) {
-          setUser(data.user ?? null);
+          setIsAdmin(admin);
           setAuthReady(true);
         }
+      };
+
+      supabase.auth.getUser().then(({ data }) => {
+        void applySessionUser(data.user ?? null);
       });
 
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (mounted) {
-          setUser(session?.user ?? null);
-          setAuthReady(true);
-        }
+        void applySessionUser(session?.user ?? null);
       });
 
       return () => {
@@ -70,6 +98,7 @@ export function TopNav() {
     const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
+    setIsAdmin(false);
   }
 
   return (
@@ -115,14 +144,16 @@ export function TopNav() {
         <div className="flex items-center gap-2">
           {authReady && user ? (
             <>
-              <Link
-                href="/admin/review"
-                className="hidden items-center gap-1 rounded-sm border-[1.5px] border-ink bg-canvas px-2.5 py-1 font-mono text-xs font-semibold text-ink hover:bg-accent sm:inline-flex"
-                title="Moderation & Consensus Drift Review"
-              >
-                <ShieldCheck className="h-3.5 w-3.5" />
-                <span>Admin</span>
-              </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin/review"
+                  className="hidden items-center gap-1 rounded-sm border-[1.5px] border-ink bg-canvas px-2.5 py-1 font-mono text-xs font-semibold text-ink hover:bg-accent sm:inline-flex"
+                  title="Moderation & Consensus Drift Review"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <span>Admin</span>
+                </Link>
+              )}
               <span className="hidden font-mono text-xs text-muted sm:inline">
                 {user.user_metadata?.full_name ||
                   user.user_metadata?.user_name ||

@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  serverExternalPackages: ["@supabase/supabase-js", "@supabase/ssr"],
 };
 
 export default nextConfig;
