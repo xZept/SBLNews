@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { z } from "zod";
 import { createClient, createPublicClient } from "@/lib/supabase/server";
 import {
@@ -61,6 +62,37 @@ export async function getFeedStudies(limit = 100): Promise<StudySummary[]> {
 
   return (data ?? []) as StudySummary[];
 }
+
+/**
+ * Fetches full structured metadata for a published study (/study/[id]) using
+ * the cookie-free public Supabase client, memoized per request via React.cache.
+ * Explicitly excludes `embedding` and unpublished records.
+ */
+export const getPublicStudyDetail = cache(
+  async (id: string): Promise<StudyDetail | null> => {
+    if (
+      !UuidSchema.safeParse(id).success ||
+      !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ) {
+      return null;
+    }
+
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("studies")
+      .select(STUDY_DETAIL_COLUMNS)
+      .eq("id", id)
+      .eq("publication_status", "published")
+      .maybeSingle();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return data as StudyDetail;
+  }
+);
 
 /**
  * Fetches full structured metadata for a single study (/study/[id]).

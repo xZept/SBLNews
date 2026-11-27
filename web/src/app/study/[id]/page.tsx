@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -5,16 +6,70 @@ import { DiscussionThread } from "@/components/study/discussion-thread";
 import { MetadataBreakdown } from "@/components/study/metadata-breakdown";
 import { SecondaryCommentaryList } from "@/components/study/secondary-commentary-list";
 import {
+  getPublicStudyDetail,
   getSecondaryCommentaries,
   getStudyComments,
   getStudyDetail,
 } from "@/lib/queries/studies";
+import { formatStudyDesign } from "@/lib/queries/study-badges";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 interface StudyPageProps {
   params: Promise<{ id: string }>;
+}
+
+function truncateTakeaway(takeaway: string, maxLength = 180): string {
+  const normalized = takeaway.trim().replace(/\s+/g, " ");
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+  return `${normalized.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
+export async function generateMetadata({
+  params,
+}: StudyPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const study = await getPublicStudyDetail(id);
+
+  if (!study || study.publication_status !== "published") {
+    return {
+      title: "Study Not Found — SBL News",
+    };
+  }
+
+  const title = `${study.title} (${study.journal}, ${study.publication_year}) — SBL News`;
+  const designLabel = formatStudyDesign(study.study_design);
+  const conciseTakeaway = truncateTakeaway(study.summary_takeaway);
+  const description = `[${designLabel} • ${study.inspection_depth} • Score ${study.quality_score}/100] ${conciseTakeaway} — Science-Based Lifting News`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      type: "article",
+      siteName: "SBL News",
+      title,
+      description,
+      url: `/study/${study.id}`,
+      images: [
+        {
+          url: "/img/logo.png",
+          width: 512,
+          height: 512,
+          alt: `${study.title} — SBL News`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+      images: ["/img/logo.png"],
+    },
+  };
 }
 
 export default async function StudyDetailPage({ params }: StudyPageProps) {

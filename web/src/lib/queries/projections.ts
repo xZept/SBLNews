@@ -38,12 +38,84 @@ export type CommunityRoleType =
 
 export type ThemePreferenceType = "light" | "dark";
 
+export type ActivityVisibilityType = "private" | "friends" | "public";
+
+export type FriendshipStatusType = "pending" | "accepted" | "blocked";
+
+export type ProfileFriendshipState =
+  | "self"
+  | "none"
+  | "friends"
+  | "outgoing_pending"
+  | "incoming_pending"
+  | "blocked_by_me"
+  | "unavailable";
+
+export type ShareChannelType =
+  | "copy_citation"
+  | "x"
+  | "reddit"
+  | "whatsapp"
+  | "discord"
+  | "web_share"
+  | "friend_chat";
+
 export const PUBLIC_PROFILE_COLUMNS = `
   id,
   display_name,
   avatar_url,
   affiliation_role,
-  bio
+  bio,
+  aura_score
+` as const;
+
+export const TOP_AURA_USER_COLUMNS = `
+  id,
+  display_name,
+  avatar_url,
+  affiliation_role,
+  aura_score
+` as const;
+
+export const STUDY_SHARE_CARD_COLUMNS = `
+  id,
+  title,
+  journal,
+  publication_year,
+  study_design,
+  quality_score
+` as const;
+
+export const PROFILE_RECENT_VIEW_COLUMNS = `
+  study_id,
+  viewed_at,
+  study:studies!recent_study_views_study_id_fkey (
+    id,
+    title,
+    journal,
+    publication_year,
+    study_design,
+    quality_score
+  )
+` as const;
+
+export const DIRECT_MESSAGE_COLUMNS = `
+  id,
+  sender_id,
+  recipient_id,
+  body,
+  study_id,
+  has_study_attachment,
+  read_at,
+  created_at,
+  study:studies!direct_messages_study_id_fkey (
+    id,
+    title,
+    journal,
+    publication_year,
+    study_design,
+    quality_score
+  )
 ` as const;
 
 export const PROFILE_COMMENT_HISTORY_COLUMNS = `
@@ -115,13 +187,73 @@ export interface PublicProfile {
   avatar_url: string | null;
   affiliation_role: CommunityRoleType | null;
   bio: string | null;
+  aura_score: number;
 }
 
 export interface AccountProfile extends PublicProfile {
   theme_preference: ThemePreferenceType;
+  upvoted_studies_visibility: ActivityVisibilityType;
+  viewed_studies_visibility: ActivityVisibilityType;
   role: UserRole;
   created_at: string;
   updated_at: string;
+}
+
+export interface TopAuraUser {
+  id: string;
+  display_name: string;
+  avatar_url: string | null;
+  affiliation_role: CommunityRoleType | null;
+  aura_score: number;
+}
+
+export interface ProfileRecentViewItem {
+  study_id: string;
+  viewed_at: string;
+  study: {
+    id: string;
+    title: string;
+    journal: string;
+    publication_year: number;
+    study_design: StudyDesignType;
+    quality_score: number;
+  };
+}
+
+export interface ProfileSocialContext {
+  canViewUpvotes: boolean;
+  canViewRecentViews: boolean;
+  friendshipState: ProfileFriendshipState;
+  friendshipId: string | null;
+}
+
+export interface FriendConnectionItem {
+  friendship_id: string;
+  peer: TopAuraUser;
+  status: FriendshipStatusType;
+  direction: "incoming" | "outgoing" | "mutual" | "blocked_by_me";
+  unread_count: number;
+  last_message_at: string | null;
+  updated_at: string;
+}
+
+export interface DirectMessageItem {
+  id: string;
+  sender_id: string;
+  recipient_id: string;
+  body: string | null;
+  study_id: string | null;
+  has_study_attachment: boolean;
+  read_at: string | null;
+  created_at: string;
+  study: {
+    id: string;
+    title: string;
+    journal: string;
+    publication_year: number;
+    study_design: StudyDesignType;
+    quality_score: number;
+  } | null;
 }
 
 export interface ProfileUpvotedStudyItem {
@@ -206,11 +338,13 @@ export interface StudyComment {
   parent_comment_id: string | null;
   body: string;
   is_deleted: boolean;
+  helpful_count: number;
+  viewer_has_endorsed?: boolean;
   created_at: string;
   updated_at: string;
   author?: Pick<
     PublicProfile,
-    "id" | "display_name" | "avatar_url" | "affiliation_role"
+    "id" | "display_name" | "avatar_url" | "affiliation_role" | "aura_score"
   >;
 }
 

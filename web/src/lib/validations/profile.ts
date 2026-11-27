@@ -12,6 +12,8 @@ export const CommunityRoleEnum = z.enum([
 
 export const ThemePreferenceEnum = z.enum(["light", "dark"]);
 
+export const ActivityVisibilityEnum = z.enum(["private", "friends", "public"]);
+
 export const UpdateProfileSchema = z.object({
   displayName: z
     .string()
@@ -26,6 +28,17 @@ export const UpdateProfileSchema = z.object({
     .transform((val) => (val.length === 0 ? null : val))
     .nullable(),
   themePreference: ThemePreferenceEnum,
+  upvotedStudiesVisibility: ActivityVisibilityEnum.optional(),
+  viewedStudiesVisibility: ActivityVisibilityEnum.optional(),
+});
+
+export const UpdateActivityVisibilitySchema = z.object({
+  upvotedStudiesVisibility: ActivityVisibilityEnum,
+  viewedStudiesVisibility: ActivityVisibilityEnum,
+});
+
+export const RecordStudyViewSchema = z.object({
+  studyId: z.string().uuid("Invalid study ID."),
 });
 
 export const UpdateThemePreferenceSchema = z.object({
@@ -52,6 +65,10 @@ export const CommentHistoryCursorSchema = z.object({
 });
 
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;
+export type UpdateActivityVisibilityInput = z.infer<
+  typeof UpdateActivityVisibilitySchema
+>;
+export type RecordStudyViewInput = z.infer<typeof RecordStudyViewSchema>;
 export type UpdateThemePreferenceInput = z.infer<typeof UpdateThemePreferenceSchema>;
 export type UpdateAvatarUrlInput = z.infer<typeof UpdateAvatarUrlSchema>;
 export type UpvotedStudiesCursor = z.infer<typeof UpvotedStudiesCursorSchema>;

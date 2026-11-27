@@ -24,7 +24,23 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+function resolveMetadataBase(): URL {
+  const rawUrl =
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+
+  if (rawUrl) {
+    const normalized = /^https?:\/\//i.test(rawUrl)
+      ? rawUrl
+      : `https://${rawUrl}`;
+    return new URL(normalized);
+  }
+
+  return new URL("http://localhost:3000");
+}
+
 export const metadata: Metadata = {
+  metadataBase: resolveMetadataBase(),
   title: "SBL News — Science-Based Lifting Research Feed & Evidence Matrix",
   description:
     "Daily peer-reviewed resistance training, hypertrophy, and strength research with deterministic evidence scoring and living training guidelines.",

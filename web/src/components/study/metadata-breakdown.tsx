@@ -2,6 +2,7 @@ import { ExternalLink, FileCheck2, FileWarning } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { UpvoteButton } from "@/components/feed/upvote-button";
+import { StudyShareMenu } from "@/components/social/study-share-menu";
 import type { StudyDetail } from "@/lib/queries/projections";
 import {
   formatStudyDesign,
@@ -166,6 +167,8 @@ export function MetadataBreakdown({
           <ExternalLink className="h-4 w-4" />
           <span>Read Primary Source (PubMed / DOI)</span>
         </a>
+
+        <StudyShareMenu study={study} variant="detail" />
       </div>
     </Card>
   );

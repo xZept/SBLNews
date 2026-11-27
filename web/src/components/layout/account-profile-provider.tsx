@@ -31,8 +31,14 @@ function unwrapProfile(
   data: AccountProfile[] | AccountProfile | null
 ): AccountProfile | null {
   if (!data) return null;
-  if (Array.isArray(data)) return data[0] ?? null;
-  return data;
+  const raw = Array.isArray(data) ? data[0] ?? null : data;
+  if (!raw) return null;
+  return {
+    ...raw,
+    aura_score: typeof raw.aura_score === "number" ? raw.aura_score : 0,
+    upvoted_studies_visibility: raw.upvoted_studies_visibility ?? "private",
+    viewed_studies_visibility: raw.viewed_studies_visibility ?? "private",
+  };
 }
 
 export function AccountProfileProvider({

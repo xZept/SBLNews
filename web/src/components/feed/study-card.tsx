@@ -3,6 +3,7 @@ import { ExternalLink, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { UpvoteButton } from "@/components/feed/upvote-button";
+import { StudyShareMenu } from "@/components/social/study-share-menu";
 import type { StudySummary } from "@/lib/queries/projections";
 import {
   formatStudyDesign,
@@ -87,6 +88,8 @@ export function StudyCard({ study, initialVoted = false }: StudyCardProps) {
               <ExternalLink className="h-3.5 w-3.5" />
               <span>PubMed / DOI</span>
             </a>
+
+            <StudyShareMenu study={study} variant="card" />
           </div>
         </div>
       </div>
