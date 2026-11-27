@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildCanonicalStudyUrl,
@@ -14,10 +16,18 @@ import {
 } from "../src/lib/aura";
 import {
   RecordStudyShareSchema,
+  SendDirectMessageSchema,
+  SendStudyToFriendSchema,
   ToggleCommentEndorsementSchema,
 } from "../src/lib/validations/social";
+import {
+  ActivityVisibilityEnum,
+  UpdateActivityVisibilitySchema,
+} from "../src/lib/validations/profile";
 
 const mockGetPublicStudyDetail = vi.fn();
+const mockSupabaseRpc = vi.fn();
+const mockCreateClient = vi.fn();
 
 vi.mock("@/lib/queries/studies", () => ({
   getPublicStudyDetail: (...args: unknown[]) =>
@@ -27,7 +37,13 @@ vi.mock("@/lib/queries/studies", () => ({
   getStudyDetail: vi.fn(),
 }));
 
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: (...args: unknown[]) => mockCreateClient(...args),
+  createPublicClient: vi.fn(),
+}));
+
 import { generateMetadata } from "../src/app/study/[id]/page";
+import { getProfileSocialContext } from "../src/lib/queries/profile";
 
 const STUDY_ID = "11111111-1111-4111-8111-111111111111";
 
@@ -282,5 +298,184 @@ describe("deterministic Aura scoring & daily caps", () => {
     expect(
       ToggleCommentEndorsementSchema.safeParse({ commentId: "invalid" }).success
     ).toBe(false);
+  });
+});
+
+describe("Zod social & visibility validation schemas", () => {
+  const FRIEND_ID = "22222222-2222-4222-8222-222222222222";
+
+  it("enforces 1..1000 character limit on SendDirectMessageSchema", () => {
+    expect(
+      SendDirectMessageSchema.safeParse({
+        recipientId: FRIEND_ID,
+        body: "   ",
+      }).success
+    ).toBe(false);
+
+    expect(
+      SendDirectMessageSchema.safeParse({
+        recipientId: FRIEND_ID,
+        body: "a".repeat(1000),
+      }).success
+    ).toBe(true);
+
+    expect(
+      SendDirectMessageSchema.safeParse({
+        recipientId: FRIEND_ID,
+        body: "a".repeat(1001),
+      }).success
+    ).toBe(false);
+  });
+
+  it("enforces optional <= 240 character note limit on SendStudyToFriendSchema", () => {
+    const emptyNote = SendStudyToFriendSchema.safeParse({
+      recipientId: FRIEND_ID,
+      studyId: STUDY_ID,
+      note: "   ",
+    });
+    expect(emptyNote.success).toBe(true);
+    if (emptyNote.success) {
+      expect(emptyNote.data.note).toBeNull();
+    }
+
+    expect(
+      SendStudyToFriendSchema.safeParse({
+        recipientId: FRIEND_ID,
+        studyId: STUDY_ID,
+        note: "n".repeat(240),
+      }).success
+    ).toBe(true);
+
+    expect(
+      SendStudyToFriendSchema.safeParse({
+        recipientId: FRIEND_ID,
+        studyId: STUDY_ID,
+        note: "n".repeat(241),
+      }).success
+    ).toBe(false);
+  });
+
+  it("validates ActivityVisibilityEnum and UpdateActivityVisibilitySchema", () => {
+    for (const vis of ["private", "friends", "public"] as const) {
+      expect(ActivityVisibilityEnum.safeParse(vis).success).toBe(true);
+    }
+    expect(ActivityVisibilityEnum.safeParse("followers").success).toBe(false);
+
+    expect(
+      UpdateActivityVisibilitySchema.safeParse({
+        upvotedStudiesVisibility: "friends",
+        viewedStudiesVisibility: "private",
+      }).success
+    ).toBe(true);
+
+    expect(
+      UpdateActivityVisibilitySchema.safeParse({
+        upvotedStudiesVisibility: "everyone",
+        viewedStudiesVisibility: "private",
+      }).success
+    ).toBe(false);
+  });
+});
+
+describe("ProfileSocialContext visibility gating & missing-study chat placeholder", () => {
+  const TARGET_ID = "33333333-3333-4333-8333-333333333333";
+
+  beforeEach(() => {
+    mockSupabaseRpc.mockReset();
+    mockCreateClient.mockReset();
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-key";
+    mockCreateClient.mockResolvedValue({ rpc: mockSupabaseRpc });
+  });
+
+  it("defaults to private when targetUserId is invalid or RPC fails", async () => {
+    expect(await getProfileSocialContext("not-a-uuid")).toEqual({
+      canViewUpvotes: false,
+      canViewRecentViews: false,
+      friendshipState: "none",
+      friendshipId: null,
+    });
+    expect(mockCreateClient).not.toHaveBeenCalled();
+
+    mockSupabaseRpc.mockResolvedValueOnce({
+      data: null,
+      error: { message: "Permission denied" },
+    });
+    expect(await getProfileSocialContext(TARGET_ID)).toEqual({
+      canViewUpvotes: false,
+      canViewRecentViews: false,
+      friendshipState: "none",
+      friendshipId: null,
+    });
+  });
+
+  it("maps RPC visibility flags and friendship state accurately", async () => {
+    mockSupabaseRpc.mockResolvedValueOnce({
+      data: [
+        {
+          can_view_upvotes: true,
+          can_view_recent_views: false,
+          friendship_state: "friends",
+          friendship_id: "44444444-4444-4444-8444-444444444444",
+        },
+      ],
+      error: null,
+    });
+
+    const ctx = await getProfileSocialContext(TARGET_ID);
+    expect(mockSupabaseRpc).toHaveBeenCalledWith("get_profile_social_context", {
+      p_target_user_id: TARGET_ID,
+    });
+    expect(ctx).toEqual({
+      canViewUpvotes: true,
+      canViewRecentViews: false,
+      friendshipState: "friends",
+      friendshipId: "44444444-4444-4444-8444-444444444444",
+    });
+  });
+
+  it("renders a graceful placeholder in FriendsChatDrawer when a shared study is deleted/null", () => {
+    const drawerSrc = fs.readFileSync(
+      path.resolve(__dirname, "../src/components/layout/friends-chat-drawer.tsx"),
+      "utf8"
+    );
+    expect(drawerSrc).toContain("msg.has_study_attachment");
+    expect(drawerSrc).toContain("msg.study ?");
+    expect(drawerSrc).toContain("Referenced study is no longer available");
+  });
+});
+
+describe("Constitution Principle V 8-route boundary guard", () => {
+  function collectPageRoutes(dir: string, prefix = ""): string[] {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    const routes: string[] = [];
+
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        routes.push(...collectPageRoutes(fullPath, `${prefix}/${entry.name}`));
+      } else if (entry.isFile() && entry.name === "page.tsx") {
+        routes.push(prefix === "" ? "/" : prefix);
+      }
+    }
+
+    return routes;
+  }
+
+  it("keeps strictly the 8 approved app routes with zero unapproved social routes", () => {
+    const appDir = path.resolve(__dirname, "../src/app");
+    const routes = collectPageRoutes(appDir).sort();
+
+    expect(routes).toEqual([
+      "/",
+      "/admin/review",
+      "/guidelines",
+      "/methodology",
+      "/profile",
+      "/profile/[id]",
+      "/search",
+      "/study/[id]",
+    ]);
+    expect(routes).toHaveLength(8);
   });
 });

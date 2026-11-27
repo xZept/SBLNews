@@ -110,9 +110,9 @@
 
 **Purpose**: Automated projection/route/validation tests and full build, lint, typecheck, and Neo-Brutalist Light/Dark compliance verification
 
-- [ ] T030 [P] Update `web/tests/projections.test.ts` and `web/tests/top-nav.test.ts` to assert `TOP_AURA_USER_COLUMNS`, `STUDY_SHARE_CARD_COLUMNS`, `PROFILE_RECENT_VIEW_COLUMNS`, and `DIRECT_MESSAGE_COLUMNS` exclude `abstract_text`, `embedding`, and private profile fields, and verify `TopNav` drawer trigger behavior
-- [ ] T031 [P] Add Zod social/visibility schema tests (`1,000`-char chat limit, `240`-char study-note limit, `ActivityVisibilityEnum`), `ProfileSocialContext` visibility-gating & missing-study chat placeholder unit tests, and an 8-route Constitution Principle V guard test in `web/tests/social.test.ts`
-- [ ] T032 Run full verification gates (`npm run typecheck`, `npm run lint`, `npm test`, `npm run build` in `web/`, and `pytest -v` in `pipeline/`) and audit all new UI components against Light/Dark Neo-Brutalist tokens (zero `backdrop-blur`, zero purple/violet/indigo hues) per `specs/004-socialization-layer/quickstart.md`
+- [X] T030 [P] Update `web/tests/projections.test.ts` and `web/tests/top-nav.test.ts` to assert `TOP_AURA_USER_COLUMNS`, `STUDY_SHARE_CARD_COLUMNS`, `PROFILE_RECENT_VIEW_COLUMNS`, and `DIRECT_MESSAGE_COLUMNS` exclude `abstract_text`, `embedding`, and private profile fields, and verify `TopNav` drawer trigger behavior
+- [X] T031 [P] Add Zod social/visibility schema tests (`1,000`-char chat limit, `240`-char study-note limit, `ActivityVisibilityEnum`), `ProfileSocialContext` visibility-gating & missing-study chat placeholder unit tests, and an 8-route Constitution Principle V guard test in `web/tests/social.test.ts`
+- [X] T032 Run full verification gates (`npm run typecheck`, `npm run lint`, `npm test`, `npm run build` in `web/`, and `pytest -v` in `pipeline/`) and audit all new UI components against Light/Dark Neo-Brutalist tokens (zero `backdrop-blur`, zero purple/violet/indigo hues) per `specs/004-socialization-layer/quickstart.md`
 
 ---
 
