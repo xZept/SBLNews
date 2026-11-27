@@ -479,3 +479,28 @@ describe("Constitution Principle V 8-route boundary guard", () => {
     expect(routes).toHaveLength(8);
   });
 });
+
+describe("private RLS helper execute grants (migration 0010)", () => {
+  it("grants USAGE on private and EXECUTE on the four RLS predicates without exposing recompute_user_aura", () => {
+    const migrationPath = path.resolve(
+      __dirname,
+      "../../supabase/migrations/0010_grant_private_rls_helper_execute.sql"
+    );
+    const sql = fs.readFileSync(migrationPath, "utf8");
+
+    expect(sql).toContain("GRANT USAGE ON SCHEMA private TO anon, authenticated;");
+    expect(sql).toContain(
+      "GRANT EXECUTE ON FUNCTION private.can_view_user_upvotes(uuid) TO anon, authenticated;"
+    );
+    expect(sql).toContain(
+      "GRANT EXECUTE ON FUNCTION private.can_view_user_recent_views(uuid) TO anon, authenticated;"
+    );
+    expect(sql).toContain(
+      "GRANT EXECUTE ON FUNCTION private.are_accepted_friends(uuid, uuid) TO authenticated;"
+    );
+    expect(sql).toContain(
+      "GRANT EXECUTE ON FUNCTION private.is_blocked_pair(uuid, uuid) TO authenticated;"
+    );
+    expect(sql).not.toMatch(/GRANT EXECUTE ON FUNCTION private\.recompute_user_aura/i);
+  });
+});
