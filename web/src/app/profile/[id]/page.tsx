@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { ProfileActivityLists } from "@/components/profile/profile-activity-lists";
 import { UserAvatar } from "@/components/profile/user-avatar";
+import { AuraBadge } from "@/components/social/aura-badge";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import {
@@ -73,6 +74,7 @@ export default async function PublicProfilePage({
               {profile.affiliation_role && (
                 <Badge variant="accent">{profile.affiliation_role}</Badge>
               )}
+              <AuraBadge score={profile.aura_score} />
             </div>
             {profile.bio && (
               <p className="max-w-[70ch] whitespace-pre-wrap text-sm leading-relaxed text-ink">

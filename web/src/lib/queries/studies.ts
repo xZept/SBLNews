@@ -136,38 +136,69 @@ export async function getStudyComments(
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("comments")
-    .select(
-      `
-      id,
-      study_id,
-      author_id,
-      parent_comment_id,
-      body,
-      is_deleted,
-      created_at,
-      updated_at,
-      author:profiles!comments_author_id_fkey (
+  const [
+    { data, error },
+    {
+      data: { user },
+    },
+  ] = await Promise.all([
+    supabase
+      .from("comments")
+      .select(
+        `
         id,
-        display_name,
-        avatar_url,
-        affiliation_role
+        study_id,
+        author_id,
+        parent_comment_id,
+        body,
+        is_deleted,
+        helpful_count,
+        created_at,
+        updated_at,
+        author:profiles!comments_author_id_fkey (
+          id,
+          display_name,
+          avatar_url,
+          affiliation_role,
+          aura_score
+        )
+      `
       )
-    `
-    )
-    .eq("study_id", studyId)
-    .order("created_at", { ascending: true });
+      .eq("study_id", studyId)
+      .order("created_at", { ascending: true }),
+    supabase.auth.getUser(),
+  ]);
 
   if (error || !data) {
     return [];
   }
 
+  const commentIds = (data as Array<{ id: string }>).map((row) => row.id);
+  const endorsedIds = new Set<string>();
+
+  if (user && commentIds.length > 0) {
+    const { data: endorsements } = await supabase
+      .from("comment_endorsements")
+      .select("comment_id")
+      .eq("user_id", user.id)
+      .in("comment_id", commentIds);
+
+    if (endorsements) {
+      for (const row of endorsements as Array<{ comment_id: string }>) {
+        endorsedIds.add(row.comment_id);
+      }
+    }
+  }
+
   return (data as unknown[]).map((row) => {
     const r = row as Record<string, unknown>;
     const authorRaw = Array.isArray(r.author) ? r.author[0] : r.author;
+    const commentId = String(r.id ?? "");
     return {
-      ...(r as unknown as Omit<StudyComment, "author">),
+      ...(r as unknown as Omit<StudyComment, "author" | "viewer_has_endorsed">),
+      helpful_count:
+        typeof r.helpful_count === "number" ? r.helpful_count : 0,
+      viewer_has_endorsed: endorsedIds.has(commentId),
       author: authorRaw as StudyComment["author"],
     };
   });

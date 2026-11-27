@@ -3,6 +3,7 @@ import { AvatarUploadControl } from "@/components/profile/avatar-upload-control"
 import { ProfileActivityLists } from "@/components/profile/profile-activity-lists";
 import { ProfileSettingsForm } from "@/components/profile/profile-settings-form";
 import { ProfileSignInGate } from "@/components/profile/profile-sign-in-gate";
+import { AuraBadge } from "@/components/social/aura-badge";
 import { Card } from "@/components/ui/card";
 import {
   getMyAccountProfile,
@@ -33,9 +34,12 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-8">
       <header className="space-y-1.5 border-b-2 border-border pb-4">
-        <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-          Profile Settings &amp; Activity
-        </h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+            Profile Settings &amp; Activity
+          </h1>
+          <AuraBadge score={account.profile.aura_score} />
+        </div>
         <p className="max-w-[70ch] text-sm text-muted">
           Customize how you appear in study discussions, manage your theme
           preference, and review your upvoted studies and comments.

@@ -6,7 +6,16 @@ import {
   formatStudyCitation,
   type ShareableStudy,
 } from "../src/lib/share-links";
-import { RecordStudyShareSchema } from "../src/lib/validations/social";
+import {
+  AURA_DAILY_CAPS,
+  AURA_WEIGHTS,
+  computeDeterministicAura,
+  computeDeterministicAuraBreakdown,
+} from "../src/lib/aura";
+import {
+  RecordStudyShareSchema,
+  ToggleCommentEndorsementSchema,
+} from "../src/lib/validations/social";
 
 const mockGetPublicStudyDetail = vi.fn();
 
@@ -176,5 +185,102 @@ describe("/study/[id] generateMetadata", () => {
     expect(unpublishedMetadata).toEqual({
       title: "Study Not Found — SBL News",
     });
+  });
+});
+
+describe("deterministic Aura scoring & daily caps", () => {
+  it("computes exact weights (+5 comment, +2 endorsement, +1 upvote, +2 share)", () => {
+    const breakdown = computeDeterministicAuraBreakdown({
+      comments: [{ createdAt: "2026-11-28T10:00:00Z" }],
+      endorsementsReceived: [{ createdAt: "2026-11-28T11:00:00Z" }],
+      upvotes: [{ createdAt: "2026-11-28T12:00:00Z" }],
+      shares: [{ studyId: STUDY_ID, sharedOnUtc: "2026-11-28" }],
+    });
+
+    expect(breakdown).toEqual({
+      comments: AURA_WEIGHTS.comment,
+      endorsements: AURA_WEIGHTS.endorsementReceived,
+      upvotes: AURA_WEIGHTS.upvote,
+      shares: AURA_WEIGHTS.share,
+      total: 10,
+    });
+  });
+
+  it("enforces UTC daily anti-gaming caps per category and accumulates across days", () => {
+    const day1 = "2026-11-28T09:00:00Z";
+    const day2 = "2026-11-29T09:00:00Z";
+
+    // Exceed every category's daily cap on day 1
+    const breakdown = computeDeterministicAuraBreakdown({
+      comments: [
+        ...Array.from({ length: 8 }, () => ({ createdAt: day1 })),
+        { createdAt: day2 },
+      ],
+      endorsementsReceived: Array.from({ length: 15 }, () => ({
+        createdAt: day1,
+      })),
+      upvotes: Array.from({ length: 14 }, () => ({ createdAt: day1 })),
+      shares: [
+        // 6 distinct studies on day 1 (cap 10 -> 5 studies) + duplicate study on day 1
+        { studyId: "11111111-1111-4111-8111-111111111111", sharedOnUtc: "2026-11-28" },
+        { studyId: "11111111-1111-4111-8111-111111111111", sharedOnUtc: "2026-11-28" },
+        { studyId: "22222222-2222-4222-8222-222222222222", sharedOnUtc: "2026-11-28" },
+        { studyId: "33333333-3333-4333-8333-333333333333", sharedOnUtc: "2026-11-28" },
+        { studyId: "44444444-4444-4444-8444-444444444444", sharedOnUtc: "2026-11-28" },
+        { studyId: "55555555-5555-4555-8555-555555555555", sharedOnUtc: "2026-11-28" },
+        { studyId: "66666666-6666-4666-8666-666666666666", sharedOnUtc: "2026-11-28" },
+      ],
+    });
+
+    expect(breakdown.comments).toBe(
+      AURA_DAILY_CAPS.comment + AURA_WEIGHTS.comment
+    );
+    expect(breakdown.endorsements).toBe(AURA_DAILY_CAPS.endorsementReceived);
+    expect(breakdown.upvotes).toBe(AURA_DAILY_CAPS.upvote);
+    expect(breakdown.shares).toBe(AURA_DAILY_CAPS.share);
+    expect(breakdown.total).toBe(
+      AURA_DAILY_CAPS.comment +
+        AURA_WEIGHTS.comment +
+        AURA_DAILY_CAPS.endorsementReceived +
+        AURA_DAILY_CAPS.upvote +
+        AURA_DAILY_CAPS.share
+    );
+  });
+
+  it("deducts points deterministically when comments are deleted, endorsements removed, or self-endorsed", () => {
+    const initial = computeDeterministicAura({
+      comments: [
+        { createdAt: "2026-11-28T10:00:00Z", isDeleted: false },
+        { createdAt: "2026-11-28T11:00:00Z", isDeleted: false },
+      ],
+      endorsementsReceived: [
+        { createdAt: "2026-11-28T12:00:00Z" },
+        { createdAt: "2026-11-28T13:00:00Z" },
+      ],
+      upvotes: [{ createdAt: "2026-11-28T14:00:00Z" }],
+    });
+    expect(initial).toBe(15);
+
+    const afterRemovals = computeDeterministicAura({
+      comments: [
+        { createdAt: "2026-11-28T10:00:00Z", isDeleted: false },
+        { createdAt: "2026-11-28T11:00:00Z", isDeleted: true },
+      ],
+      endorsementsReceived: [
+        { createdAt: "2026-11-28T12:00:00Z", isSelf: true },
+        { createdAt: "2026-11-28T13:00:00Z", isCommentDeleted: true },
+      ],
+      upvotes: [],
+    });
+    expect(afterRemovals).toBe(5);
+  });
+
+  it("validates ToggleCommentEndorsementSchema UUIDs", () => {
+    expect(
+      ToggleCommentEndorsementSchema.safeParse({ commentId: STUDY_ID }).success
+    ).toBe(true);
+    expect(
+      ToggleCommentEndorsementSchema.safeParse({ commentId: "invalid" }).success
+    ).toBe(false);
   });
 });

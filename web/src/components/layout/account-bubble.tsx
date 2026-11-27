@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { LogOut, Moon, ShieldCheck, Sun, User } from "lucide-react";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
 import { UserAvatar } from "@/components/profile/user-avatar";
+import { AuraBadge } from "@/components/social/aura-badge";
 import { Badge } from "@/components/ui/badge";
 import type { ThemePreferenceType } from "@/lib/queries/projections";
 import { cn } from "@/lib/utils";
@@ -125,6 +126,12 @@ export function AccountBubble() {
                   {email}
                 </p>
               )}
+              <div className="mt-1.5">
+                <AuraBadge
+                  score={profile.aura_score}
+                  className="px-1.5 py-0 text-[11px]"
+                />
+              </div>
             </div>
           </div>
 

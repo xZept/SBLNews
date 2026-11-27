@@ -1,10 +1,15 @@
 import { getFeedStudies } from "@/lib/queries/studies";
+import { getTopAuraUsers } from "@/lib/queries/social";
 import { FeedClient } from "@/components/feed/feed-client";
+import { TopUsersRail } from "@/components/social/top-users-rail";
 
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const studies = await getFeedStudies();
+  const [studies, topUsers] = await Promise.all([
+    getFeedStudies(),
+    getTopAuraUsers(10),
+  ]);
 
   return (
     <div className="space-y-4">
@@ -17,7 +22,12 @@ export default async function HomePage() {
         </p>
       </div>
 
-      <FeedClient initialStudies={studies} />
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <TopUsersRail users={topUsers} />
+        <div className="min-w-0">
+          <FeedClient initialStudies={studies} />
+        </div>
+      </div>
     </div>
   );
 }

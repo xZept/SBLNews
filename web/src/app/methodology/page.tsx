@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { AURA_RULES } from "@/lib/aura";
 
 export const dynamic = "force-static";
 
@@ -239,6 +240,63 @@ export default function MethodologyPage() {
               An administrator must review the paper, verify effect sizes and
               population applicability, and either approve an updated consensus
               summary with a timestamped changelog note or dismiss the alert.
+            </p>
+          </div>
+        </Card>
+
+        <Card id="aura-rubric" className="p-5 sm:p-6">
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="accent">Pillar 5</Badge>
+              <h2 className="font-display text-xl font-bold text-ink">
+                Deterministic Community Aura &amp; Anti-Gaming Caps
+              </h2>
+            </div>
+            <p className="max-w-[70ch] text-sm leading-relaxed text-ink">
+              Contributor <strong>Aura</strong> scores on{" "}
+              <Link href="/" className="font-semibold text-ink underline">
+                /
+              </Link>{" "}
+              and profile pages are computed 100% deterministically by
+              PostgreSQL triggers—never by an LLM—from verifiable community
+              actions, subject to strict UTC daily caps:
+            </p>
+
+            <div className="overflow-x-auto rounded-md border-2 border-border">
+              <table className="w-full border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b-2 border-border bg-canvas font-mono text-xs uppercase text-ink">
+                    <th className="px-3 py-2.5">Contribution</th>
+                    <th className="px-3 py-2.5">Points</th>
+                    <th className="px-3 py-2.5">UTC Daily Cap</th>
+                    <th className="px-3 py-2.5">Rule</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-ink/15">
+                  {AURA_RULES.map((rule) => (
+                    <tr key={rule.key} className="bg-surface">
+                      <td className="px-3 py-2.5 font-semibold text-ink">
+                        {rule.label}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono font-bold text-ink">
+                        +{rule.pointsPerAction}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono text-ink">
+                        {rule.dailyCap}/day ({rule.maxActionsPerDay} max)
+                      </td>
+                      <td className="px-3 py-2.5 text-muted">
+                        {rule.ruleSummary}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <p className="max-w-[70ch] font-mono text-xs text-muted">
+              Reversibility: Deleting a comment, removing a Helpful endorsement,
+              or un-upvoting a study immediately recomputes Aura and removes the
+              associated points.
             </p>
           </div>
         </Card>

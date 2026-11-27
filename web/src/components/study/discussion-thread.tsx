@@ -3,8 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MessageSquare, Pencil, Reply, Trash2 } from "lucide-react";
+import { MessageSquare, Pencil, Reply, ThumbsUp, Trash2 } from "lucide-react";
 import { UserAvatar } from "@/components/profile/user-avatar";
+import { AuraBadge } from "@/components/social/aura-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import {
   deleteCommentAction,
   updateCommentAction,
 } from "@/lib/actions/comments";
+import { toggleCommentEndorsementAction } from "@/lib/actions/social";
 import { createClient } from "@/lib/supabase/client";
 import type { StudyComment } from "@/lib/queries/projections";
 
@@ -211,10 +213,40 @@ function CommentItem({
   const [isEditing, setIsEditing] = React.useState(false);
   const [editBody, setEditBody] = React.useState(node.body);
   const [busy, setBusy] = React.useState(false);
+  const [endorseBusy, setEndorseBusy] = React.useState(false);
+  const [endorsed, setEndorsed] = React.useState(
+    Boolean(node.viewer_has_endorsed)
+  );
+  const [helpfulCount, setHelpfulCount] = React.useState(
+    node.helpful_count ?? 0
+  );
   const [actionError, setActionError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    setEndorsed(Boolean(node.viewer_has_endorsed));
+    setHelpfulCount(node.helpful_count ?? 0);
+  }, [node.viewer_has_endorsed, node.helpful_count]);
 
   const isOwner = currentUserId !== null && currentUserId === node.author_id;
   const authorName = node.author?.display_name ?? "Lifter";
+
+  async function handleToggleHelpful() {
+    if (!currentUserId || isOwner || endorseBusy) return;
+    setActionError(null);
+    setEndorseBusy(true);
+
+    const res = await toggleCommentEndorsementAction({ commentId: node.id });
+    setEndorseBusy(false);
+
+    if (!res.ok) {
+      setActionError(res.message);
+      return;
+    }
+
+    setEndorsed(res.endorsed);
+    setHelpfulCount(res.helpfulCount);
+    router.refresh();
+  }
 
   async function handleReplySubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -300,6 +332,11 @@ function CommentItem({
               {node.author?.affiliation_role && (
                 <Badge variant="muted">{node.author.affiliation_role}</Badge>
               )}
+              <AuraBadge
+                score={node.author?.aura_score ?? 0}
+                variant="surface"
+                className="px-1.5 py-0 text-[11px]"
+              />
             </div>
           )}
           <span>{new Date(node.created_at).toLocaleDateString()}</span>
@@ -349,6 +386,34 @@ function CommentItem({
 
         {!node.is_deleted && (
           <div className="mt-2.5 flex flex-wrap items-center gap-3 font-mono text-xs">
+            <button
+              type="button"
+              onClick={handleToggleHelpful}
+              disabled={!currentUserId || isOwner || endorseBusy}
+              aria-pressed={endorsed}
+              title={
+                !currentUserId
+                  ? "Sign in to endorse helpful comments"
+                  : isOwner
+                    ? "You cannot endorse your own comment"
+                    : endorsed
+                      ? "Remove helpful endorsement"
+                      : "Mark comment as helpful (+2 Aura)"
+              }
+              className={`inline-flex items-center gap-1 rounded-sm border-[1.5px] px-2 py-0.5 font-semibold transition-none ${
+                endorsed
+                  ? "border-border bg-accent text-accent-ink"
+                  : "border-border/50 bg-surface text-muted hover:border-border hover:text-ink"
+              } ${
+                !currentUserId || isOwner
+                  ? "cursor-default opacity-75"
+                  : "cursor-pointer"
+              }`}
+            >
+              <ThumbsUp className="h-3 w-3" />
+              <span>Helpful ({helpfulCount})</span>
+            </button>
+
             {currentUserId && (
               <button
                 type="button"
