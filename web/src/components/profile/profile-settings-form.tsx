@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { updateProfileAction } from "@/lib/actions/profile";
 import type {
   AccountProfile,
+  ActivityVisibilityType,
   CommunityRoleType,
   ThemePreferenceType,
 } from "@/lib/queries/projections";
@@ -23,6 +24,15 @@ const COMMUNITY_ROLES: readonly CommunityRoleType[] = [
   "Exercise Researcher",
   "Clinician",
   "Student",
+];
+
+const VISIBILITY_OPTIONS: readonly {
+  value: ActivityVisibilityType;
+  label: string;
+}[] = [
+  { value: "private", label: "Private" },
+  { value: "friends", label: "Friends Only" },
+  { value: "public", label: "Public" },
 ];
 
 interface ProfileSettingsFormProps {
@@ -44,6 +54,14 @@ export function ProfileSettingsForm({
     initialProfile.affiliation_role ?? ""
   );
   const [bio, setBio] = React.useState(initialProfile.bio ?? "");
+  const [upvotedStudiesVisibility, setUpvotedStudiesVisibility] =
+    React.useState<ActivityVisibilityType>(
+      initialProfile.upvoted_studies_visibility ?? "private"
+    );
+  const [viewedStudiesVisibility, setViewedStudiesVisibility] =
+    React.useState<ActivityVisibilityType>(
+      initialProfile.viewed_studies_visibility ?? "private"
+    );
   const [saving, setSaving] = React.useState(false);
   const [fieldErrors, setFieldErrors] = React.useState<
     Record<string, string | undefined>
@@ -83,6 +101,8 @@ export function ProfileSettingsForm({
           : (affiliationRole as CommunityRoleType),
       bio: bio === "" ? null : bio,
       themePreference: theme,
+      upvotedStudiesVisibility,
+      viewedStudiesVisibility,
     };
 
     const parsed = UpdateProfileSchema.safeParse(payload);
@@ -113,6 +133,8 @@ export function ProfileSettingsForm({
         affiliationRole: parsed.data.affiliationRole,
         bio: parsed.data.bio,
         themePreference: parsed.data.themePreference,
+        upvotedStudiesVisibility: parsed.data.upvotedStudiesVisibility,
+        viewedStudiesVisibility: parsed.data.viewedStudiesVisibility,
       });
 
       if (!result.ok) {
@@ -130,6 +152,8 @@ export function ProfileSettingsForm({
       setDisplayName(result.profile.display_name);
       setAffiliationRole(result.profile.affiliation_role ?? "");
       setBio(result.profile.bio ?? "");
+      setUpvotedStudiesVisibility(result.profile.upvoted_studies_visibility);
+      setViewedStudiesVisibility(result.profile.viewed_studies_visibility);
       setStatusMessage("Profile settings saved.");
       await refreshAccountProfile();
     } catch {
@@ -306,6 +330,72 @@ export function ProfileSettingsForm({
                 Applies immediately and persists to your account. Signing out
                 reverts to Light Mode.
               </p>
+            </div>
+
+            <div className="space-y-4 border-t-2 border-border/15 pt-4">
+              <div>
+                <span className="mb-1.5 block font-display text-sm font-bold text-ink">
+                  Interacted (Upvoted) Studies Visibility
+                </span>
+                <div
+                  role="group"
+                  aria-label="Interacted (Upvoted) Studies Visibility"
+                  className="inline-flex flex-wrap items-center rounded-md border-2 border-border bg-canvas p-1 shadow-control"
+                >
+                  {VISIBILITY_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      aria-pressed={upvotedStudiesVisibility === option.value}
+                      onClick={() => setUpvotedStudiesVisibility(option.value)}
+                      className={cn(
+                        "rounded-sm px-3 py-1.5 font-mono text-xs font-semibold transition-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border",
+                        upvotedStudiesVisibility === option.value
+                          ? "bg-accent text-accent-ink"
+                          : "text-muted hover:text-ink"
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-1.5 font-mono text-xs text-muted">
+                  Controls who can view your upvoted studies on your public
+                  profile. Defaults to Private.
+                </p>
+              </div>
+
+              <div>
+                <span className="mb-1.5 block font-display text-sm font-bold text-ink">
+                  Recently Viewed Studies Visibility
+                </span>
+                <div
+                  role="group"
+                  aria-label="Recently Viewed Studies Visibility"
+                  className="inline-flex flex-wrap items-center rounded-md border-2 border-border bg-canvas p-1 shadow-control"
+                >
+                  {VISIBILITY_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      aria-pressed={viewedStudiesVisibility === option.value}
+                      onClick={() => setViewedStudiesVisibility(option.value)}
+                      className={cn(
+                        "rounded-sm px-3 py-1.5 font-mono text-xs font-semibold transition-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border",
+                        viewedStudiesVisibility === option.value
+                          ? "bg-accent text-accent-ink"
+                          : "text-muted hover:text-ink"
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-1.5 font-mono text-xs text-muted">
+                  Opt-in only (defaults to Private). When set to Friends Only or
+                  Public, your last 20 unique study views are recorded.
+                </p>
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-3 pt-1">

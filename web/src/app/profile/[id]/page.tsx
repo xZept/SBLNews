@@ -4,10 +4,14 @@ import { z } from "zod";
 import { ProfileActivityLists } from "@/components/profile/profile-activity-lists";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { AuraBadge } from "@/components/social/aura-badge";
+import { ProfileFriendActions } from "@/components/social/profile-friend-actions";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import {
+  getAuthorizedUpvotedStudies,
+  getProfileSocialContext,
   getPublicProfileById,
+  getRecentStudyViews,
   getUserCommentHistory,
 } from "@/lib/queries/profile";
 
@@ -48,14 +52,24 @@ export default async function PublicProfilePage({
     notFound();
   }
 
-  const [profile, initialComments] = await Promise.all([
+  const [profile, initialComments, socialContext] = await Promise.all([
     getPublicProfileById(id),
     getUserCommentHistory(id),
+    getProfileSocialContext(id),
   ]);
 
   if (!profile) {
     notFound();
   }
+
+  const [initialUpvotes, initialRecentViews] = await Promise.all([
+    socialContext.canViewUpvotes
+      ? getAuthorizedUpvotedStudies(id)
+      : Promise.resolve(undefined),
+    socialContext.canViewRecentViews
+      ? getRecentStudyViews(id)
+      : Promise.resolve([]),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -81,6 +95,17 @@ export default async function PublicProfilePage({
                 {profile.bio}
               </p>
             )}
+            <ProfileFriendActions
+              targetUser={{
+                id: profile.id,
+                display_name: profile.display_name,
+                avatar_url: profile.avatar_url,
+                affiliation_role: profile.affiliation_role,
+                aura_score: profile.aura_score,
+              }}
+              initialState={socialContext.friendshipState}
+              initialFriendshipId={socialContext.friendshipId}
+            />
           </div>
         </div>
       </Card>
@@ -89,6 +114,10 @@ export default async function PublicProfilePage({
         userId={profile.id}
         mode="public"
         initialComments={initialComments}
+        initialUpvotes={initialUpvotes}
+        initialRecentViews={initialRecentViews}
+        canViewUpvotes={socialContext.canViewUpvotes}
+        canViewRecentViews={socialContext.canViewRecentViews}
       />
     </div>
   );

@@ -13,8 +13,13 @@ import {
   X,
 } from "lucide-react";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
-import { recordStudyShareAction } from "@/lib/actions/social";
+import { useSocialDrawer } from "@/components/layout/social-drawer-provider";
+import {
+  recordStudyShareAction,
+  sendStudyToFriendAction,
+} from "@/lib/actions/social";
 import type { ShareChannelType } from "@/lib/queries/projections";
+import { SendStudyToFriendSchema } from "@/lib/validations/social";
 import {
   buildExternalShareUrls,
   formatDiscordShareMarkdown,
@@ -32,12 +37,25 @@ export function StudyShareMenu({
   variant = "card",
 }: StudyShareMenuProps) {
   const { profile, loading: authLoading } = useAccountProfile();
+  const {
+    overview,
+    overviewLoading,
+    refreshOverview,
+    openDrawer,
+    openChatWithFriend,
+  } = useSocialDrawer();
   const [open, setOpen] = React.useState(false);
   const [copiedType, setCopiedType] = React.useState<
     "citation" | "discord" | null
   >(null);
   const [copyError, setCopyError] = React.useState<string | null>(null);
   const [canNativeShare, setCanNativeShare] = React.useState(false);
+  const [selectedFriendId, setSelectedFriendId] = React.useState("");
+  const [friendNote, setFriendNote] = React.useState("");
+  const [sendingFriend, setSendingFriend] = React.useState(false);
+  const [friendSendError, setFriendSendError] = React.useState<string | null>(
+    null
+  );
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
@@ -83,6 +101,67 @@ export function StudyShareMenu({
       document.removeEventListener("mousedown", handlePointerDown);
     };
   }, [open]);
+
+  React.useEffect(() => {
+    if (open && profile && !overview && !overviewLoading) {
+      void refreshOverview();
+    }
+  }, [open, profile, overview, overviewLoading, refreshOverview]);
+
+  const acceptedFriends = React.useMemo(
+    () => overview?.accepted ?? [],
+    [overview]
+  );
+
+  React.useEffect(() => {
+    if (!selectedFriendId && acceptedFriends.length > 0) {
+      setSelectedFriendId(acceptedFriends[0].peer.id);
+    }
+  }, [acceptedFriends, selectedFriendId]);
+
+  async function handleSendToFriend(event: React.FormEvent) {
+    event.preventDefault();
+    if (sendingFriend || !selectedFriendId) return;
+    setFriendSendError(null);
+
+    const parsed = SendStudyToFriendSchema.safeParse({
+      recipientId: selectedFriendId,
+      studyId: study.id,
+      note: friendNote,
+    });
+    if (!parsed.success) {
+      setFriendSendError(
+        parsed.error.issues[0]?.message ?? "Check your friend and note."
+      );
+      return;
+    }
+
+    setSendingFriend(true);
+    try {
+      const res = await sendStudyToFriendAction({
+        recipientId: parsed.data.recipientId,
+        studyId: parsed.data.studyId,
+        note: parsed.data.note,
+      });
+      if (!res.ok) {
+        setFriendSendError(res.message);
+        return;
+      }
+
+      const targetFriend = acceptedFriends.find(
+        (f) => f.peer.id === parsed.data.recipientId
+      )?.peer;
+      setFriendNote("");
+      setOpen(false);
+      if (targetFriend) {
+        openChatWithFriend(targetFriend);
+      }
+    } catch {
+      setFriendSendError("Failed to send study to friend.");
+    } finally {
+      setSendingFriend(false);
+    }
+  }
 
   const { canonicalUrl, xUrl, redditUrl, whatsappUrl } = React.useMemo(
     () => buildExternalShareUrls(study),
@@ -298,11 +377,67 @@ export function StudyShareMenu({
                 </Link>{" "}
                 to send studies directly to friends on SBL News.
               </p>
-            ) : (
-              <p className="mt-1.5 rounded-sm border-[1.5px] border-border bg-canvas px-2.5 py-2 text-xs text-muted">
-                Direct friend study sending will be enabled once Friends &amp;
-                Chat is connected.
+            ) : overviewLoading && !overview ? (
+              <p className="mt-1.5 font-mono text-[11px] text-muted">
+                Loading friends...
               </p>
+            ) : acceptedFriends.length === 0 ? (
+              <div className="mt-1.5 space-y-2 rounded-sm border-[1.5px] border-border bg-canvas px-2.5 py-2 text-xs text-muted">
+                <p>No accepted friends yet.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    openDrawer("friends");
+                  }}
+                  className="font-mono text-[11px] font-semibold text-ink underline cursor-pointer"
+                >
+                  Find friends in Drawer
+                </button>
+              </div>
+            ) : (
+              <form
+                onSubmit={handleSendToFriend}
+                className="mt-2 space-y-2"
+              >
+                <select
+                  aria-label="Select friend"
+                  value={selectedFriendId}
+                  onChange={(e) => setSelectedFriendId(e.target.value)}
+                  className="flex h-8 w-full rounded-sm border-[1.5px] border-border bg-canvas px-2 font-sans text-xs text-ink"
+                >
+                  {acceptedFriends.map((f) => (
+                    <option key={f.peer.id} value={f.peer.id}>
+                      {f.peer.display_name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  aria-label="Optional note"
+                  value={friendNote}
+                  onChange={(e) => setFriendNote(e.target.value)}
+                  maxLength={240}
+                  placeholder="Optional note (<= 240 chars)..."
+                  className="flex h-8 w-full rounded-sm border-[1.5px] border-border bg-canvas px-2 font-sans text-xs text-ink placeholder:text-muted"
+                />
+                {friendSendError && (
+                  <p
+                    role="alert"
+                    className="font-mono text-[11px] font-semibold text-accent-ink"
+                  >
+                    {friendSendError}
+                  </p>
+                )}
+                <button
+                  type="submit"
+                  disabled={sendingFriend}
+                  className="flex w-full items-center justify-center gap-1.5 rounded-sm border-[1.5px] border-border bg-accent px-2.5 py-1.5 font-mono text-xs font-semibold text-accent-ink shadow-control cursor-pointer disabled:opacity-60"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  <span>{sendingFriend ? "Sending..." : "Send Study"}</span>
+                </button>
+              </form>
             )}
           </div>
         </div>

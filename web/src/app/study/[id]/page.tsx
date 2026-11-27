@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { DiscussionThread } from "@/components/study/discussion-thread";
 import { MetadataBreakdown } from "@/components/study/metadata-breakdown";
 import { SecondaryCommentaryList } from "@/components/study/secondary-commentary-list";
+import { StudyViewTracker } from "@/components/study/study-view-tracker";
 import {
   getPublicStudyDetail,
   getSecondaryCommentaries,
@@ -111,6 +112,7 @@ export default async function StudyDetailPage({ params }: StudyPageProps) {
 
   return (
     <div className="space-y-6">
+      {currentUserId && <StudyViewTracker studyId={study.id} />}
       <div>
         <Link
           href="/"

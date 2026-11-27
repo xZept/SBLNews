@@ -3,11 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search } from "lucide-react";
+import { MessageSquare, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AccountBubble } from "@/components/layout/account-bubble";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
 import { BrandLogo } from "@/components/layout/brand-logo";
+import { useSocialDrawer } from "@/components/layout/social-drawer-provider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +40,7 @@ export async function fetchIsAdmin(
 export function TopNav() {
   const pathname = usePathname();
   const { profile, loading } = useAccountProfile();
+  const { counts, openDrawer, triggerRef } = useSocialDrawer();
 
   async function handleOAuthSignIn(provider: "google" | "github") {
     const supabase = createClient();
@@ -95,7 +97,27 @@ export function TopNav() {
           {loading ? (
             <div className="h-9 w-9" aria-hidden="true" />
           ) : profile ? (
-            <AccountBubble />
+            <div className="flex items-center gap-2">
+              <button
+                ref={triggerRef}
+                type="button"
+                aria-label={
+                  counts.totalBadge > 0
+                    ? `Open Friends and Chat (${counts.totalBadge} unread)`
+                    : "Open Friends and Chat"
+                }
+                onClick={() => openDrawer("friends")}
+                className="relative inline-flex h-9 w-9 items-center justify-center rounded-md border-2 border-border bg-surface text-ink shadow-control transition-transform hover:bg-canvas active:translate-x-[1px] active:translate-y-[1px] active:shadow-none cursor-pointer"
+              >
+                <MessageSquare className="h-4 w-4" />
+                {counts.totalBadge > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 inline-flex min-w-[1.15rem] items-center justify-center rounded-sm border-[1.5px] border-border bg-accent px-1 font-mono text-[10px] font-bold leading-tight text-accent-ink">
+                    {counts.totalBadge > 99 ? "99+" : counts.totalBadge}
+                  </span>
+                )}
+              </button>
+              <AccountBubble />
+            </div>
           ) : (
             <div className="flex items-center gap-2">
               <Button

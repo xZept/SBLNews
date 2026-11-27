@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import {
   getMyAccountProfile,
   getMyUpvotedStudies,
+  getRecentStudyViews,
   getUserCommentHistory,
 } from "@/lib/queries/profile";
 
@@ -26,8 +27,9 @@ export default async function ProfilePage() {
     return <ProfileSignInGate />;
   }
 
-  const [initialUpvotes, initialComments] = await Promise.all([
+  const [initialUpvotes, initialRecentViews, initialComments] = await Promise.all([
     getMyUpvotedStudies(account.profile.id),
+    getRecentStudyViews(account.profile.id),
     getUserCommentHistory(account.profile.id),
   ]);
 
@@ -64,6 +66,8 @@ export default async function ProfilePage() {
         mode="private"
         initialComments={initialComments}
         initialUpvotes={initialUpvotes}
+        initialRecentViews={initialRecentViews}
+        viewedStudiesVisibility={account.profile.viewed_studies_visibility}
       />
     </div>
   );

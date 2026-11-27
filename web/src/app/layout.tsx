@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { AccountProfileProvider } from "@/components/layout/account-profile-provider";
+import { FriendsChatDrawer } from "@/components/layout/friends-chat-drawer";
+import { SocialDrawerProvider } from "@/components/layout/social-drawer-provider";
 import { TopNav } from "@/components/layout/top-nav";
 import "./globals.css";
 
@@ -98,10 +100,13 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-canvas font-sans text-ink antialiased">
         <AccountProfileProvider>
-          <TopNav />
-          <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-            {children}
-          </main>
+          <SocialDrawerProvider>
+            <TopNav />
+            <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+              {children}
+            </main>
+            <FriendsChatDrawer />
+          </SocialDrawerProvider>
         </AccountProfileProvider>
       </body>
     </html>

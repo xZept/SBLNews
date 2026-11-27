@@ -4,28 +4,38 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type {
   AccountProfile,
+  ActivityVisibilityType,
   CursorPage,
   ProfileCommentHistoryItem,
   ProfileUpvotedStudyItem,
   ThemePreferenceType,
 } from "@/lib/queries/projections";
 import {
+  getAuthorizedUpvotedStudies,
   getMyUpvotedStudies,
   getUserCommentHistory,
   type CommentHistoryPageCursor,
 } from "@/lib/queries/profile";
 import {
   CommentHistoryCursorSchema,
+  RecordStudyViewSchema,
+  UpdateActivityVisibilitySchema,
   UpdateAvatarUrlSchema,
   UpdateProfileSchema,
   UpdateThemePreferenceSchema,
   UpvotedStudiesCursorSchema,
   type CommentHistoryCursor,
+  type RecordStudyViewInput,
+  type UpdateActivityVisibilityInput,
   type UpdateAvatarUrlInput,
   type UpdateProfileInput,
   type UpdateThemePreferenceInput,
   type UpvotedStudiesCursor,
 } from "@/lib/validations/profile";
+import {
+  PublicUpvotesCursorSchema,
+  type PublicUpvotesCursor,
+} from "@/lib/validations/social";
 
 export type ProfileActionErrorCode =
   | "AUTH_REQUIRED"
@@ -61,6 +71,22 @@ export type LoadMoreCommentHistoryResult =
       ok: true;
       page: CursorPage<ProfileCommentHistoryItem, CommentHistoryPageCursor>;
     }
+  | { ok: false; error: ProfileActionErrorCode; message: string };
+
+export type UpdateActivityVisibilityResult =
+  | {
+      ok: true;
+      upvotedStudiesVisibility: ActivityVisibilityType;
+      viewedStudiesVisibility: ActivityVisibilityType;
+    }
+  | { ok: false; error: ProfileActionErrorCode; message: string };
+
+export type RecordStudyViewResult =
+  | { ok: true; recorded: boolean }
+  | { ok: false; error: ProfileActionErrorCode; message: string };
+
+export type ClearRecentStudyViewsResult =
+  | { ok: true }
   | { ok: false; error: ProfileActionErrorCode; message: string };
 
 function unwrapProfile(
@@ -140,16 +166,31 @@ export async function updateProfileAction(
     };
   }
 
-  const { displayName, affiliationRole, bio, themePreference } = parsed.data;
+  const {
+    displayName,
+    affiliationRole,
+    bio,
+    themePreference,
+    upvotedStudiesVisibility,
+    viewedStudiesVisibility,
+  } = parsed.data;
+
+  const updatePayload: Record<string, unknown> = {
+    display_name: displayName,
+    affiliation_role: affiliationRole,
+    bio,
+    theme_preference: themePreference,
+  };
+  if (upvotedStudiesVisibility !== undefined) {
+    updatePayload.upvoted_studies_visibility = upvotedStudiesVisibility;
+  }
+  if (viewedStudiesVisibility !== undefined) {
+    updatePayload.viewed_studies_visibility = viewedStudiesVisibility;
+  }
 
   const { error: updateError } = await supabase
     .from("profiles")
-    .update({
-      display_name: displayName,
-      affiliation_role: affiliationRole,
-      bio,
-      theme_preference: themePreference,
-    })
+    .update(updatePayload)
     .eq("id", user.id);
 
   if (updateError) {
@@ -287,6 +328,149 @@ export async function loadMoreCommentHistoryAction(
   const page = await getUserCommentHistory(parsed.data.userId, {
     cursorCreatedAt: parsed.data.cursorCreatedAt,
     cursorCommentId: parsed.data.cursorCommentId,
+  });
+
+  return { ok: true, page };
+}
+
+export async function updateActivityVisibilityAction(
+  input: UpdateActivityVisibilityInput
+): Promise<UpdateActivityVisibilityResult> {
+  const parsed = UpdateActivityVisibilitySchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "VALIDATION_ERROR",
+      message:
+        parsed.error.issues[0]?.message ?? "Invalid visibility selection.",
+    };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      ok: false,
+      error: "AUTH_REQUIRED",
+      message: "Sign in to update your activity privacy settings.",
+    };
+  }
+
+  const { upvotedStudiesVisibility, viewedStudiesVisibility } = parsed.data;
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      upvoted_studies_visibility: upvotedStudiesVisibility,
+      viewed_studies_visibility: viewedStudiesVisibility,
+    })
+    .eq("id", user.id);
+
+  if (error) {
+    return {
+      ok: false,
+      error: "DB_ERROR",
+      message: "Failed to save activity visibility settings.",
+    };
+  }
+
+  revalidatePath("/profile");
+  revalidatePath(`/profile/${user.id}`);
+
+  return {
+    ok: true,
+    upvotedStudiesVisibility,
+    viewedStudiesVisibility,
+  };
+}
+
+export async function recordStudyViewAction(
+  input: RecordStudyViewInput
+): Promise<RecordStudyViewResult> {
+  const parsed = RecordStudyViewSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "VALIDATION_ERROR",
+      message: parsed.error.issues[0]?.message ?? "Invalid study ID.",
+    };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { ok: true, recorded: false };
+  }
+
+  const { data, error } = await supabase.rpc("record_study_view", {
+    p_study_id: parsed.data.studyId,
+  });
+
+  if (error) {
+    return {
+      ok: false,
+      error: "DB_ERROR",
+      message: "Failed to record study view.",
+    };
+  }
+
+  return { ok: true, recorded: Boolean(data) };
+}
+
+export async function clearRecentStudyViewsAction(): Promise<ClearRecentStudyViewsResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      ok: false,
+      error: "AUTH_REQUIRED",
+      message: "Sign in to clear your recently viewed studies.",
+    };
+  }
+
+  const { error } = await supabase
+    .from("recent_study_views")
+    .delete()
+    .eq("user_id", user.id);
+
+  if (error) {
+    return {
+      ok: false,
+      error: "DB_ERROR",
+      message: "Failed to clear recently viewed studies.",
+    };
+  }
+
+  revalidatePath("/profile");
+  revalidatePath(`/profile/${user.id}`);
+
+  return { ok: true };
+}
+
+export async function loadMorePublicUpvotesAction(
+  input: PublicUpvotesCursor
+): Promise<LoadMoreUpvotedStudiesResult> {
+  const parsed = PublicUpvotesCursorSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "VALIDATION_ERROR",
+      message: parsed.error.issues[0]?.message ?? "Invalid pagination cursor.",
+    };
+  }
+
+  const page = await getAuthorizedUpvotedStudies(parsed.data.userId, {
+    cursorVotedAt: parsed.data.cursorVotedAt,
+    cursorStudyId: parsed.data.cursorStudyId,
   });
 
   return { ok: true, page };
