@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  AI_CITATION_STUDY_COLUMNS,
   DIRECT_MESSAGE_COLUMNS,
   PROFILE_COMMENT_HISTORY_COLUMNS,
   PROFILE_RECENT_VIEW_COLUMNS,
@@ -137,5 +138,29 @@ describe("Profile & activity projection privacy and egress guards", () => {
     expect(DIRECT_MESSAGE_COLUMNS).toContain("recipient_id");
     expect(DIRECT_MESSAGE_COLUMNS).toContain("has_study_attachment");
     expect(DIRECT_MESSAGE_COLUMNS).toContain("read_at");
+  });
+});
+
+describe("AI_CITATION_STUDY_COLUMNS egress guard", () => {
+  const columns = parseColumns(AI_CITATION_STUDY_COLUMNS);
+
+  it("never uses wildcard SELECT *", () => {
+    expect(AI_CITATION_STUDY_COLUMNS).not.toContain("*");
+  });
+
+  it("strictly excludes abstract_text, full_text_content, embedding, and search_tsv", () => {
+    expect(columns).not.toContain("abstract_text");
+    expect(columns).not.toContain("full_text_content");
+    expect(columns).not.toContain("embedding");
+    expect(columns).not.toContain("search_tsv");
+  });
+
+  it("includes required citation metadata and limitations", () => {
+    expect(columns).toContain("id");
+    expect(columns).toContain("title");
+    expect(columns).toContain("study_design");
+    expect(columns).toContain("inspection_depth");
+    expect(columns).toContain("quality_score");
+    expect(columns).toContain("limitations");
   });
 });

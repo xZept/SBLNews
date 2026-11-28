@@ -2,7 +2,10 @@ import { cache } from "react";
 import { z } from "zod";
 import { createClient, createPublicClient } from "@/lib/supabase/server";
 import {
+  AI_CITATION_STUDY_COLUMNS,
   STUDY_SUMMARY_COLUMNS,
+  type AiCitationLabel,
+  type AiCitationStudy,
   type SecondaryCommentary,
   type StudyComment,
   type StudyDetail,
@@ -284,4 +287,124 @@ export async function searchStudiesHybrid(
     results: data as HybridSearchResult[],
     usedSemantic: embedding !== null,
   };
+}
+
+const CITATION_LABELS: readonly AiCitationLabel[] = [
+  "S1",
+  "S2",
+  "S3",
+  "S4",
+  "S5",
+];
+
+/**
+ * Retrieves the top 3-5 deterministically ranked published studies for AI
+ * synthesis using `search_studies_hybrid` and enriches them with `limitations`
+ * via `AI_CITATION_STUDY_COLUMNS` (strictly excluding `abstract_text` and `embedding`).
+ */
+export async function getAiCitationStudies(
+  rawParams: Partial<HybridSearchInput>,
+  limit = 5
+): Promise<AiCitationStudy[]> {
+  const clampedLimit = Math.max(3, Math.min(5, Math.floor(limit)));
+  const { results } = await searchStudiesHybrid({
+    ...rawParams,
+    limit: clampedLimit,
+  });
+
+  if (results.length === 0) {
+    return [];
+  }
+
+  const topResults = results.slice(0, clampedLimit);
+  const studyIds = topResults.map((study) => study.id);
+
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("studies")
+    .select(AI_CITATION_STUDY_COLUMNS)
+    .eq("publication_status", "published")
+    .in("id", studyIds);
+
+  if (error || !data) {
+    if (error) {
+      console.error("Error fetching AI citation study details:", error.message);
+    }
+    return topResults.map((study, index) => ({
+      citation_label: CITATION_LABELS[index] ?? "S5",
+      id: study.id,
+      title: study.title,
+      journal: study.journal,
+      publication_year: study.publication_year,
+      primary_url: study.primary_url,
+      study_design: study.study_design,
+      population: study.population,
+      is_trained_population: study.is_trained_population,
+      sample_size_n: study.sample_size_n,
+      duration_weeks: study.duration_weeks,
+      primary_outcome: study.primary_outcome,
+      summary_takeaway: study.summary_takeaway,
+      limitations: [],
+      inspection_depth: study.inspection_depth,
+      quality_score: study.quality_score,
+    }));
+  }
+
+  const byId = new Map<string, Record<string, unknown>>();
+  for (const row of data as unknown as Array<Record<string, unknown>>) {
+    if (typeof row.id === "string") {
+      byId.set(row.id, row);
+    }
+  }
+
+  return topResults.map((fallback, index) => {
+    const row = byId.get(fallback.id);
+    const rawLimitations = row?.limitations;
+    const limitations = Array.isArray(rawLimitations)
+      ? rawLimitations.filter((item): item is string => typeof item === "string")
+      : [];
+
+    return {
+      citation_label: CITATION_LABELS[index] ?? "S5",
+      id: fallback.id,
+      title: typeof row?.title === "string" ? row.title : fallback.title,
+      journal: typeof row?.journal === "string" ? row.journal : fallback.journal,
+      publication_year:
+        typeof row?.publication_year === "number"
+          ? row.publication_year
+          : fallback.publication_year,
+      primary_url:
+        typeof row?.primary_url === "string"
+          ? row.primary_url
+          : fallback.primary_url,
+      study_design: fallback.study_design,
+      population:
+        typeof row?.population === "string"
+          ? row.population
+          : fallback.population,
+      is_trained_population:
+        typeof row?.is_trained_population === "boolean"
+          ? row.is_trained_population
+          : fallback.is_trained_population,
+      sample_size_n:
+        typeof row?.sample_size_n === "number" || row?.sample_size_n === null
+          ? (row.sample_size_n as number | null)
+          : fallback.sample_size_n,
+      duration_weeks:
+        typeof row?.duration_weeks === "number" || row?.duration_weeks === null
+          ? (row.duration_weeks as number | null)
+          : fallback.duration_weeks,
+      primary_outcome:
+        typeof row?.primary_outcome === "string"
+          ? row.primary_outcome
+          : fallback.primary_outcome,
+      summary_takeaway:
+        typeof row?.summary_takeaway === "string"
+          ? row.summary_takeaway
+          : fallback.summary_takeaway,
+      limitations,
+      inspection_depth: fallback.inspection_depth,
+      quality_score: fallback.quality_score,
+    };
+  });
 }

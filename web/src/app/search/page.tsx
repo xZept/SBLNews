@@ -1,18 +1,14 @@
 import Link from "next/link";
-import { AlertTriangle, Search, RotateCcw } from "lucide-react";
+import { AlertTriangle, RotateCcw } from "lucide-react";
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { StudyCard } from "@/components/feed/study-card";
+import { AiSearchWorkspace } from "@/components/search/ai-search-workspace";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { searchStudiesHybrid } from "@/lib/queries/studies";
 import { createClient } from "@/lib/supabase/server";
-import {
-  HybridSearchSchema,
-  StudyDesignEnum,
-} from "@/lib/validations/search";
-import { formatStudyDesign } from "@/lib/queries/study-badges";
+import { HybridSearchSchema } from "@/lib/validations/search";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +28,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const rawMinDuration = pickFirst(raw.min_duration_weeks);
   const rawTrainedOnly = pickFirst(raw.trained_only);
   const rawLimit = pickFirst(raw.limit);
+  const rawAi = pickFirst(raw.ai);
+  const initialAiActive = rawAi === "1" || rawAi === "true";
 
   const parsed = HybridSearchSchema.safeParse({
     q: rawQ,
@@ -105,102 +103,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </p>
       </header>
 
-      <Card className="p-4 sm:p-5">
-        <form action="/search" method="GET" className="space-y-4">
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="relative flex-1">
-              <label htmlFor="search-q" className="sr-only">
-                Search literature
-              </label>
-              <Input
-                id="search-q"
-                name="q"
-                type="search"
-                defaultValue={params.q}
-                maxLength={200}
-                placeholder='e.g., "lengthened partials hypertrophy" or "weekly volume trained lifters"'
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Button type="submit" variant="primary" className="gap-1.5">
-                <Search className="h-4 w-4" />
-                <span>Search</span>
-              </Button>
-              {hasActiveFilters && (
-                <Button asChild variant="secondary">
-                  <Link href="/search" className="gap-1.5">
-                    <RotateCcw className="h-3.5 w-3.5" />
-                    <span>Reset</span>
-                  </Link>
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <div className="grid gap-3 border-t border-border/15 pt-3 sm:grid-cols-3">
-            <div className="space-y-1">
-              <label
-                htmlFor="filter-study-design"
-                className="block font-mono text-xs font-semibold uppercase tracking-wide text-muted"
-              >
-                Study Design
-              </label>
-              <select
-                id="filter-study-design"
-                name="study_design"
-                defaultValue={params.study_design ?? ""}
-                className="flex h-10 w-full rounded-md border-2 border-border bg-surface px-3 py-2 font-sans text-sm text-ink shadow-control focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border"
-              >
-                <option value="">All Designs</option>
-                {StudyDesignEnum.options.map((design) => (
-                  <option key={design} value={design}>
-                    {formatStudyDesign(design)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <label
-                htmlFor="filter-min-duration"
-                className="block font-mono text-xs font-semibold uppercase tracking-wide text-muted"
-              >
-                Min Duration (Weeks)
-              </label>
-              <Input
-                id="filter-min-duration"
-                name="min_duration_weeks"
-                type="number"
-                min={0}
-                max={520}
-                defaultValue={
-                  params.min_duration_weeks !== undefined
-                    ? String(params.min_duration_weeks)
-                    : ""
-                }
-                placeholder="e.g., 8"
-              />
-            </div>
-
-            <div className="flex items-end pb-1">
-              <label
-                htmlFor="filter-trained-only"
-                className="flex cursor-pointer items-center gap-2.5 rounded-md border-2 border-border bg-canvas px-3 py-2 font-mono text-xs font-semibold text-ink shadow-control"
-              >
-                <input
-                  id="filter-trained-only"
-                  name="trained_only"
-                  type="checkbox"
-                  value="true"
-                  defaultChecked={Boolean(params.trained_only)}
-                  className="h-4 w-4 accent-ink"
-                />
-                <span>Trained lifters only</span>
-              </label>
-            </div>
-          </div>
-        </form>
-      </Card>
+      <AiSearchWorkspace
+        initialQuery={params.q ?? rawQ}
+        initialStudyDesign={params.study_design ?? ""}
+        initialMinDurationWeeks={params.min_duration_weeks}
+        initialTrainedOnly={Boolean(params.trained_only)}
+        initialAiActive={initialAiActive}
+        hasActiveFilters={hasActiveFilters}
+      />
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-border pb-2">
         <p className="font-mono text-xs font-semibold text-ink">
