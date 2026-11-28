@@ -18,14 +18,21 @@ interface AskAiOAuthPromptProps {
   onDismiss?: () => void;
 }
 
-export function buildAskAiReturnPath(params: {
+export interface SearchPathParams {
   query?: string;
   studyDesign?: string;
   minDurationWeeks?: string | number;
   trainedOnly?: boolean;
-}): string {
+}
+
+function buildSearchParams(
+  params: SearchPathParams,
+  options?: { includeAi?: boolean }
+): URLSearchParams {
   const sp = new URLSearchParams();
-  sp.set("ai", "1");
+  if (options?.includeAi) {
+    sp.set("ai", "1");
+  }
   const trimmedQ = params.query?.trim();
   if (trimmedQ) {
     sp.set("q", trimmedQ);
@@ -45,7 +52,18 @@ export function buildAskAiReturnPath(params: {
   if (params.trainedOnly) {
     sp.set("trained_only", "true");
   }
-  return `/search?${sp.toString()}`;
+  return sp;
+}
+
+/** Build a public `/search` URL for standard keyword/filter search (no `ai=1`). */
+export function buildStandardSearchPath(params: SearchPathParams): string {
+  const qs = buildSearchParams(params).toString();
+  return qs ? `/search?${qs}` : "/search";
+}
+
+/** Build an `/search?ai=1...` URL that triggers AI synthesis on arrival/return. */
+export function buildAskAiReturnPath(params: SearchPathParams): string {
+  return `/search?${buildSearchParams(params, { includeAi: true }).toString()}`;
 }
 
 export function AskAiOAuthPrompt({

@@ -9,6 +9,7 @@ import { AiSynthesisPanel } from "@/components/search/ai-synthesis-panel";
 import {
   AskAiOAuthPrompt,
   buildAskAiReturnPath,
+  buildStandardSearchPath,
 } from "@/components/search/ask-ai-oauth-prompt";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -113,17 +114,24 @@ export function AiSearchWorkspace({
     initialMinDurationWeeks !== undefined ? String(initialMinDurationWeeks) : ""
   );
   const [trainedOnly, setTrainedOnly] = React.useState(initialTrainedOnly);
-  const [aiActive, setAiActive] = React.useState(initialAiActive);
+  const [synthesisPanelOpen, setSynthesisPanelOpen] =
+    React.useState(initialAiActive);
+  const [oauthPromptOpen, setOauthPromptOpen] =
+    React.useState(initialAiActive);
+  const [validationError, setValidationError] = React.useState<string | null>(
+    null
+  );
   const [quota, setQuota] = React.useState<AiQuotaStatus | null>(initialQuota);
   const [synthesis, setSynthesis] = React.useState<SynthesisState>(
     INITIAL_SYNTHESIS_STATE
   );
 
+  const queryInputRef = React.useRef<HTMLInputElement | null>(null);
   const autoTriggeredRef = React.useRef(false);
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
   React.useEffect(() => {
-    if (!aiActive || authLoading || !profile || quota !== null) {
+    if (authLoading || !profile || quota !== null) {
       return;
     }
 
@@ -145,7 +153,7 @@ export function AiSearchWorkspace({
     return () => {
       cancelled = true;
     };
-  }, [aiActive, authLoading, profile, quota]);
+  }, [authLoading, profile, quota]);
 
   const runAiSynthesis = React.useCallback(
     async (targetQuery: string) => {
@@ -361,6 +369,7 @@ export function AiSearchWorkspace({
       !autoTriggeredRef.current
     ) {
       autoTriggeredRef.current = true;
+      setSynthesisPanelOpen(true);
       void runAiSynthesis(initialQuery);
     }
   }, [authLoading, initialAiActive, initialQuery, profile, runAiSynthesis]);
@@ -371,34 +380,58 @@ export function AiSearchWorkspace({
     };
   }, []);
 
-  function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
-    if (!aiActive) {
-      // Allow native GET /search submission for 100% public standard search
+  function handleStandardSearchSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    abortControllerRef.current?.abort();
+    setValidationError(null);
+    setSynthesisPanelOpen(false);
+    setOauthPromptOpen(false);
+    setSynthesis(INITIAL_SYNTHESIS_STATE);
+    router.push(
+      buildStandardSearchPath({
+        query,
+        studyDesign,
+        minDurationWeeks,
+        trainedOnly,
+      })
+    );
+  }
+
+  function handleAskAiClick() {
+    if (authLoading) {
       return;
     }
-
-    e.preventDefault();
-    if (!profile || synthesis.isStreaming) {
+    if (!profile) {
+      setValidationError(null);
+      setOauthPromptOpen(true);
       return;
     }
 
     const trimmed = query.trim();
-    if (trimmed.length >= AI_QUERY_MIN_LENGTH) {
-      autoTriggeredRef.current = true;
-      const nextUrl = buildAskAiReturnPath({
-        query: trimmed,
-        studyDesign,
-        minDurationWeeks,
-        trainedOnly,
-      });
-      router.replace(nextUrl, { scroll: false });
+    if (trimmed.length < AI_QUERY_MIN_LENGTH) {
+      setValidationError(
+        `Enter at least ${AI_QUERY_MIN_LENGTH} characters to ask AI.`
+      );
+      queryInputRef.current?.focus();
+      return;
     }
 
-    void runAiSynthesis(query);
+    setValidationError(null);
+    setOauthPromptOpen(false);
+    setSynthesisPanelOpen(true);
+    autoTriggeredRef.current = true;
+    const nextUrl = buildAskAiReturnPath({
+      query: trimmed,
+      studyDesign,
+      minDurationWeeks,
+      trainedOnly,
+    });
+    router.push(nextUrl, { scroll: false });
+    void runAiSynthesis(trimmed);
   }
 
   const showSynthesisPanel =
-    aiActive &&
+    synthesisPanelOpen &&
     Boolean(profile) &&
     (synthesis.isStreaming ||
       Boolean(synthesis.answerMarkdown) ||
@@ -411,7 +444,7 @@ export function AiSearchWorkspace({
         <form
           action="/search"
           method="GET"
-          onSubmit={handleFormSubmit}
+          onSubmit={handleStandardSearchSubmit}
           className="space-y-4"
         >
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -420,56 +453,43 @@ export function AiSearchWorkspace({
                 Search literature
               </label>
               <Input
+                ref={queryInputRef}
                 id="search-q"
                 name="q"
                 type="search"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  if (validationError) {
+                    setValidationError(null);
+                  }
+                }}
                 maxLength={AI_QUERY_MAX_LENGTH}
-                placeholder={
-                  aiActive
-                    ? 'Ask a multi-study question (e.g., "Do lengthened partials build more muscle than full ROM?")'
-                    : 'e.g., "lengthened partials hypertrophy" or "weekly volume trained lifters"'
+                aria-invalid={Boolean(validationError) || undefined}
+                aria-describedby={
+                  validationError ? "search-validation-error" : undefined
                 }
+                placeholder='Search keywords or ask a research question (e.g., "Do lengthened partials build more muscle than full ROM?")'
               />
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <Button
-                type="submit"
-                variant={aiActive ? "secondary" : "primary"}
-                disabled={aiActive && synthesis.isStreaming}
-                className="gap-1.5"
-              >
-                {aiActive ? (
-                  <>
-                    <Sparkles className="h-4 w-4" aria-hidden="true" />
-                    <span>Synthesize</span>
-                  </>
-                ) : (
-                  <>
-                    <Search className="h-4 w-4" aria-hidden="true" />
-                    <span>Search</span>
-                  </>
-                )}
+              <Button type="submit" variant="primary" className="gap-1.5">
+                <Search className="h-4 w-4" aria-hidden="true" />
+                <span>Search</span>
               </Button>
 
               <button
                 type="button"
-                onClick={() => setAiActive((prev) => !prev)}
-                aria-pressed={aiActive}
-                className={cn(
-                  "inline-flex h-10 items-center gap-1.5 rounded-md border-2 border-border px-3.5 font-mono text-xs font-bold shadow-control transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer",
-                  aiActive
-                    ? "bg-accent text-accent-ink"
-                    : "bg-canvas text-ink hover:bg-surface"
-                )}
+                onClick={handleAskAiClick}
+                disabled={synthesis.isStreaming}
+                className="inline-flex h-10 items-center gap-1.5 rounded-md border-2 border-border bg-accent px-3.5 font-mono text-xs font-bold text-accent-ink shadow-control transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-60 cursor-pointer"
               >
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>Ask AI</span>
+                <span>{synthesis.isStreaming ? "Synthesizing..." : "Ask AI"}</span>
               </button>
 
-              {aiActive && profile && quota && (
+              {profile && quota && (
                 <span
                   data-testid="ai-quota-badge"
                   className={cn(
@@ -497,6 +517,16 @@ export function AiSearchWorkspace({
               )}
             </div>
           </div>
+
+          {validationError && (
+            <p
+              id="search-validation-error"
+              role="alert"
+              className="rounded-sm border-2 border-border bg-badge-abstract px-3 py-1.5 font-mono text-xs font-bold text-accent-ink"
+            >
+              {validationError}
+            </p>
+          )}
 
           <div className="grid gap-3 border-t border-border/15 pt-3 sm:grid-cols-3">
             <div className="space-y-1">
@@ -562,13 +592,13 @@ export function AiSearchWorkspace({
         </form>
       </Card>
 
-      {aiActive && !authLoading && !profile && (
+      {oauthPromptOpen && !authLoading && !profile && (
         <AskAiOAuthPrompt
           query={query}
           studyDesign={studyDesign}
           minDurationWeeks={minDurationWeeks}
           trainedOnly={trainedOnly}
-          onDismiss={() => setAiActive(false)}
+          onDismiss={() => setOauthPromptOpen(false)}
         />
       )}
 

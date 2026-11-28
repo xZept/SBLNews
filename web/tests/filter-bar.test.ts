@@ -33,7 +33,10 @@ vi.mock("../src/components/layout/account-profile-provider", () => ({
 }));
 
 import { FilterBar } from "../src/components/feed/filter-bar";
-import { buildAskAiReturnPath } from "../src/components/search/ask-ai-oauth-prompt";
+import {
+  buildAskAiReturnPath,
+  buildStandardSearchPath,
+} from "../src/components/search/ask-ai-oauth-prompt";
 
 function renderFilterBar(overrides?: Partial<React.ComponentProps<typeof FilterBar>>) {
   return renderToStaticMarkup(
@@ -61,16 +64,23 @@ describe("FilterBar relocated Search & Ask AI split row", () => {
     expect(html).toContain("sm:col-span-1");
   });
 
-  it("renders the Search trigger as a /search Link with Search icon and Ask AI button with aria-pressed", () => {
+  it("renders an inline search input and direct Search and Ask AI controls instead of a /search Link", () => {
     const html = renderFilterBar();
 
-    expect(html).toContain('href="/search"');
-    expect(html).toContain("Search literature...");
+    expect(html).not.toContain('href="/search"');
+    expect(html).toContain("<form");
+    expect(html).toContain('id="feed-search-q"');
+    expect(html).toContain('type="search"');
+    expect(html).toContain('maxLength="300"');
+    expect(html).toContain(
+      'placeholder="Search literature or ask a research question..."'
+    );
+    expect(html).toContain('type="submit"');
     expect(html).toContain("lucide-search");
+    expect(html).toContain("<span>Search</span>");
 
     const askAiMatches = html.match(/Ask AI/g) ?? [];
     expect(askAiMatches).toHaveLength(1);
-    expect(html).toContain('aria-pressed="false"');
     expect(html).toContain("lucide-sparkles");
   });
 
@@ -88,62 +98,102 @@ describe("FilterBar relocated Search & Ask AI split row", () => {
     expect(inlineRowSlice).not.toContain("Ask AI");
   });
 
-  it("preserves studyDesign and trainedOnly in buildAskAiReturnPath for Ask AI submissions", () => {
-    const url = buildAskAiReturnPath({
+  it("serializes standard search vs Ask AI return paths with studyDesign and trainedOnly", () => {
+    expect(
+      buildStandardSearchPath({
+        query: "  ",
+        studyDesign: "all",
+        trainedOnly: false,
+      })
+    ).toBe("/search");
+
+    const standardUrl = buildStandardSearchPath({
+      query: "  lengthened partials hypertrophy  ",
+      studyDesign: "rct",
+      trainedOnly: true,
+    });
+    expect(standardUrl).toContain("/search?");
+    expect(standardUrl).not.toContain("ai=1");
+    expect(standardUrl).toContain("q=lengthened+partials+hypertrophy");
+    expect(standardUrl).toContain("study_design=rct");
+    expect(standardUrl).toContain("trained_only=true");
+
+    const askAiUrl = buildAskAiReturnPath({
       query: "lengthened partials hypertrophy",
       studyDesign: "rct",
       trainedOnly: true,
     });
 
-    expect(url).toContain("/search?");
-    expect(url).toContain("ai=1");
-    expect(url).toContain("q=lengthened+partials+hypertrophy");
-    expect(url).toContain("study_design=rct");
-    expect(url).toContain("trained_only=true");
+    expect(askAiUrl).toContain("/search?");
+    expect(askAiUrl).toContain("ai=1");
+    expect(askAiUrl).toContain("q=lengthened+partials+hypertrophy");
+    expect(askAiUrl).toContain("study_design=rct");
+    expect(askAiUrl).toContain("trained_only=true");
   });
 
-  it("wires setAskAiOpen toggle on the Ask AI button in source", () => {
+  it("wires direct Search submit and Ask AI click handling in source", () => {
     const src = fs.readFileSync(
       path.resolve(__dirname, "../src/components/feed/filter-bar.tsx"),
       "utf8"
     );
-    expect(src).toContain("setAskAiOpen((prev) => !prev)");
+    expect(src).toContain("onSubmit={handleStandardSearchSubmit}");
+    expect(src).toContain("onClick={handleAskAiClick}");
+    expect(src).toContain("buildStandardSearchPath");
+    expect(src).toContain("buildAskAiReturnPath");
+    expect(src).toContain("AskAiOAuthPrompt");
+    expect(src).toContain("characters to ask AI.");
+    expect(src).not.toContain("askAiOpen");
+    expect(src).not.toContain("Synthesize on /search");
   });
 });
 
 describe("FilterBar mobile stacking & Neo-Brutalist Sky Blue tokens", () => {
-  it("applies mobile stacking, >= 44px touch targets, and Neo-Brutalist token classes to both buttons", () => {
+  it("applies mobile stacking, >= 44px touch targets, and Neo-Brutalist token classes to the input, Search, and Ask AI controls", () => {
     const html = renderFilterBar();
 
-    const searchLinkMatch = html.match(/<a[^>]*href="\/search"[^>]*>/);
-    const askAiBtnMatch = html.match(/<button[^>]*aria-pressed="false"[^>]*>[^]*?Ask AI/);
+    const searchInputMatch = html.match(/<input[^>]*id="feed-search-q"[^>]*>/);
+    const searchBtnMatch = html.match(
+      /<button[^>]*type="submit"[^>]*>[^]*?Search<\/span><\/button>/
+    );
+    const askAiBtnMatch = html.match(
+      /<button[^>]*type="button"[^>]*>[^]*?Ask AI<\/span><\/button>/
+    );
 
-    expect(searchLinkMatch).not.toBeNull();
+    expect(searchInputMatch).not.toBeNull();
+    expect(searchBtnMatch).not.toBeNull();
     expect(askAiBtnMatch).not.toBeNull();
 
-    for (const snippet of [searchLinkMatch![0], askAiBtnMatch![0]]) {
+    for (const snippet of [
+      searchInputMatch![0],
+      searchBtnMatch![0],
+      askAiBtnMatch![0],
+    ]) {
       expect(snippet).toContain("min-h-[44px]");
       expect(snippet).toContain("rounded-md");
       expect(snippet).toContain("border-2");
       expect(snippet).toContain("border-border");
-      expect(snippet).toContain("shadow-card");
-      expect(snippet).toContain("font-mono");
-      expect(snippet).toContain("active:translate-x-[2px]");
-      expect(snippet).toContain("active:translate-y-[2px]");
-      expect(snippet).toContain("active:shadow-none");
     }
 
-    expect(searchLinkMatch![0]).toContain("bg-surface");
-    expect(searchLinkMatch![0]).toContain("text-ink");
+    for (const btnSnippet of [searchBtnMatch![0], askAiBtnMatch![0]]) {
+      expect(btnSnippet).toContain("font-mono");
+      expect(btnSnippet).toContain("bg-accent");
+      expect(btnSnippet).toContain("text-accent-ink");
+      expect(btnSnippet).toContain("active:translate-x-[2px]");
+      expect(btnSnippet).toContain("active:translate-y-[2px]");
+      expect(btnSnippet).toContain("active:shadow-none");
+    }
   });
 
-  it("contains zero purple, violet, or gradient utility classes", () => {
+  it("contains zero purple, violet, red, or gradient utility classes and uses Neo-Brutalist validation tokens", () => {
     const src = fs.readFileSync(
       path.resolve(__dirname, "../src/components/feed/filter-bar.tsx"),
       "utf8"
     );
 
-    expect(src).not.toMatch(/\b(bg|text|border)-(purple|violet)-/);
+    expect(src).not.toMatch(/\b(bg|text|border)-(purple|violet|red)-/);
     expect(src).not.toMatch(/\bbg-gradient-/);
+    expect(src).toContain(
+      "mt-2 rounded-sm border-2 border-border bg-badge-abstract px-3 py-1.5 font-mono text-xs font-bold text-accent-ink"
+    );
   });
 });

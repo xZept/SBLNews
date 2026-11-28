@@ -12,6 +12,12 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  type InlineLeafSpan,
+  type InlineSpan,
+  type SynthesisBlock,
+  parseStructuredAiSynthesis,
+} from "@/lib/ai-search/markdown-parser";
 import type {
   AiCitationStudy,
   AiTierName,
@@ -33,60 +39,134 @@ interface AiSynthesisPanelProps {
   onRetry?: () => void;
 }
 
-const CITATION_GROUP_REGEX = /(\[(?:S[1-5])(?:\s*,\s*S[1-5])*\])/g;
+function renderLeafSpan(
+  span: InlineLeafSpan,
+  studyByLabel: Map<string, AiCitationStudy>,
+  key: React.Key
+): React.ReactNode {
+  if (span.type === "text") {
+    return <React.Fragment key={key}>{span.value}</React.Fragment>;
+  }
 
-function renderProseWithCitations(
-  text: string,
+  const validLabels = span.labels.filter((label) => studyByLabel.has(label));
+  if (validLabels.length === 0) {
+    return <React.Fragment key={key}>{span.rawToken}</React.Fragment>;
+  }
+
+  return (
+    <span
+      key={key}
+      className="mx-0.5 inline-flex flex-wrap items-center gap-1 align-baseline"
+    >
+      {validLabels.map((label) => {
+        const study = studyByLabel.get(label)!;
+        return (
+          <Link
+            key={label}
+            href={`/study/${study.id}`}
+            title={study.title}
+            className="inline-flex items-center rounded-sm border border-border bg-accent/25 px-1.5 py-0.2 font-mono text-xs font-bold text-ink hover:bg-accent hover:text-accent-ink"
+          >
+            [{label}]
+          </Link>
+        );
+      })}
+    </span>
+  );
+}
+
+function renderInlineSpans(
+  spans: InlineSpan[],
   studyByLabel: Map<string, AiCitationStudy>
 ): React.ReactNode[] {
-  const paragraphs = text
-    .split(/\n{2,}/)
-    .map((p) => p.trim())
-    .filter(Boolean);
+  return spans.map((span, idx) => {
+    if (span.type === "strong") {
+      return (
+        <strong key={idx} className="font-bold text-ink">
+          {span.children.map((child, childIdx) =>
+            renderLeafSpan(child, studyByLabel, childIdx)
+          )}
+        </strong>
+      );
+    }
+    return renderLeafSpan(span, studyByLabel, idx);
+  });
+}
 
-  return paragraphs.map((paragraph, pIdx) => {
-    const tokens = paragraph.split(CITATION_GROUP_REGEX);
+function renderSynthesisBlock(
+  block: SynthesisBlock,
+  studyByLabel: Map<string, AiCitationStudy>,
+  key: React.Key
+): React.ReactNode {
+  if (block.type === "paragraph") {
     return (
-      <p key={pIdx} className="leading-relaxed text-ink">
-        {tokens.map((token, tIdx) => {
-          if (!token.startsWith("[") || !token.endsWith("]")) {
-            return <React.Fragment key={tIdx}>{token}</React.Fragment>;
-          }
-
-          const labels = token
-            .slice(1, -1)
-            .split(",")
-            .map((part) => part.trim())
-            .filter(Boolean);
-
-          const validLabels = labels.filter((label) =>
-            studyByLabel.has(label)
-          );
-          if (validLabels.length === 0) {
-            return <React.Fragment key={tIdx}>{token}</React.Fragment>;
-          }
-
-          return (
-            <span key={tIdx} className="inline-flex flex-wrap items-center gap-1 mx-0.5 align-baseline">
-              {validLabels.map((label) => {
-                const study = studyByLabel.get(label)!;
-                return (
-                  <Link
-                    key={label}
-                    href={`/study/${study.id}`}
-                    title={study.title}
-                    className="inline-flex items-center rounded-sm border border-border bg-accent/25 px-1.5 py-0.2 font-mono text-xs font-bold text-ink hover:bg-accent hover:text-accent-ink"
-                  >
-                    [{label}]
-                  </Link>
-                );
-              })}
-            </span>
-          );
-        })}
+      <p key={key} className="leading-relaxed text-ink">
+        {renderInlineSpans(block.spans, studyByLabel)}
       </p>
     );
-  });
+  }
+
+  const listItems = block.items.map((itemSpans, itemIdx) => (
+    <li key={itemIdx} className="leading-relaxed">
+      {renderInlineSpans(itemSpans, studyByLabel)}
+    </li>
+  ));
+
+  if (block.type === "ordered-list") {
+    return (
+      <ol key={key} className="list-decimal space-y-1.5 pl-5 text-ink">
+        {listItems}
+      </ol>
+    );
+  }
+
+  return (
+    <ul key={key} className="list-disc space-y-1.5 pl-5 text-ink">
+      {listItems}
+    </ul>
+  );
+}
+
+function renderStructuredSynthesis(
+  answerMarkdown: string,
+  studyByLabel: Map<string, AiCitationStudy>
+): React.ReactNode {
+  const { sections } = parseStructuredAiSynthesis(answerMarkdown);
+  if (sections.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-3">
+      {sections.map((section, sIdx) => {
+        const blocks = section.blocks.map((block, bIdx) =>
+          renderSynthesisBlock(block, studyByLabel, bIdx)
+        );
+
+        if (section.title === null) {
+          return (
+            <div key={sIdx} className="space-y-2.5">
+              {blocks}
+            </div>
+          );
+        }
+
+        return (
+          <section
+            key={sIdx}
+            className="rounded-md border-2 border-border bg-canvas p-3.5"
+          >
+            <h3 className="font-display text-xs font-bold uppercase tracking-wider text-ink">
+              {section.title}
+            </h3>
+            {blocks.length > 0 && (
+              <div className="mt-2 space-y-2">{blocks}</div>
+            )}
+          </section>
+        );
+      })}
+    </div>
+  );
 }
 
 export function AiSynthesisPanel({
@@ -175,7 +255,7 @@ export function AiSynthesisPanel({
       ) : (
         <div className="mt-3 max-w-[72ch] space-y-3 font-sans text-sm sm:text-[15px]">
           {answerMarkdown ? (
-            renderProseWithCitations(answerMarkdown, studyByLabel)
+            renderStructuredSynthesis(answerMarkdown, studyByLabel)
           ) : isStreaming ? (
             <p className="font-mono text-xs text-muted">
               Retrieving top peer-reviewed studies and generating grounded synthesis...

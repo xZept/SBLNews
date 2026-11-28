@@ -1,6 +1,10 @@
-import { readdirSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { AiSearchWorkspace } from "../src/components/search/ai-search-workspace";
+import { AiSynthesisPanel } from "../src/components/search/ai-synthesis-panel";
 import { buildAskAiReturnPath } from "../src/components/search/ask-ai-oauth-prompt";
 import { normalizeAiQueryKey } from "../src/lib/ai-search/cache-key";
 import { type AiSearchConfig } from "../src/lib/ai-search/config";
@@ -11,6 +15,7 @@ import {
   estimateTokenCount,
 } from "../src/lib/ai-search/context-builder";
 import { synthesizeWithFailover } from "../src/lib/ai-search/failover-client";
+import { parseStructuredAiSynthesis } from "../src/lib/ai-search/markdown-parser";
 import type {
   AiCitationStudy,
   AiQuotaStatus,
@@ -34,6 +39,36 @@ const mockCheckAndIncrementAiQuota = vi.fn();
 const mockRefundAiQuota = vi.fn();
 const mockGetCachedAiSynthesis = vi.fn();
 const mockPutCachedAiSynthesis = vi.fn();
+
+const mockUseAccountProfile = vi.fn(() => ({
+  profile: null as { id: string } | null,
+  email: null as string | null,
+  loading: false,
+  theme: "light" as const,
+  setThemeLocalAndPersist: async () => {},
+  refreshAccountProfile: async () => {},
+  signOutAndResetTheme: async () => {},
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+  usePathname: () => "/search",
+}));
+
+vi.mock("@/components/layout/account-profile-provider", () => ({
+  useAccountProfile: () => mockUseAccountProfile(),
+}));
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...props
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) =>
+    React.createElement("a", { href, ...props }, children),
+}));
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(async () => mockUserClient),
@@ -628,5 +663,224 @@ describe("Constitution Principle V route-boundary enforcement", () => {
     ]);
 
     expect(routeHandlers).toEqual(["/api/ai-search", "/auth/callback"]);
+  });
+});
+
+describe("Structured AI Synthesis Prompt, Parser & Panel (007 US3: T010-T011)", () => {
+  it("enforces the 3-section Markdown format and bold-wrapping bans in AI_SYNTHESIS_SYSTEM_PROMPT", () => {
+    expect(AI_SYNTHESIS_SYSTEM_PROMPT).toContain("### Consensus & Bottom Line");
+    expect(AI_SYNTHESIS_SYSTEM_PROMPT).toContain("### Evidence Breakdown");
+    expect(AI_SYNTHESIS_SYSTEM_PROMPT).toContain("### Limitations & Gaps");
+    expect(AI_SYNTHESIS_SYSTEM_PROMPT).toContain('concise "- " bullet points');
+    expect(AI_SYNTHESIS_SYSTEM_PROMPT).toContain(
+      "NEVER wrap entire paragraphs, full sentences, or section headings in ** ** delimiters."
+    );
+  });
+
+  it("parses 3-section Markdown with lists, bold terms, and citations while stripping stray **", () => {
+    const markdown = [
+      "### Consensus & Bottom Line",
+      "- **Lengthened partials** matched or exceeded full ROM for **distal hypertrophy [S1, S2]**.",
+      "",
+      "### Evidence Breakdown",
+      "1. Trained lifters showed greater **rectus femoris** growth [S1].",
+      "2. Mid-stream **unclosed bold token with **extra** stray **** markers [S2].",
+      "",
+      "### Limitations & Gaps",
+      "- Short 10-week duration [S1] and **trailing unmatched**",
+    ].join("\n");
+
+    const parsed = parseStructuredAiSynthesis(markdown);
+
+    expect(parsed.sections).toHaveLength(3);
+    expect(parsed.sections.map((s) => s.title)).toEqual([
+      "Consensus & Bottom Line",
+      "Evidence Breakdown",
+      "Limitations & Gaps",
+    ]);
+
+    expect(parsed.sections[0].blocks[0].type).toBe("unordered-list");
+    expect(parsed.sections[1].blocks[0].type).toBe("ordered-list");
+    expect(parsed.sections[2].blocks[0].type).toBe("unordered-list");
+
+    const serialized = JSON.stringify(parsed);
+    expect(serialized).not.toContain("**");
+    expect(serialized).toContain('"type":"citation"');
+    expect(serialized).toContain('"S1"');
+    expect(serialized).toContain('"S2"');
+  });
+
+  it("falls back cleanly for legacy unsectioned cached prose", () => {
+    const legacy =
+      "Resistance training with **lengthened partials** improved hypertrophy [S1].\n\nHowever, **unmatched markers remain small [S2].";
+    const parsed = parseStructuredAiSynthesis(legacy);
+
+    expect(parsed.sections).toHaveLength(1);
+    expect(parsed.sections[0].title).toBeNull();
+    expect(parsed.sections[0].blocks).toHaveLength(2);
+    expect(parsed.sections[0].blocks.every((b) => b.type === "paragraph")).toBe(
+      true
+    );
+    expect(JSON.stringify(parsed)).not.toContain("**");
+  });
+
+  it("renders AiSynthesisPanel with Neo-Brutalist subsections, lists, strong, citation links, and 0 literal **", () => {
+    const studies = [makeStudy(0), makeStudy(1)];
+    const structuredMarkdown = [
+      "### Consensus & Bottom Line",
+      "- **Lengthened partials** produced greater **distal hypertrophy** [S1, S2].",
+      "",
+      "### Evidence Breakdown",
+      "1. Primary trial reported significant quadriceps thickness gains [S1].",
+      "",
+      "### Limitations & Gaps",
+      "- Mid-stream **unmatched bold should never leak [S2]",
+    ].join("\n");
+
+    const html = renderToStaticMarkup(
+      React.createElement(AiSynthesisPanel, {
+        query: "lengthened partials hypertrophy",
+        answerMarkdown: structuredMarkdown,
+        citations: studies,
+        isStreaming: true,
+      })
+    );
+
+    expect(html).toContain("Consensus &amp; Bottom Line");
+    expect(html).toContain("Evidence Breakdown");
+    expect(html).toContain("Limitations &amp; Gaps");
+    expect(html).toContain("rounded-md border-2 border-border bg-canvas p-3.5");
+    expect(html).toContain("<ul");
+    expect(html).toContain("<ol");
+    expect(html).toContain("<strong");
+    expect(html).toContain(`href="/study/${studies[0].id}"`);
+    expect(html).toContain(`href="/study/${studies[1].id}"`);
+    expect(html).not.toContain("**");
+    expect(html).not.toMatch(/purple|violet|gradient/i);
+  });
+
+  it("renders legacy unsectioned cached prose in AiSynthesisPanel without empty section headers or literal **", () => {
+    const studies = [makeStudy(0)];
+    const html = renderToStaticMarkup(
+      React.createElement(AiSynthesisPanel, {
+        query: "lengthened partials hypertrophy",
+        answerMarkdown:
+          "Legacy cached prose with **bold term** and **unclosed marker [S1].",
+        citations: studies,
+        isStreaming: false,
+        cached: true,
+      })
+    );
+
+    expect(html).toContain("<p class=\"leading-relaxed text-ink\">");
+    expect(html).toContain("<strong");
+    expect(html).toContain(`href="/study/${studies[0].id}"`);
+    expect(html).not.toContain("rounded-md border-2 border-border bg-canvas p-3.5");
+    expect(html).not.toContain("**");
+  });
+
+  it("does not pair an unmatched mid-stream ** across whitespace with a later **term** (T015)", () => {
+    const parsed = parseStructuredAiSynthesis(
+      "### Evidence Breakdown\n- Mid-stream **unmatched bold with **later term** [S1]."
+    );
+    const listBlock = parsed.sections[0]?.blocks[0];
+    expect(listBlock?.type).toBe("unordered-list");
+    if (listBlock?.type === "unordered-list") {
+      const strongSpans = listBlock.items[0].filter((s) => s.type === "strong");
+      expect(strongSpans).toHaveLength(1);
+      if (strongSpans[0]?.type === "strong") {
+        expect(strongSpans[0].children).toEqual([
+          { type: "text", value: "later term" },
+        ]);
+      }
+    }
+    expect(JSON.stringify(parsed)).not.toContain("**");
+  });
+});
+
+describe("AiSearchWorkspace 1-click Search / Ask AI & persistent quota badge (007 US2: T014)", () => {
+  afterEach(() => {
+    mockUseAccountProfile.mockReset();
+    mockUseAccountProfile.mockReturnValue({
+      profile: null,
+      email: null,
+      loading: false,
+      theme: "light",
+      setThemeLocalAndPersist: async () => {},
+      refreshAccountProfile: async () => {},
+      signOutAndResetTheme: async () => {},
+    });
+  });
+
+  it("renders direct Search (submit) and Ask AI (button) controls without the two-step Synthesize toggle", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(AiSearchWorkspace, {
+        initialQuery: "lengthened partials",
+        initialAiActive: false,
+        initialQuota: null,
+        hasActiveFilters: false,
+      })
+    );
+
+    expect(html).toContain('type="submit"');
+    expect(html).toContain("<span>Search</span>");
+    expect(html).toContain('type="button"');
+    expect(html).toContain("<span>Ask AI</span>");
+    expect(html).not.toContain("Synthesize");
+    expect(html).not.toContain('data-testid="ai-quota-badge"');
+
+    const src = readFileSync(
+      path.resolve(__dirname, "../src/components/search/ai-search-workspace.tsx"),
+      "utf8"
+    );
+    expect(src).toContain("if (authLoading)");
+  });
+
+  it("renders persistent ai-quota-badge with 10/10 LEFT TODAY for standard members", () => {
+    mockUseAccountProfile.mockReturnValue({
+      profile: { id: "user-123" },
+      email: "member@example.com",
+      loading: false,
+      theme: "light",
+      setThemeLocalAndPersist: async () => {},
+      refreshAccountProfile: async () => {},
+      signOutAndResetTheme: async () => {},
+    });
+
+    const html = renderToStaticMarkup(
+      React.createElement(AiSearchWorkspace, {
+        initialQuery: "",
+        initialAiActive: false,
+        initialQuota: makeQuota({ usedToday: 0, remainingToday: 10, dailyLimit: 10 }),
+        hasActiveFilters: false,
+      })
+    );
+
+    expect(html).toContain('data-testid="ai-quota-badge"');
+    expect(html).toContain("10/10 LEFT TODAY");
+  });
+
+  it("renders persistent ai-quota-badge with ADMIN • UNLIMITED for admin accounts", () => {
+    mockUseAccountProfile.mockReturnValue({
+      profile: { id: "admin-1" },
+      email: "admin@example.com",
+      loading: false,
+      theme: "light",
+      setThemeLocalAndPersist: async () => {},
+      refreshAccountProfile: async () => {},
+      signOutAndResetTheme: async () => {},
+    });
+
+    const html = renderToStaticMarkup(
+      React.createElement(AiSearchWorkspace, {
+        initialQuery: "",
+        initialAiActive: false,
+        initialQuota: makeQuota({ isAdmin: true }),
+        hasActiveFilters: false,
+      })
+    );
+
+    expect(html).toContain('data-testid="ai-quota-badge"');
+    expect(html).toContain("ADMIN • UNLIMITED");
   });
 });

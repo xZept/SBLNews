@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, Sparkles } from "lucide-react";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
 import {
   AskAiOAuthPrompt,
   buildAskAiReturnPath,
+  buildStandardSearchPath,
 } from "@/components/search/ask-ai-oauth-prompt";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,15 +50,45 @@ export function FilterBar({
 }: FilterBarProps) {
   const router = useRouter();
   const { profile, loading: authLoading } = useAccountProfile();
-  const [askAiOpen, setAskAiOpen] = React.useState(false);
-  const [aiQuery, setAiQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [oauthPromptOpen, setOauthPromptOpen] = React.useState(false);
+  const [validationError, setValidationError] = React.useState<string | null>(
+    null
+  );
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
 
-  function handleAskAiSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleStandardSearchSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const trimmed = aiQuery.trim();
-    if (trimmed.length < AI_QUERY_MIN_LENGTH) {
+    setValidationError(null);
+    setOauthPromptOpen(false);
+    const targetUrl = buildStandardSearchPath({
+      query: searchQuery,
+      studyDesign,
+      trainedOnly,
+    });
+    router.push(targetUrl);
+  }
+
+  function handleAskAiClick() {
+    if (authLoading) {
       return;
     }
+    if (!profile) {
+      setValidationError(null);
+      setOauthPromptOpen((prev) => !prev);
+      return;
+    }
+    const trimmed = searchQuery.trim();
+    if (trimmed.length < AI_QUERY_MIN_LENGTH) {
+      setOauthPromptOpen(false);
+      setValidationError(
+        `Enter at least ${AI_QUERY_MIN_LENGTH} characters to ask AI.`
+      );
+      searchInputRef.current?.focus();
+      return;
+    }
+    setValidationError(null);
+    setOauthPromptOpen(false);
     const targetUrl = buildAskAiReturnPath({
       query: trimmed,
       studyDesign,
@@ -133,69 +163,71 @@ export function FilterBar({
         })}
       </div>
 
-      <div className="mt-3 grid grid-cols-1 gap-3 border-t-2 border-border/15 pt-3 sm:grid-cols-4">
-        <Link
-          href="/search"
-          className="sm:col-span-3 inline-flex min-h-[44px] w-full items-center justify-start gap-2 rounded-md border-2 border-border bg-surface px-3.5 py-2 font-mono text-xs font-bold text-ink shadow-card transition-transform hover:bg-canvas active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-        >
-          <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
-          <span>Search literature...</span>
-        </Link>
+      <form
+        onSubmit={handleStandardSearchSubmit}
+        className="mt-3 grid grid-cols-1 gap-3 border-t-2 border-border/15 pt-3 sm:grid-cols-4"
+      >
+        <div className="sm:col-span-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <label htmlFor="feed-search-q" className="sr-only">
+            Search literature or ask a research question
+          </label>
+          <Input
+            ref={searchInputRef}
+            id="feed-search-q"
+            name="q"
+            type="search"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (validationError) {
+                setValidationError(null);
+              }
+            }}
+            maxLength={AI_QUERY_MAX_LENGTH}
+            placeholder="Search literature or ask a research question..."
+            aria-invalid={validationError ? true : undefined}
+            aria-describedby={
+              validationError ? "feed-search-validation" : undefined
+            }
+            className="min-h-[44px] flex-1"
+          />
+          <Button
+            type="submit"
+            variant="primary"
+            className="min-h-[44px] shrink-0 gap-1.5 font-mono text-xs font-bold"
+          >
+            <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>Search</span>
+          </Button>
+        </div>
         <button
           type="button"
-          onClick={() => setAskAiOpen((prev) => !prev)}
-          aria-pressed={askAiOpen}
-          className={cn(
-            "sm:col-span-1 inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-md border-2 border-border px-3.5 py-2 font-mono text-xs font-bold shadow-card transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer",
-            askAiOpen
-              ? "bg-accent text-accent-ink"
-              : "bg-surface text-ink hover:bg-canvas"
-          )}
+          onClick={handleAskAiClick}
+          className="sm:col-span-1 inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-md border-2 border-border bg-accent px-3.5 py-2 font-mono text-xs font-bold text-accent-ink shadow-card transition-transform hover:bg-accent/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer"
         >
           <Sparkles className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>Ask AI</span>
         </button>
-      </div>
+      </form>
 
-      {askAiOpen && !authLoading && (
+      {validationError && (
+        <p
+          id="feed-search-validation"
+          role="alert"
+          className="mt-2 rounded-sm border-2 border-border bg-badge-abstract px-3 py-1.5 font-mono text-xs font-bold text-accent-ink"
+        >
+          {validationError}
+        </p>
+      )}
+
+      {oauthPromptOpen && !authLoading && !profile && (
         <div className="mt-3 border-t-2 border-border/15 pt-3">
-          {!profile ? (
-            <AskAiOAuthPrompt
-              studyDesign={studyDesign}
-              trainedOnly={trainedOnly}
-              onDismiss={() => setAskAiOpen(false)}
-            />
-          ) : (
-            <form
-              onSubmit={handleAskAiSubmit}
-              className="flex flex-col gap-2 sm:flex-row sm:items-center"
-            >
-              <label htmlFor="feed-ask-ai-q" className="sr-only">
-                Ask a multi-study training question
-              </label>
-              <Input
-                id="feed-ask-ai-q"
-                type="search"
-                value={aiQuery}
-                onChange={(e) => setAiQuery(e.target.value)}
-                maxLength={AI_QUERY_MAX_LENGTH}
-                minLength={AI_QUERY_MIN_LENGTH}
-                required
-                placeholder="Ask a multi-study training question (e.g., lengthened partials vs full ROM)..."
-                className="flex-1"
-              />
-              <Button
-                type="submit"
-                variant="primary"
-                size="sm"
-                disabled={aiQuery.trim().length < AI_QUERY_MIN_LENGTH}
-                className="shrink-0 gap-1.5"
-              >
-                <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>Synthesize on /search</span>
-              </Button>
-            </form>
-          )}
+          <AskAiOAuthPrompt
+            query={searchQuery}
+            studyDesign={studyDesign}
+            trainedOnly={trainedOnly}
+            onDismiss={() => setOauthPromptOpen(false)}
+          />
         </div>
       )}
     </section>
