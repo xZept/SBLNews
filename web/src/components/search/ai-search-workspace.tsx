@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type {
   AiCitationStudy,
+  AiQuotaStatus,
   AiTierName,
 } from "@/lib/queries/projections";
 import { formatStudyDesign } from "@/lib/queries/study-badges";
@@ -27,6 +28,7 @@ interface AiSearchWorkspaceProps {
   initialMinDurationWeeks?: number;
   initialTrainedOnly?: boolean;
   initialAiActive: boolean;
+  initialQuota?: AiQuotaStatus | null;
   hasActiveFilters: boolean;
 }
 
@@ -39,6 +41,7 @@ interface SynthesisState {
   tierUsed: AiTierName | null;
   emptyMessage: string | null;
   errorMessage: string | null;
+  canRetry: boolean;
 }
 
 const INITIAL_SYNTHESIS_STATE: SynthesisState = {
@@ -50,7 +53,19 @@ const INITIAL_SYNTHESIS_STATE: SynthesisState = {
   tierUsed: null,
   emptyMessage: null,
   errorMessage: null,
+  canRetry: false,
 };
+
+function formatUtcResetNotice(quota?: AiQuotaStatus): string {
+  if (!quota?.resetsAtUtc) {
+    return "Daily AI synthesis quota reached. Your allowance resets at 00:00 UTC. Standard search and cached AI answers remain available.";
+  }
+  const parsed = new Date(quota.resetsAtUtc);
+  const formatted = Number.isNaN(parsed.getTime())
+    ? quota.resetsAtUtc
+    : `${parsed.toISOString().slice(0, 16).replace("T", " ")} UTC`;
+  return `Daily AI synthesis quota reached (${quota.remainingToday}/${quota.dailyLimit} left). Resets at ${formatted}. Standard search and cached AI answers remain available.`;
+}
 
 function parseSseChunk(
   rawBlock: string
@@ -82,6 +97,7 @@ export function AiSearchWorkspace({
   initialMinDurationWeeks,
   initialTrainedOnly = false,
   initialAiActive,
+  initialQuota = null,
   hasActiveFilters,
 }: AiSearchWorkspaceProps) {
   const { profile, loading: authLoading } = useAccountProfile();
@@ -93,12 +109,38 @@ export function AiSearchWorkspace({
   );
   const [trainedOnly, setTrainedOnly] = React.useState(initialTrainedOnly);
   const [aiActive, setAiActive] = React.useState(initialAiActive);
+  const [quota, setQuota] = React.useState<AiQuotaStatus | null>(initialQuota);
   const [synthesis, setSynthesis] = React.useState<SynthesisState>(
     INITIAL_SYNTHESIS_STATE
   );
 
   const autoTriggeredRef = React.useRef(false);
   const abortControllerRef = React.useRef<AbortController | null>(null);
+
+  React.useEffect(() => {
+    if (!aiActive || authLoading || !profile || quota !== null) {
+      return;
+    }
+
+    let cancelled = false;
+    fetch("/api/ai-search", { method: "GET" })
+      .then(async (res) => {
+        if (!res.ok) return null;
+        return (await res.json()) as { quota?: AiQuotaStatus };
+      })
+      .then((data) => {
+        if (!cancelled && data?.quota) {
+          setQuota(data.quota);
+        }
+      })
+      .catch(() => {
+        // Non-blocking quota badge hydration
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [aiActive, authLoading, profile, quota]);
 
   const runAiSynthesis = React.useCallback(
     async (targetQuery: string) => {
@@ -146,9 +188,14 @@ export function AiSearchWorkspace({
             tierUsed?: AiTierName | null;
             answerMarkdown?: string | null;
             citations?: AiCitationStudy[];
+            quota?: AiQuotaStatus;
             message?: string;
             error?: string;
           };
+
+          if (payload.quota) {
+            setQuota(payload.quota);
+          }
 
           if (payload.mode === "no_matching_studies") {
             setSynthesis({
@@ -162,6 +209,7 @@ export function AiSearchWorkspace({
                 payload.message ??
                 "No matching peer-reviewed studies were found for this question.",
               errorMessage: null,
+              canRetry: false,
             });
             return;
           }
@@ -176,6 +224,17 @@ export function AiSearchWorkspace({
               tierUsed: payload.tierUsed ?? null,
               emptyMessage: null,
               errorMessage: null,
+              canRetry: false,
+            });
+            return;
+          }
+
+          if (response.status === 429 || payload.error === "QUOTA_EXCEEDED") {
+            setSynthesis({
+              ...INITIAL_SYNTHESIS_STATE,
+              submittedQuery: trimmed,
+              errorMessage: formatUtcResetNotice(payload.quota),
+              canRetry: false,
             });
             return;
           }
@@ -186,6 +245,7 @@ export function AiSearchWorkspace({
             errorMessage:
               payload.message ??
               "Unable to synthesize literature right now. Please try again.",
+            canRetry: response.status === 503 || payload.error === "ALL_TIERS_FAILED",
           });
           return;
         }
@@ -218,6 +278,9 @@ export function AiSearchWorkspace({
                 typeof parsed.data.tierUsed === "string"
                   ? (parsed.data.tierUsed as AiTierName)
                   : null;
+              if (parsed.data.quota && typeof parsed.data.quota === "object") {
+                setQuota(parsed.data.quota as AiQuotaStatus);
+              }
               setSynthesis((prev) => ({
                 ...prev,
                 citations,
@@ -241,6 +304,9 @@ export function AiSearchWorkspace({
                 typeof parsed.data.tierUsed === "string"
                   ? (parsed.data.tierUsed as AiTierName)
                   : null;
+              if (parsed.data.quota && typeof parsed.data.quota === "object") {
+                setQuota(parsed.data.quota as AiQuotaStatus);
+              }
               setSynthesis((prev) => ({
                 ...prev,
                 answerMarkdown: answerMarkdown || prev.answerMarkdown,
@@ -251,11 +317,15 @@ export function AiSearchWorkspace({
               const message =
                 typeof parsed.data.message === "string"
                   ? parsed.data.message
-                  : "AI synthesis interrupted. Please retry.";
+                  : "AI synthesis interrupted. Your daily quota was not deducted — please retry.";
+              if (parsed.data.quota && typeof parsed.data.quota === "object") {
+                setQuota(parsed.data.quota as AiQuotaStatus);
+              }
               setSynthesis((prev) => ({
                 ...prev,
                 isStreaming: false,
                 errorMessage: message,
+                canRetry: true,
               }));
             }
           }
@@ -269,6 +339,7 @@ export function AiSearchWorkspace({
           isStreaming: false,
           errorMessage:
             "AI synthesis failed to connect. Standard study results remain available below.",
+          canRetry: true,
         }));
       }
     },
@@ -378,6 +449,24 @@ export function AiSearchWorkspace({
                 <span>Ask AI</span>
               </button>
 
+              {aiActive && profile && quota && (
+                <span
+                  data-testid="ai-quota-badge"
+                  className={cn(
+                    "inline-flex h-10 items-center rounded-sm border-[1.5px] border-border px-2.5 font-mono text-xs font-bold text-accent-ink",
+                    quota.isAdmin
+                      ? "bg-badge-meta"
+                      : quota.remainingToday > 0
+                        ? "bg-accent"
+                        : "bg-badge-abstract"
+                  )}
+                >
+                  {quota.isAdmin
+                    ? "ADMIN • UNLIMITED"
+                    : `${quota.remainingToday}/${quota.dailyLimit} LEFT TODAY`}
+                </span>
+              )}
+
               {hasActiveFilters && (
                 <Button asChild variant="secondary">
                   <Link href="/search" className="gap-1.5">
@@ -472,6 +561,11 @@ export function AiSearchWorkspace({
           tierUsed={synthesis.tierUsed}
           emptyMessage={synthesis.emptyMessage}
           errorMessage={synthesis.errorMessage}
+          onRetry={
+            synthesis.canRetry
+              ? () => void runAiSynthesis(synthesis.submittedQuery || query)
+              : undefined
+          }
         />
       )}
     </div>

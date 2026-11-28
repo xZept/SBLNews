@@ -7,9 +7,11 @@ import {
   BookOpen,
   ExternalLink,
   Loader2,
+  RotateCcw,
   Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type {
   AiCitationStudy,
   AiTierName,
@@ -28,6 +30,7 @@ interface AiSynthesisPanelProps {
   tierUsed?: AiTierName | null;
   emptyMessage?: string | null;
   errorMessage?: string | null;
+  onRetry?: () => void;
 }
 
 const CITATION_GROUP_REGEX = /(\[(?:S[1-5])(?:\s*,\s*S[1-5])*\])/g;
@@ -95,6 +98,7 @@ export function AiSynthesisPanel({
   tierUsed = null,
   emptyMessage = null,
   errorMessage = null,
+  onRetry,
 }: AiSynthesisPanelProps) {
   const studyByLabel = React.useMemo(() => {
     const map = new Map<string, AiCitationStudy>();
@@ -143,10 +147,24 @@ export function AiSynthesisPanel({
       {errorMessage ? (
         <div
           role="alert"
-          className="mt-3 flex items-start gap-2.5 rounded-md border-2 border-accent-ink bg-badge-abstract p-3 text-sm text-accent-ink"
+          className="mt-3 flex flex-col gap-3 rounded-md border-2 border-accent-ink bg-badge-abstract p-3 text-sm text-accent-ink sm:flex-row sm:items-center sm:justify-between"
         >
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-          <p className="max-w-[70ch] font-medium">{errorMessage}</p>
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+            <p className="max-w-[70ch] font-medium">{errorMessage}</p>
+          </div>
+          {onRetry && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={onRetry}
+              className="shrink-0 gap-1.5"
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>Retry</span>
+            </Button>
+          )}
         </div>
       ) : emptyMessage ? (
         <div className="mt-3 rounded-md border-2 border-border bg-canvas p-4">

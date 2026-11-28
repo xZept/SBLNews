@@ -6,6 +6,9 @@ import { AiSearchWorkspace } from "@/components/search/ai-search-workspace";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getAiSearchConfig } from "@/lib/ai-search/config";
+import { getMyAiQuotaStatus } from "@/lib/ai-search/quota-and-cache";
+import type { AiQuotaStatus } from "@/lib/queries/projections";
 import { searchStudiesHybrid } from "@/lib/queries/studies";
 import { createClient } from "@/lib/supabase/server";
 import { HybridSearchSchema } from "@/lib/validations/search";
@@ -55,8 +58,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     : { results: [], usedSemantic: false };
 
   let votedStudyIds = new Set<string>();
+  let initialQuota: AiQuotaStatus | null = null;
   if (
-    results.length > 0 &&
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   ) {
@@ -65,16 +68,27 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       data: { user },
     } = await supabase.auth.getUser();
     if (user) {
-      const { data: votes } = await supabase
-        .from("votes")
-        .select("study_id")
-        .eq("user_id", user.id)
-        .in(
-          "study_id",
-          results.map((r) => r.id)
+      try {
+        initialQuota = await getMyAiQuotaStatus(
+          supabase,
+          getAiSearchConfig().dailyQuotaLimit
         );
-      if (votes) {
-        votedStudyIds = new Set(votes.map((v) => v.study_id as string));
+      } catch (err) {
+        console.error("Failed to hydrate AI quota on /search:", err);
+      }
+
+      if (results.length > 0) {
+        const { data: votes } = await supabase
+          .from("votes")
+          .select("study_id")
+          .eq("user_id", user.id)
+          .in(
+            "study_id",
+            results.map((r) => r.id)
+          );
+        if (votes) {
+          votedStudyIds = new Set(votes.map((v) => v.study_id as string));
+        }
       }
     }
   }
@@ -109,6 +123,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         initialMinDurationWeeks={params.min_duration_weeks}
         initialTrainedOnly={Boolean(params.trained_only)}
         initialAiActive={initialAiActive}
+        initialQuota={initialQuota}
         hasActiveFilters={hasActiveFilters}
       />
 

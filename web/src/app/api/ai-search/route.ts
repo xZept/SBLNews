@@ -1,15 +1,26 @@
 import { NextResponse } from "next/server";
+import { normalizeAiQueryKey } from "@/lib/ai-search/cache-key";
 import { getAiSearchConfig } from "@/lib/ai-search/config";
+import { buildAiStudyContext } from "@/lib/ai-search/context-builder";
 import {
-  AI_SYNTHESIS_SYSTEM_PROMPT,
-  buildAiStudyContext,
-} from "@/lib/ai-search/context-builder";
-import type { AiTierName } from "@/lib/queries/projections";
+  type TierStreamResult,
+  synthesizeWithFailover,
+} from "@/lib/ai-search/failover-client";
+import {
+  checkAndIncrementAiQuota,
+  getCachedAiSynthesis,
+  getMyAiQuotaStatus,
+  putCachedAiSynthesis,
+  refundAiQuota,
+} from "@/lib/ai-search/quota-and-cache";
 import { getAiCitationStudies } from "@/lib/queries/studies";
 import { createClient } from "@/lib/supabase/server";
 import { AiSearchRequestSchema } from "@/lib/validations/ai-search";
 
 export const dynamic = "force-dynamic";
+
+const UNAUTHORIZED_MESSAGE =
+  "Sign in with Google or GitHub to use Ask AI literature synthesis.";
 
 const NO_MATCHING_STUDIES_MESSAGE =
   "No matching peer-reviewed studies were found in SBL News for this question and filter combination. Try broadening your query or clearing study-design, duration, or trained-lifter filters.";
@@ -18,244 +29,26 @@ function formatSseEvent(event: string, data: unknown): string {
   return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
 }
 
-async function* readSseDataLines(
-  body: ReadableStream<Uint8Array>
-): AsyncGenerator<string> {
-  const reader = body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-
-  try {
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-
-      const lines = buffer.split(/\r?\n/);
-      buffer = lines.pop() ?? "";
-
-      for (const line of lines) {
-        if (!line.startsWith("data:")) continue;
-        const payload = line.slice(5).trim();
-        if (payload) {
-          yield payload;
-        }
-      }
-    }
-
-    const tail = buffer.trim();
-    if (tail.startsWith("data:")) {
-      const payload = tail.slice(5).trim();
-      if (payload) {
-        yield payload;
-      }
-    }
-  } finally {
-    reader.releaseLock();
-  }
-}
-
-interface TierStreamResult {
-  tierUsed: AiTierName;
-  stream: AsyncGenerator<string>;
-}
-
-async function openOpenAiCompatibleStream(params: {
-  url: string;
-  apiKey: string;
-  model: string;
-  timeoutMs: number;
-  systemPrompt: string;
-  userPrompt: string;
-  extraHeaders?: Record<string, string>;
-}): Promise<AsyncGenerator<string>> {
-  const response = await fetch(params.url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${params.apiKey}`,
-      ...(params.extraHeaders ?? {}),
-    },
-    body: JSON.stringify({
-      model: params.model,
-      stream: true,
-      temperature: 0.2,
-      max_tokens: 900,
-      messages: [
-        { role: "system", content: params.systemPrompt },
-        { role: "user", content: params.userPrompt },
-      ],
-    }),
-    signal: AbortSignal.timeout(params.timeoutMs),
-  });
-
-  if (!response.ok || !response.body) {
-    throw new Error(`Provider HTTP ${response.status}`);
-  }
-
-  const body = response.body;
-  return (async function* () {
-    for await (const payload of readSseDataLines(body)) {
-      if (payload === "[DONE]") break;
-      try {
-        const parsed = JSON.parse(payload) as {
-          choices?: Array<{ delta?: { content?: string } }>;
-        };
-        const delta = parsed.choices?.[0]?.delta?.content;
-        if (typeof delta === "string" && delta.length > 0) {
-          yield delta;
-        }
-      } catch {
-        // Ignore malformed SSE keep-alives
-      }
-    }
-  })();
-}
-
-async function openGeminiStream(params: {
-  apiKey: string;
-  model: string;
-  timeoutMs: number;
-  systemPrompt: string;
-  userPrompt: string;
-}): Promise<AsyncGenerator<string>> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-    params.model
-  )}:streamGenerateContent?alt=sse`;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-goog-api-key": params.apiKey,
-    },
-    body: JSON.stringify({
-      systemInstruction: {
-        parts: [{ text: params.systemPrompt }],
-      },
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: params.userPrompt }],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 900,
-      },
-    }),
-    signal: AbortSignal.timeout(params.timeoutMs),
-  });
-
-  if (!response.ok || !response.body) {
-    throw new Error(`Gemini HTTP ${response.status}`);
-  }
-
-  const body = response.body;
-  return (async function* () {
-    for await (const payload of readSseDataLines(body)) {
-      if (payload === "[DONE]") break;
-      try {
-        const parsed = JSON.parse(payload) as {
-          candidates?: Array<{
-            content?: { parts?: Array<{ text?: string }> };
-          }>;
-        };
-        const parts = parsed.candidates?.[0]?.content?.parts ?? [];
-        for (const part of parts) {
-          if (typeof part.text === "string" && part.text.length > 0) {
-            yield part.text;
-          }
-        }
-      } catch {
-        // Ignore malformed SSE keep-alives
-      }
-    }
-  })();
-}
-
-async function openSynthesisStream(
-  question: string,
-  contextText: string
-): Promise<TierStreamResult> {
-  const config = getAiSearchConfig();
-  const userPrompt = `User question: ${question}\n\n${contextText}`;
-  const errors: string[] = [];
-
-  if (config.tiers.tier1Groq.apiKey) {
-    try {
-      const stream = await openOpenAiCompatibleStream({
-        url: "https://api.groq.com/openai/v1/chat/completions",
-        apiKey: config.tiers.tier1Groq.apiKey,
-        model: config.tiers.tier1Groq.model,
-        timeoutMs: config.tiers.tier1Groq.timeoutMs,
-        systemPrompt: AI_SYNTHESIS_SYSTEM_PROMPT,
-        userPrompt,
-      });
-      return { tierUsed: "groq", stream };
-    } catch (err) {
-      errors.push(err instanceof Error ? err.message : "Groq failed");
-    }
-  }
-
-  if (config.tiers.tier2OpenRouter.apiKey) {
-    for (const model of [
-      config.tiers.tier2OpenRouter.model,
-      config.tiers.tier2OpenRouter.altModel,
-    ]) {
-      try {
-        const stream = await openOpenAiCompatibleStream({
-          url: "https://openrouter.ai/api/v1/chat/completions",
-          apiKey: config.tiers.tier2OpenRouter.apiKey,
-          model,
-          timeoutMs: config.tiers.tier2OpenRouter.timeoutMs,
-          systemPrompt: AI_SYNTHESIS_SYSTEM_PROMPT,
-          userPrompt,
-          extraHeaders: {
-            "X-Title": "SBL News AI Literature Search",
-          },
-        });
-        return { tierUsed: "openrouter", stream };
-      } catch (err) {
-        errors.push(err instanceof Error ? err.message : "OpenRouter failed");
-      }
-    }
-  }
-
-  if (config.tiers.tier3Gemini.apiKey) {
-    try {
-      const stream = await openGeminiStream({
-        apiKey: config.tiers.tier3Gemini.apiKey,
-        model: config.tiers.tier3Gemini.model,
-        timeoutMs: config.tiers.tier3Gemini.timeoutMs,
-        systemPrompt: AI_SYNTHESIS_SYSTEM_PROMPT,
-        userPrompt,
-      });
-      return { tierUsed: "gemini", stream };
-    } catch (err) {
-      errors.push(err instanceof Error ? err.message : "Gemini failed");
-    }
-  }
-
-  throw new Error(
-    errors.length > 0
-      ? `All inference tiers failed: ${errors.join("; ")}`
-      : "No AI inference provider API keys configured."
+function hasSupabaseEnv(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 }
 
-export async function POST(request: Request) {
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  ) {
-    return NextResponse.json(
-      {
-        error: "UNAUTHORIZED",
-        message: "Sign in with Google or GitHub to use Ask AI literature synthesis.",
-      },
-      { status: 401 }
-    );
+function unauthorizedResponse() {
+  return NextResponse.json(
+    {
+      error: "UNAUTHORIZED",
+      message: UNAUTHORIZED_MESSAGE,
+    },
+    { status: 401 }
+  );
+}
+
+export async function GET() {
+  if (!hasSupabaseEnv()) {
+    return unauthorizedResponse();
   }
 
   const supabase = await createClient();
@@ -265,13 +58,28 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json(
-      {
-        error: "UNAUTHORIZED",
-        message: "Sign in with Google or GitHub to use Ask AI literature synthesis.",
-      },
-      { status: 401 }
-    );
+    return unauthorizedResponse();
+  }
+
+  const config = getAiSearchConfig();
+  const quota = await getMyAiQuotaStatus(supabase, config.dailyQuotaLimit);
+
+  return NextResponse.json({ quota });
+}
+
+export async function POST(request: Request) {
+  if (!hasSupabaseEnv()) {
+    return unauthorizedResponse();
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return unauthorizedResponse();
   }
 
   let rawBody: unknown;
@@ -303,33 +111,74 @@ export async function POST(request: Request) {
     );
   }
 
-  const citedStudies = await getAiCitationStudies(parsed.data, 5);
+  const config = getAiSearchConfig();
+  const { cacheKey, normalizedQuery, filterSignature } =
+    await normalizeAiQueryKey(parsed.data);
 
+  // 1. Pre-quota shared TTL cache lookup (cache hits deduct 0 quota)
+  const cached = await getCachedAiSynthesis(supabase, cacheKey);
+  if (cached) {
+    const quota = await getMyAiQuotaStatus(supabase, config.dailyQuotaLimit);
+    return NextResponse.json({
+      mode: "cached",
+      cached: true,
+      tierUsed: cached.tierUsed,
+      answerMarkdown: cached.answerMarkdown,
+      citations: cached.citations,
+      quota,
+    });
+  }
+
+  // 2. Atomic daily quota check & reservation on cache miss
+  const quota = await checkAndIncrementAiQuota(
+    supabase,
+    config.dailyQuotaLimit
+  );
+  if (!quota.allowed) {
+    return NextResponse.json(
+      {
+        error: "QUOTA_EXCEEDED",
+        message:
+          "Daily AI synthesis quota reached. Your quota resets at UTC midnight.",
+        quota,
+      },
+      { status: 429 }
+    );
+  }
+
+  // 3. Deterministic hybrid retrieval (refund quota if 0 studies match)
+  const citedStudies = await getAiCitationStudies(parsed.data, 5);
   if (citedStudies.length === 0) {
+    const refundedQuota = await refundAiQuota(supabase, config.dailyQuotaLimit);
     return NextResponse.json({
       mode: "no_matching_studies",
       cached: false,
       answerMarkdown: null,
       citations: [],
       message: NO_MATCHING_STUDIES_MESSAGE,
+      quota: refundedQuota,
     });
   }
 
   const builtContext = buildAiStudyContext(citedStudies);
 
+  // 4. 3-tier streaming failover (refund quota & skip cache if all tiers fail)
   let tierStream: TierStreamResult;
   try {
-    tierStream = await openSynthesisStream(
-      parsed.data.q,
-      builtContext.contextText
-    );
+    tierStream = await synthesizeWithFailover({
+      question: parsed.data.q,
+      contextText: builtContext.contextText,
+      config,
+    });
   } catch (err) {
     console.error("AI synthesis tier error:", err);
+    const refundedQuota = await refundAiQuota(supabase, config.dailyQuotaLimit);
     return NextResponse.json(
       {
         error: "ALL_TIERS_FAILED",
         message:
-          "AI synthesis providers are temporarily unavailable. Please retry in a moment.",
+          "AI synthesis providers are temporarily unavailable. Your daily quota was not deducted — please retry.",
+        quota: refundedQuota,
       },
       { status: 503 }
     );
@@ -346,6 +195,7 @@ export async function POST(request: Request) {
               cached: false,
               tierUsed: tierStream.tierUsed,
               citations: builtContext.includedStudies,
+              quota,
               promptTokenEstimate: builtContext.estimatedTokens,
             })
           )
@@ -358,21 +208,43 @@ export async function POST(request: Request) {
           );
         }
 
+        const finalMarkdown = fullText.trim();
+        if (finalMarkdown.length > 0 && builtContext.includedStudies.length > 0) {
+          await putCachedAiSynthesis(supabase, {
+            cacheKey,
+            normalizedQuery,
+            filterSignature,
+            answerMarkdown: finalMarkdown,
+            citations: builtContext.includedStudies,
+            tierUsed: tierStream.tierUsed,
+            ttlDays: config.cacheTtlDays,
+          });
+        }
+
         controller.enqueue(
           encoder.encode(
             formatSseEvent("done", {
-              answerMarkdown: fullText.trim(),
+              answerMarkdown: finalMarkdown,
               tierUsed: tierStream.tierUsed,
+              quota,
             })
           )
         );
       } catch (err) {
         console.error("AI synthesis stream interrupted:", err);
+        let refundedQuota = quota;
+        try {
+          refundedQuota = await refundAiQuota(supabase, config.dailyQuotaLimit);
+        } catch (refundErr) {
+          console.error("Failed to refund AI quota after stream error:", refundErr);
+        }
         controller.enqueue(
           encoder.encode(
             formatSseEvent("error", {
               error: "STREAM_INTERRUPTED",
-              message: "AI synthesis interrupted. Please retry.",
+              message:
+                "AI synthesis interrupted. Your daily quota was not deducted — please retry.",
+              quota: refundedQuota,
             })
           )
         );
