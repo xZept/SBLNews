@@ -379,3 +379,45 @@ export interface ConsensusDriftAlert {
   created_at: string;
   resolved_at: string | null;
 }
+
+/**
+ * Egress-safe projection for AI-assisted literature synthesis citations.
+ * Extends STUDY_SUMMARY_COLUMNS with `limitations` while strictly excluding
+ * `abstract_text` and `embedding` (vector(768)).
+ */
+export const AI_CITATION_STUDY_COLUMNS = `
+  ${STUDY_SUMMARY_COLUMNS},
+  limitations
+` as const;
+
+export type AiCitationLabel = "S1" | "S2" | "S3" | "S4" | "S5";
+
+export type AiTierName = "groq" | "openrouter" | "gemini";
+
+export interface AiCitationStudy {
+  citation_label: AiCitationLabel;
+  id: string;
+  title: string;
+  journal: string;
+  publication_year: number;
+  primary_url: string;
+  study_design: StudyDesignType;
+  population: string;
+  is_trained_population: boolean;
+  sample_size_n: number | null;
+  duration_weeks: number | null;
+  primary_outcome: string;
+  summary_takeaway: string;
+  limitations: string[];
+  inspection_depth: InspectionDepthType;
+  quality_score: number;
+}
+
+export interface AiQuotaStatus {
+  allowed: boolean;
+  isAdmin: boolean;
+  dailyLimit: number;
+  usedToday: number;
+  remainingToday: number;
+  resetsAtUtc: string;
+}
