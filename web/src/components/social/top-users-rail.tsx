@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Award, ChevronDown, ChevronUp } from "lucide-react";
+import { Award, ChevronDown, ChevronUp } from "@/components/ui/pixel-icons";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { AuraBadge } from "@/components/social/aura-badge";
 import { Card } from "@/components/ui/card";
@@ -109,7 +109,7 @@ export function TopUsersRail({ users }: TopUsersRailProps) {
           <div className="mb-3 flex items-center justify-between gap-2 border-b-2 border-border/15 pb-2.5">
             <div className="flex items-center gap-2">
               <Award className="h-4 w-4 shrink-0 text-ink" />
-              <h2 className="font-display text-sm font-bold uppercase tracking-wide text-ink">
+              <h2 className="font-pixel text-[11px] font-bold uppercase tracking-wider text-ink">
                 Top Users
               </h2>
             </div>

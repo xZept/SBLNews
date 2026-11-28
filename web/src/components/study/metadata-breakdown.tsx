@@ -1,4 +1,4 @@
-import { ExternalLink, FileCheck2, FileWarning } from "lucide-react";
+import { ExternalLink, FileCheck2, FileWarning } from "@/components/ui/pixel-icons";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { UpvoteButton } from "@/components/feed/upvote-button";
@@ -22,7 +22,12 @@ export function MetadataBreakdown({
   const isFullText = study.inspection_depth === "Full-Text";
 
   return (
-    <Card className="p-5 sm:p-6">
+    <Card variant="dialog" className="p-5 sm:p-6">
+      <div className="mb-3 border-b-2 border-border/15 pb-2">
+        <span className="font-pixel text-[10px] font-bold uppercase tracking-wider text-muted">
+          STUDY DOSSIER • EVIDENCE RECORD
+        </span>
+      </div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2 font-mono text-xs text-muted">
@@ -144,11 +149,11 @@ export function MetadataBreakdown({
 
       {/* Limitations */}
       {study.limitations && study.limitations.length > 0 && (
-        <div className="mt-5 border-t-2 border-border/15 pt-4">
-          <h2 className="font-display text-sm font-bold uppercase tracking-wide text-muted">
+        <div className="mt-5 rounded-sm border-2 border-accent-ink bg-badge-abstract p-4 text-accent-ink">
+          <h2 className="font-pixel text-[11px] font-bold uppercase tracking-wider text-accent-ink">
             Methodological Limitations
           </h2>
-          <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm text-ink max-w-[70ch]">
+          <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm text-accent-ink max-w-[70ch]">
             {study.limitations.map((item, idx) => (
               <li key={idx}>{item}</li>
             ))}
@@ -162,7 +167,7 @@ export function MetadataBreakdown({
           href={study.primary_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-md border-2 border-border bg-accent px-4 py-2 font-display text-sm font-bold text-accent-ink shadow-control transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+          className="inline-flex items-center gap-2 rounded-sm border-2 border-border bg-accent px-4 py-2 font-display text-sm font-bold text-accent-ink shadow-control transition-transform duration-75 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
         >
           <ExternalLink className="h-4 w-4" />
           <span>Read Primary Source (PubMed / DOI)</span>

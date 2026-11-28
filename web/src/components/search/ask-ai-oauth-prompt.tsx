@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Lock, Sparkles, X } from "lucide-react";
+import { Lock, Sparkles, X } from "@/components/ui/pixel-icons";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 
@@ -103,14 +103,17 @@ export function AskAiOAuthPrompt({
     <div
       role="region"
       aria-label="Sign in for Ask AI literature synthesis"
-      className="rounded-md border-2 border-border bg-surface p-4 shadow-card"
+      className="rpg-dialog-frame rounded-sm border-2 border-border bg-surface p-4"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border-2 border-border bg-accent text-accent-ink shadow-control">
+          <div className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border-2 border-border bg-accent text-accent-ink shadow-control">
             <Lock className="h-4 w-4" aria-hidden="true" />
           </div>
           <div className="space-y-1">
+            <p className="font-pixel text-[10px] font-bold uppercase tracking-wider text-muted">
+              QUEST GATE • OAUTH REQUIRED
+            </p>
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="font-display text-base font-bold text-ink">
                 Sign in to use Ask AI Synthesis

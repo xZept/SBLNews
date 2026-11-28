@@ -74,6 +74,11 @@ export default async function PublicProfilePage({
   return (
     <div className="space-y-8">
       <Card className="p-6 sm:p-8">
+        <div className="mb-4 border-b-2 border-border/15 pb-2">
+          <span className="font-pixel text-[10px] font-bold uppercase tracking-wider text-muted">
+            CHARACTER SHEET • LIFTER PROFILE
+          </span>
+        </div>
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
           <UserAvatar
             displayName={profile.display_name}

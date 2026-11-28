@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Moon, ShieldCheck, Sun, User } from "lucide-react";
+import { LogOut, Moon, ShieldCheck, Sun, User } from "@/components/ui/pixel-icons";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { AuraBadge } from "@/components/social/aura-badge";
@@ -87,7 +87,7 @@ export function AccountBubble() {
         aria-controls={popoverId}
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          "inline-flex h-9 w-9 items-center justify-center rounded-md p-0 transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border active:translate-x-[2px] active:translate-y-[2px] cursor-pointer",
+          "inline-flex h-9 w-9 items-center justify-center rounded-sm p-0 transition-transform duration-75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border active:translate-x-[2px] active:translate-y-[2px] cursor-pointer",
           open && "ring-2 ring-accent ring-offset-2 ring-offset-surface"
         )}
       >
@@ -103,7 +103,7 @@ export function AccountBubble() {
           id={popoverId}
           role="dialog"
           aria-label="Account menu"
-          className="absolute right-0 top-full z-50 mt-2 w-72 rounded-md border-2 border-border bg-surface p-3 text-ink shadow-card"
+          className="rpg-dialog-frame absolute right-0 top-full z-50 mt-2 w-72 rounded-sm border-2 border-border bg-surface p-3 text-ink"
         >
           {/* Identity summary */}
           <div className="flex items-start gap-3">

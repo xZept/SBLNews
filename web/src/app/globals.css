@@ -26,10 +26,12 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-pixel: var(--font-silkscreen), var(--font-jetbrains-mono), monospace;
 
   /* Hard Zero-Blur Offset Shadows */
-  --shadow-card: 4px 4px 0px #0F172A;
-  --shadow-control: 2px 2px 0px #0F172A;
+  --shadow-card: 4px 4px 0px var(--color-shadow);
+  --shadow-control: 2px 2px 0px var(--color-shadow);
+  --shadow-rpg-dialog: inset 0 0 0 2px var(--color-surface), inset 0 0 0 4px var(--color-border), 4px 4px 0px var(--color-shadow);
 }
 
 :root {
@@ -39,9 +41,11 @@
   --color-ink: #0F172A;
   --color-muted: #475569;
   --color-border: #0F172A;
+  --color-shadow: #0F172A;
   --color-accent-ink: #0F172A;
-  --shadow-card: 4px 4px 0px #0F172A;
-  --shadow-control: 2px 2px 0px #0F172A;
+  --shadow-card: 4px 4px 0px var(--color-shadow);
+  --shadow-control: 2px 2px 0px var(--color-shadow);
+  --shadow-rpg-dialog: inset 0 0 0 2px var(--color-surface), inset 0 0 0 4px var(--color-border), 4px 4px 0px var(--color-shadow);
 }
 
 :root[data-theme="dark"] {
@@ -51,9 +55,15 @@
   --color-ink: #F8FAFC;
   --color-muted: #94A3B8;
   --color-border: #E2E8F0;
+  --color-shadow: #020617;
   --color-accent-ink: #0F172A;
-  --shadow-card: 4px 4px 0px #020617;
-  --shadow-control: 2px 2px 0px #020617;
+  --shadow-card: 4px 4px 0px var(--color-shadow);
+  --shadow-control: 2px 2px 0px var(--color-shadow);
+  --shadow-rpg-dialog: inset 0 0 0 2px var(--color-surface), inset 0 0 0 4px var(--color-border), 4px 4px 0px var(--color-shadow);
+}
+
+.rpg-dialog-frame {
+  box-shadow: var(--shadow-rpg-dialog);
 }
 
 @layer base {

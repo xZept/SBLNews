@@ -19,6 +19,9 @@ export default async function GuidelinesPage() {
   return (
     <div className="space-y-8">
       <header className="space-y-3 border-b-2 border-border pb-5">
+        <p className="font-pixel text-[11px] font-bold uppercase tracking-wider text-muted">
+          TRAINING CODEX • SKILL TREE
+        </p>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="accent">LIVING EVIDENCE MATRIX</Badge>
           <Badge variant="meta">HITL VERIFIED</Badge>

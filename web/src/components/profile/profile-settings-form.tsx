@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ExternalLink, Moon, Sun } from "lucide-react";
+import { ExternalLink, Moon, Sun } from "@/components/ui/pixel-icons";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

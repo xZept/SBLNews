@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowBigUp } from "lucide-react";
+import { ArrowBigUp } from "@/components/ui/pixel-icons";
 import { toggleVoteAction } from "@/lib/actions/votes";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -89,7 +89,7 @@ export function UpvoteButton({
         aria-pressed={voted}
         aria-label={voted ? `Remove upvote (${count})` : `Upvote study (${count})`}
         className={cn(
-          "inline-flex items-center justify-center rounded-md border-2 border-border font-mono font-bold shadow-control transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-60 cursor-pointer",
+          "inline-flex items-center justify-center rounded-sm border-2 border-border font-mono font-bold shadow-control transition-transform duration-75 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-60 cursor-pointer",
           orientation === "vertical"
             ? "min-w-[54px] flex-col gap-0.5 px-2.5 py-2 text-xs"
             : "flex-row gap-1.5 px-3 py-1.5 text-sm",

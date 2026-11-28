@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare } from "@/components/ui/pixel-icons";
 import { createClient } from "@/lib/supabase/client";
 import { AccountBubble } from "@/components/layout/account-bubble";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
@@ -58,7 +58,7 @@ export function TopNav() {
         <div className="flex items-center gap-6">
           <Link
             href="/"
-            className="flex items-center gap-2 font-display text-xl font-extrabold tracking-tight text-ink"
+            className="flex items-center gap-2 font-pixel text-base font-bold tracking-tight text-ink sm:text-lg"
           >
             <BrandLogo size="sm" />
             <span>SBL News</span>
@@ -78,7 +78,7 @@ export function TopNav() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-sm border-[1.5px] px-3 py-1 font-display text-sm font-bold transition-none",
+                    "inline-flex items-center gap-1.5 rounded-sm border-[1.5px] px-3 py-1 font-display text-sm font-bold transition-transform duration-75 active:translate-x-[2px] active:translate-y-[2px]",
                     isActive
                       ? "border-border bg-accent text-accent-ink shadow-control"
                       : "border-transparent text-ink hover:border-border hover:bg-canvas"
@@ -105,7 +105,7 @@ export function TopNav() {
                     : "Open Friends and Chat"
                 }
                 onClick={() => openDrawer("friends")}
-                className="relative inline-flex h-9 w-9 items-center justify-center rounded-md border-2 border-border bg-surface text-ink shadow-control transition-transform hover:bg-canvas active:translate-x-[1px] active:translate-y-[1px] active:shadow-none cursor-pointer"
+                className="relative inline-flex h-9 w-9 items-center justify-center rounded-sm border-2 border-border bg-surface text-ink shadow-control transition-transform duration-75 hover:bg-canvas active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer"
               >
                 <MessageSquare className="h-4 w-4" />
                 {counts.totalBadge > 0 && (

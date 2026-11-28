@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RotateCcw, Search, Sparkles } from "lucide-react";
+import { RotateCcw, Search, Sparkles } from "@/components/ui/pixel-icons";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
 import { AiSynthesisPanel } from "@/components/search/ai-synthesis-panel";
 import {
@@ -441,6 +441,11 @@ export function AiSearchWorkspace({
   return (
     <div className="space-y-4">
       <Card className="p-4 sm:p-5">
+        <div className="mb-3 flex items-center justify-between border-b-2 border-border/15 pb-2">
+          <span className="font-pixel text-[10px] font-bold uppercase tracking-wider text-muted">
+            SEARCH DECK • QUERY &amp; SYNTHESIS
+          </span>
+        </div>
         <form
           action="/search"
           method="GET"
@@ -483,7 +488,7 @@ export function AiSearchWorkspace({
                 type="button"
                 onClick={handleAskAiClick}
                 disabled={synthesis.isStreaming}
-                className="inline-flex h-10 items-center gap-1.5 rounded-md border-2 border-border bg-accent px-3.5 font-mono text-xs font-bold text-accent-ink shadow-control transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-60 cursor-pointer"
+                className="inline-flex h-10 items-center gap-1.5 rounded-sm border-2 border-border bg-accent px-3.5 font-mono text-xs font-bold text-accent-ink shadow-control transition-transform duration-75 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-60 cursor-pointer"
               >
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>{synthesis.isStreaming ? "Synthesizing..." : "Ask AI"}</span>

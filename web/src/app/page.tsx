@@ -14,9 +14,14 @@ export default async function HomePage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-          Daily Resistance-Training Research
-        </h1>
+        <div className="space-y-1">
+          <p className="font-pixel text-[11px] font-bold uppercase tracking-wider text-muted">
+            QUEST BOARD • DAILY RESEARCH
+          </p>
+          <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+            Daily Resistance-Training Research
+          </h1>
+        </div>
         <p className="font-mono text-xs text-muted">
           Primary literature • Deterministic evidence scoring
         </p>

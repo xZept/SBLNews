@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowUpRight, Eye, MessageSquare, ThumbsUp, Trash2 } from "lucide-react";
+import { ArrowUpRight, Eye, MessageSquare, ThumbsUp, Trash2 } from "@/components/ui/pixel-icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

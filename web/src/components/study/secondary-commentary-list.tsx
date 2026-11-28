@@ -1,4 +1,4 @@
-import { ExternalLink, MessageCircleWarning } from "lucide-react";
+import { ExternalLink, MessageCircleWarning } from "@/components/ui/pixel-icons";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import type { SecondaryCommentary } from "@/lib/queries/projections";

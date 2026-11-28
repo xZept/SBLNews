@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Lock } from "lucide-react";
+import { Lock } from "@/components/ui/pixel-icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
@@ -21,9 +21,12 @@ export function ProfileSignInGate() {
 
   return (
     <div className="mx-auto max-w-lg py-8">
-      <Card>
+      <Card variant="dialog">
         <CardHeader>
-          <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-md border-2 border-border bg-accent text-accent-ink shadow-control">
+          <p className="font-pixel text-[10px] font-bold uppercase tracking-wider text-muted">
+            QUEST GATE • AUTHENTICATION
+          </p>
+          <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-sm border-2 border-border bg-accent text-accent-ink shadow-control">
             <Lock className="h-5 w-5" />
           </div>
           <CardTitle>Sign in to manage your profile</CardTitle>

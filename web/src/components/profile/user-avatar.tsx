@@ -27,7 +27,7 @@ export function UserAvatar({
     return (
       <span
         className={cn(
-          "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-md border-2 border-border bg-surface shadow-control",
+          "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-sm border-2 border-border bg-surface shadow-control",
           sizeClass,
           className
         )}
@@ -46,7 +46,7 @@ export function UserAvatar({
     <span
       aria-label={displayName}
       className={cn(
-        "inline-flex shrink-0 select-none items-center justify-center rounded-md border-2 border-border bg-accent font-mono font-bold text-accent-ink shadow-control",
+        "inline-flex shrink-0 select-none items-center justify-center rounded-sm border-2 border-border bg-accent font-mono font-bold text-accent-ink shadow-control",
         sizeClass,
         className
       )}

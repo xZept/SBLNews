@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, BookOpen, History } from "lucide-react";
+import { ArrowUpRight, BookOpen, History } from "@/components/ui/pixel-icons";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,

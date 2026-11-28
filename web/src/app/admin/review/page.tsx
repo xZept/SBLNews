@@ -1,4 +1,4 @@
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "@/components/ui/pixel-icons";
 import { ConsensusDriftCard } from "@/components/admin/consensus-drift-card";
 import { PendingStudiesTable } from "@/components/admin/pending-studies-table";
 import { SecondaryCommentaryForm } from "@/components/admin/secondary-commentary-form";
@@ -17,6 +17,9 @@ export default async function AdminReviewPage() {
   return (
     <div className="space-y-8">
       <header className="space-y-1.5 border-b-2 border-border pb-4">
+        <p className="font-pixel text-[11px] font-bold uppercase tracking-wider text-muted">
+          GUILD MODERATION • HITL QUEUE
+        </p>
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
             Moderation &amp; Consensus Drift Queue

@@ -107,11 +107,14 @@ export function FeedClient({ initialStudies }: FeedClientProps) {
       />
 
       {filteredAndSorted.length === 0 ? (
-        <div className="rounded-md border-2 border-border bg-surface p-8 text-center shadow-card">
+        <div className="rpg-dialog-frame rounded-sm border-2 border-border bg-surface p-8 text-center">
           <div className="mb-3 flex justify-center">
             <BrandLogo size="md" />
           </div>
-          <h2 className="font-display text-lg font-bold text-ink">
+          <p className="font-pixel text-[11px] font-bold uppercase tracking-wider text-muted">
+            QUEST LOG EMPTY
+          </p>
+          <h2 className="mt-1 font-display text-lg font-bold text-ink">
             No matching studies found
           </h2>
           <p className="mx-auto mt-2 max-w-[65ch] text-sm text-muted">

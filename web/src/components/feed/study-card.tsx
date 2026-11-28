@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ExternalLink, MessageSquare } from "lucide-react";
+import { ExternalLink, MessageSquare } from "@/components/ui/pixel-icons";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { UpvoteButton } from "@/components/feed/upvote-button";

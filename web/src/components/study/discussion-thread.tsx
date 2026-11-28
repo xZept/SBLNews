@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MessageSquare, Pencil, Reply, ThumbsUp, Trash2 } from "lucide-react";
+import { MessageSquare, Pencil, Reply, ThumbsUp, Trash2 } from "@/components/ui/pixel-icons";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { AuraBadge } from "@/components/social/aura-badge";
 import { Badge } from "@/components/ui/badge";

@@ -9,7 +9,7 @@ import {
   Loader2,
   RotateCcw,
   Sparkles,
-} from "lucide-react";
+} from "@/components/ui/pixel-icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -192,11 +192,11 @@ export function AiSynthesisPanel({
     <section
       aria-label="AI Literature Synthesis"
       aria-live="polite"
-      className="rounded-md border-2 border-border bg-surface p-4 sm:p-5 shadow-card"
+      className="rpg-dialog-frame rounded-sm border-2 border-border bg-surface p-4 sm:p-5"
     >
       <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-border/15 pb-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-sm border-[1.5px] border-accent-ink bg-accent px-2 py-0.5 font-mono text-xs font-bold text-accent-ink">
+          <span className="inline-flex items-center gap-1.5 rounded-sm border-[1.5px] border-accent-ink bg-accent px-2 py-0.5 font-pixel text-[11px] font-bold text-accent-ink">
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             AI SYNTHESIS
           </span>

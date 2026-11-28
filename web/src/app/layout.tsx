@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Inter, JetBrains_Mono, Silkscreen, Space_Grotesk } from "next/font/google";
 import { AccountProfileProvider } from "@/components/layout/account-profile-provider";
 import { FriendsChatDrawer } from "@/components/layout/friends-chat-drawer";
 import { SocialDrawerProvider } from "@/components/layout/social-drawer-provider";
@@ -10,6 +10,13 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["700"],
   variable: "--font-space-grotesk",
+  display: "swap",
+});
+
+const silkscreen = Silkscreen({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-silkscreen",
   display: "swap",
 });
 
@@ -88,7 +95,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${spaceGrotesk.variable} ${silkscreen.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <head>
         <meta name="color-scheme" content="light" />

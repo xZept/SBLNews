@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ImagePlus, Trash2 } from "lucide-react";
+import { ImagePlus, Trash2 } from "@/components/ui/pixel-icons";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { Button } from "@/components/ui/button";

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, RotateCcw } from "lucide-react";
+import { AlertTriangle, RotateCcw } from "@/components/ui/pixel-icons";
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { StudyCard } from "@/components/feed/study-card";
 import { AiSearchWorkspace } from "@/components/search/ai-search-workspace";
@@ -105,6 +105,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <div className="space-y-6">
       <header className="space-y-1.5">
+        <p className="font-pixel text-[11px] font-bold uppercase tracking-wider text-muted">
+          SEARCH DECK • HYBRID LITERATURE
+        </p>
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
             Hybrid Literature Search

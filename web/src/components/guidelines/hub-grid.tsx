@@ -60,7 +60,7 @@ export function HubGrid({ guidelines }: HubGridProps) {
         >
           Core Evidence Hubs
         </h2>
-        <span className="font-mono text-xs text-muted">
+        <span className="font-pixel text-[10px] font-bold uppercase tracking-wider text-muted">
           3 DOMAINS · HUMAN-VERIFIED CONSENSUS
         </span>
       </div>
@@ -70,7 +70,11 @@ export function HubGrid({ guidelines }: HubGridProps) {
           const hubGuidelines = guidelines.filter((g) => g.hub === hub);
 
           return (
-            <Card key={hub} className="flex flex-col justify-between">
+            <Card
+              key={hub}
+              variant="dialog"
+              className="flex flex-col justify-between"
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-lg">{hub}</CardTitle>

@@ -10,7 +10,7 @@ import {
   UserMinus,
   UserPlus,
   X,
-} from "lucide-react";
+} from "@/components/ui/pixel-icons";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
 import { useSocialDrawer } from "@/components/layout/social-drawer-provider";
 import { Badge } from "@/components/ui/badge";

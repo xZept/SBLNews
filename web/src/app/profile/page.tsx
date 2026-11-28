@@ -36,6 +36,9 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-8">
       <header className="space-y-1.5 border-b-2 border-border pb-4">
+        <p className="font-pixel text-[11px] font-bold uppercase tracking-wider text-muted">
+          CHARACTER SHEET • PROFILE
+        </p>
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
             Profile Settings &amp; Activity

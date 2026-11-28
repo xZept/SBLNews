@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Search, Sparkles } from "lucide-react";
+import { Search, Sparkles } from "@/components/ui/pixel-icons";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
 import {
   AskAiOAuthPrompt,
@@ -100,8 +100,16 @@ export function FilterBar({
   return (
     <section
       aria-label="Feed filters"
-      className="sticky top-[62px] z-30 mb-6 rounded-md border-2 border-border bg-surface p-3 shadow-card"
+      className="sticky top-[62px] z-30 mb-6 rounded-sm border-2 border-border bg-surface p-3 shadow-card"
     >
+      <div className="mb-2 flex items-center justify-between border-b-2 border-border/15 pb-1.5">
+        <span className="font-pixel text-[10px] font-bold uppercase tracking-wider text-muted">
+          QUEST BOARD • FILTER &amp; SEARCH DECK
+        </span>
+        <span className="font-mono text-xs font-semibold text-muted">
+          {totalCount} {totalCount === 1 ? "study" : "studies"}
+        </span>
+      </div>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <Tabs
@@ -120,7 +128,7 @@ export function FilterBar({
             onClick={() => onTrainedOnlyChange(!trainedOnly)}
             aria-pressed={trainedOnly}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-md border-2 border-border px-3 py-1.5 font-mono text-xs font-bold shadow-control transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer",
+              "inline-flex items-center gap-1.5 rounded-sm border-2 border-border px-3 py-1.5 font-mono text-xs font-bold shadow-control transition-transform duration-75 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer",
               trainedOnly
                 ? "bg-badge-trained text-accent-ink"
                 : "bg-canvas text-ink hover:bg-surface"
@@ -131,10 +139,6 @@ export function FilterBar({
             </span>
           </button>
         </div>
-
-        <span className="font-mono text-xs font-semibold text-muted">
-          {totalCount} {totalCount === 1 ? "study" : "studies"}
-        </span>
       </div>
 
       <div
@@ -151,7 +155,7 @@ export function FilterBar({
               onClick={() => onStudyDesignChange(pill.value)}
               aria-pressed={active}
               className={cn(
-                "rounded-sm border-[1.5px] border-border px-2.5 py-1 font-mono text-xs font-semibold transition-none cursor-pointer",
+                "rounded-sm border-[1.5px] border-border px-2.5 py-1 font-mono text-xs font-semibold transition-transform duration-75 active:translate-x-[2px] active:translate-y-[2px] cursor-pointer",
                 active
                   ? "bg-accent text-accent-ink shadow-control"
                   : "bg-canvas text-ink hover:bg-surface"
@@ -189,12 +193,12 @@ export function FilterBar({
             aria-describedby={
               validationError ? "feed-search-validation" : undefined
             }
-            className="min-h-[44px] flex-1"
+            className="min-h-[44px] flex-1 rounded-md"
           />
           <Button
             type="submit"
             variant="primary"
-            className="min-h-[44px] shrink-0 gap-1.5 font-mono text-xs font-bold"
+            className="min-h-[44px] shrink-0 gap-1.5 rounded-md font-mono text-xs font-bold"
           >
             <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span>Search</span>
@@ -203,7 +207,7 @@ export function FilterBar({
         <button
           type="button"
           onClick={handleAskAiClick}
-          className="sm:col-span-1 inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-md border-2 border-border bg-accent px-3.5 py-2 font-mono text-xs font-bold text-accent-ink shadow-card transition-transform hover:bg-accent/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer"
+          className="sm:col-span-1 inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-md border-2 border-border bg-accent px-3.5 py-2 font-mono text-xs font-bold text-accent-ink shadow-card transition-transform duration-75 hover:bg-accent/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer"
         >
           <Sparkles className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>Ask AI</span>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/components/ui/pixel-icons";
 import { DiscussionThread } from "@/components/study/discussion-thread";
 import { MetadataBreakdown } from "@/components/study/metadata-breakdown";
 import { SecondaryCommentaryList } from "@/components/study/secondary-commentary-list";
@@ -116,7 +116,7 @@ export default async function StudyDetailPage({ params }: StudyPageProps) {
       <div>
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 rounded-sm border-[1.5px] border-border bg-surface px-3 py-1 font-mono text-xs font-semibold text-ink shadow-control hover:bg-accent hover:text-accent-ink"
+          className="inline-flex items-center gap-1.5 rounded-sm border-[1.5px] border-border bg-surface px-3 py-1 font-mono text-xs font-semibold text-ink shadow-control transition-transform duration-75 hover:bg-accent hover:text-accent-ink active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>Back to Research Feed</span>
