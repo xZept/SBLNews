@@ -1,3 +1,5 @@
+import { readdirSync } from "node:fs";
+import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { normalizeAiQueryKey } from "../src/lib/ai-search/cache-key";
 import { type AiSearchConfig } from "../src/lib/ai-search/config";
@@ -504,5 +506,49 @@ describe("synthesizeWithFailover 3-tier failover (US4)", () => {
 
     expect(result.tierUsed).toBe("gemini");
     expect(text).toBe("Gemini fallback [S1].");
+  });
+});
+
+function collectAppRoutes(
+  dir: string,
+  targetFile: "page.tsx" | "route.ts",
+  baseDir = dir
+): string[] {
+  const routes: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      routes.push(...collectAppRoutes(fullPath, targetFile, baseDir));
+    } else if (entry.isFile() && entry.name === targetFile) {
+      const rel = path
+        .relative(baseDir, dir)
+        .split(path.sep)
+        .filter(Boolean)
+        .join("/");
+      routes.push(rel ? `/${rel}` : "/");
+    }
+  }
+  return routes.sort();
+}
+
+describe("Constitution Principle V route-boundary enforcement", () => {
+  it("exposes strictly the 8 approved user-facing page routes and 2 approved internal route handlers", () => {
+    const appDir = path.resolve(__dirname, "../src/app");
+
+    const pageRoutes = collectAppRoutes(appDir, "page.tsx");
+    const routeHandlers = collectAppRoutes(appDir, "route.ts");
+
+    expect(pageRoutes).toEqual([
+      "/",
+      "/admin/review",
+      "/guidelines",
+      "/methodology",
+      "/profile",
+      "/profile/[id]",
+      "/search",
+      "/study/[id]",
+    ]);
+
+    expect(routeHandlers).toEqual(["/api/ai-search", "/auth/callback"]);
   });
 });

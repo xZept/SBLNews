@@ -103,8 +103,8 @@
 
 **Purpose**: Route-boundary enforcement, Light/Dark Neo-Brutalist visual parity, and final automated verification gates
 
-- [ ] T023 [P] Add Constitution Principle V route-boundary test in `web/tests/ai-search.test.ts` asserting strictly the 8 approved user-facing `page.tsx` routes and strictly the 2 approved internal `route.ts` handlers (`/auth/callback` and `/api/ai-search`)
-- [ ] T024 Run full verification gates across `/web` (`npm run typecheck`, `npm run lint`, `npm test`, `npm run build`) and `/pipeline` (`pytest -v`), and validate `specs/005-ai-literature-search/quickstart.md` scenarios across default Light Mode and opt-in Dark Mode (confirming zero purple/violet/indigo hues, zero gradients, and zero `backdrop-blur`)
+- [X] T023 [P] Add Constitution Principle V route-boundary test in `web/tests/ai-search.test.ts` asserting strictly the 8 approved user-facing `page.tsx` routes and strictly the 2 approved internal `route.ts` handlers (`/auth/callback` and `/api/ai-search`)
+- [X] T024 Run full verification gates across `/web` (`npm run typecheck`, `npm run lint`, `npm test`, `npm run build`) and `/pipeline` (`pytest -v`), and validate `specs/005-ai-literature-search/quickstart.md` scenarios across default Light Mode and opt-in Dark Mode (confirming zero purple/violet/indigo hues, zero gradients, and zero `backdrop-blur`)
 
 ---
 
