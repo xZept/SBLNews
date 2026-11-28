@@ -11,6 +11,7 @@ import { getMyAiQuotaStatus } from "@/lib/ai-search/quota-and-cache";
 import type { AiQuotaStatus } from "@/lib/queries/projections";
 import { searchStudiesHybrid } from "@/lib/queries/studies";
 import { createClient } from "@/lib/supabase/server";
+import { AI_QUERY_MAX_LENGTH } from "@/lib/validations/ai-search";
 import { HybridSearchSchema } from "@/lib/validations/search";
 
 export const dynamic = "force-dynamic";
@@ -51,7 +52,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   const params = parsed.success
     ? parsed.data
-    : { q: rawQ.slice(0, 200), limit: 20 };
+    : { q: rawQ.slice(0, AI_QUERY_MAX_LENGTH), limit: 20 };
 
   const { results, usedSemantic } = parsed.success
     ? await searchStudiesHybrid(params)

@@ -247,7 +247,7 @@ export async function synthesizeWithFailover(params: {
   config?: AiSearchConfig;
 }): Promise<TierStreamResult> {
   const config = params.config ?? getAiSearchConfig();
-  const userPrompt = `User question: ${params.question}\n\n${params.contextText}`;
+  const userPrompt = `<user_question>\n${params.question}\n</user_question>\n\n${params.contextText}`;
   const errors: string[] = [];
 
   if (config.tiers.tier1Groq.apiKey) {

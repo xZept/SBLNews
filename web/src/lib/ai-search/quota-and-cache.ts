@@ -78,12 +78,17 @@ export async function getMyAiQuotaStatus(
 }
 
 export async function checkAndIncrementAiQuota(
-  supabase: SupabaseClient,
+  serviceClient: SupabaseClient,
+  userId: string,
   dailyLimit: number
 ): Promise<AiQuotaStatus> {
-  const { data, error } = await supabase.rpc("check_and_increment_ai_quota", {
-    p_daily_limit: dailyLimit,
-  });
+  const { data, error } = await serviceClient.rpc(
+    "check_and_increment_ai_quota",
+    {
+      p_user_id: userId,
+      p_daily_limit: dailyLimit,
+    }
+  );
 
   if (error) {
     throw new Error(`check_and_increment_ai_quota failed: ${error.message}`);
@@ -98,10 +103,12 @@ export async function checkAndIncrementAiQuota(
 }
 
 export async function refundAiQuota(
-  supabase: SupabaseClient,
+  serviceClient: SupabaseClient,
+  userId: string,
   dailyLimit: number
 ): Promise<AiQuotaStatus> {
-  const { data, error } = await supabase.rpc("refund_ai_quota", {
+  const { data, error } = await serviceClient.rpc("refund_ai_quota", {
+    p_user_id: userId,
     p_daily_limit: dailyLimit,
   });
 

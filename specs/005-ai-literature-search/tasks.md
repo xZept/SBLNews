@@ -1,4 +1,4 @@
-# Tasks: Unified Authenticated AI-Assisted Literature Search
+T025–T030# Tasks: Unified Authenticated AI-Assisted Literature Search
 
 **Input**: Design documents from `/specs/005-ai-literature-search/`
 **Prerequisites**: [plan.md](./plan.md), [spec.md](./spec.md), [research.md](./research.md), [data-model.md](./data-model.md), [contracts/ai-search-route-and-ui.md](./contracts/ai-search-route-and-ui.md), [quickstart.md](./quickstart.md)
@@ -155,3 +155,15 @@ Task: "Build <AiSynthesisPanel /> in web/src/components/search/ai-synthesis-pane
 3. **Free-Tier Protection (`US3`)**: Deterministic query normalization, shared 7/30-day TTL cache, and atomic `10`/day quota + `admin` unlimited bypass.
 4. **Resilience (`US4`)**: 3-tier `Groq` → `OpenRouter :free` → `Gemini Free Tier` failover + non-penalizing quota refunds.
 5. **Final Gate (`Phase 7`)**: Route-boundary checks, `tsc --noEmit`, `next lint`, `vitest run`, `next build`, and `pytest -v`.
+
+
+---
+
+## Phase 8: Convergence
+
+- [X] T025 CRITICAL: Revoke direct `authenticated` client `EXECUTE` privileges on mutating quota-refund and shared cache-write RPCs (`public.refund_ai_quota` and `public.put_cached_ai_synthesis`, plus server-scoped quota mutation) via a new sequential SQL migration and invoke them from `web/src/app/api/ai-search/route.ts` through a server-only `service_role` Supabase client so browser clients cannot reset their own daily quota or poison `public.ai_search_cache` per Constitution IV, FR-008 (contradicts)
+- [X] T026 Align `HybridSearchSchema.q` max length in `web/src/lib/validations/search.ts` (and `web/src/app/search/page.tsx` fallback slicing) with `AI_QUERY_MAX_LENGTH = 300` so valid 201–300 character Ask AI queries are not silently rejected by `searchStudiesHybrid` or flagged as invalid parameters on `/search`, and add a regression unit test in `web/tests/ai-search.test.ts` per FR-004, FR-005, FR-009, Edge Case 1 (contradicts)
+- [X] T027 Sync `/search` URL search parameters (`q`, `study_design`, `min_duration_weeks`, `trained_only`, `ai=1`) when submitting an Ask AI query in `web/src/components/search/ai-search-workspace.tsx` (without triggering duplicate synthesis requests) so the server-rendered `StudyCard` list below `<AiSynthesisPanel />` always reflects the submitted question and active filters per FR-004, FR-013, US1/AC1, US3/AC3, US4/AC2 (partial)
+- [X] T028 Prevent duplicate in-flight Ask AI submissions from the same tab in `web/src/components/search/ai-search-workspace.tsx` by disabling the `Synthesize` submit button and ignoring duplicate form submissions while `synthesis.isStreaming` is `true` per Edge Case 4, FR-008 (partial)
+- [X] T029 Wrap the user's question in `<user_question>` delimiters in `web/src/lib/ai-search/failover-client.ts` and update `AI_SYNTHESIS_SYSTEM_PROMPT` in `web/src/lib/ai-search/context-builder.ts` to ignore prompt-injection instructions inside `<user_question>` and explicitly state when retrieved studies do not address the user's specific claim per Edge Case 2, FR-010 (partial)
+- [X] T030 Preserve `min_duration_weeks` in `buildAskAiReturnPath` and `<AskAiOAuthPrompt />` (`web/src/components/search/ask-ai-oauth-prompt.tsx`) and pass `minDurationWeeks` from `web/src/components/search/ai-search-workspace.tsx` so signed-out `/search` visitors retain all active filters across OAuth sign-in per FR-003 (partial)

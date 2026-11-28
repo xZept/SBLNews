@@ -21,8 +21,17 @@ export const FeedFilterSchema = z.object({
 export type FeedTab = z.infer<typeof FeedTabEnum>;
 export type FeedFilterInput = z.infer<typeof FeedFilterSchema>;
 
+export const SEARCH_QUERY_MAX_LENGTH = 300;
+
 export const HybridSearchSchema = z.object({
-  q: z.string().trim().max(200, "Query must be 200 characters or fewer").default(""),
+  q: z
+    .string()
+    .trim()
+    .max(
+      SEARCH_QUERY_MAX_LENGTH,
+      `Query must be ${SEARCH_QUERY_MAX_LENGTH} characters or fewer`
+    )
+    .default(""),
   study_design: z.preprocess(
     (val) => (val === "" || val === null || val === undefined ? undefined : val),
     StudyDesignEnum.optional()

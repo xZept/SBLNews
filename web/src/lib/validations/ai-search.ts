@@ -1,8 +1,11 @@
 import { z } from "zod";
-import { StudyDesignEnum } from "@/lib/validations/search";
+import {
+  SEARCH_QUERY_MAX_LENGTH,
+  StudyDesignEnum,
+} from "@/lib/validations/search";
 
 export const AI_QUERY_MIN_LENGTH = 3;
-export const AI_QUERY_MAX_LENGTH = 300;
+export const AI_QUERY_MAX_LENGTH = SEARCH_QUERY_MAX_LENGTH;
 
 export const AiSearchRequestSchema = z.object({
   q: z

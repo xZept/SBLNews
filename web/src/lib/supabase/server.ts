@@ -52,3 +52,23 @@ export function createPublicClient() {
     },
   });
 }
+
+/**
+ * Server-only service_role Supabase client for privileged backend operations
+ * (e.g., AI quota mutations and shared cache writes). Never import in client code.
+ */
+export function createServiceRoleClient() {
+  const { url } = getSupabaseEnv();
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!serviceRoleKey) {
+    throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
+  }
+
+  return createSupabaseClient(url, serviceRoleKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}

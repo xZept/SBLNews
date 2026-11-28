@@ -27,9 +27,13 @@ describe("HybridSearchSchema", () => {
     expect(parsed.limit).toBe(20);
   });
 
-  it("rejects queries exceeding 200 characters", () => {
-    const result = HybridSearchSchema.safeParse({ q: "a".repeat(201) });
-    expect(result.success).toBe(false);
+  it("accepts queries up to 300 characters and rejects queries exceeding 300 characters", () => {
+    expect(HybridSearchSchema.safeParse({ q: "a".repeat(300) }).success).toBe(
+      true
+    );
+    expect(HybridSearchSchema.safeParse({ q: "a".repeat(301) }).success).toBe(
+      false
+    );
   });
 
   it("enforces min_duration_weeks (0-520) and limit (1-50) bounds", () => {

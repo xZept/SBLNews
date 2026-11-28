@@ -2,10 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { RotateCcw, Search, Sparkles } from "lucide-react";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
 import { AiSynthesisPanel } from "@/components/search/ai-synthesis-panel";
-import { AskAiOAuthPrompt } from "@/components/search/ask-ai-oauth-prompt";
+import {
+  AskAiOAuthPrompt,
+  buildAskAiReturnPath,
+} from "@/components/search/ask-ai-oauth-prompt";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -100,6 +104,7 @@ export function AiSearchWorkspace({
   initialQuota = null,
   hasActiveFilters,
 }: AiSearchWorkspaceProps) {
+  const router = useRouter();
   const { profile, loading: authLoading } = useAccountProfile();
 
   const [query, setQuery] = React.useState(initialQuery);
@@ -157,6 +162,7 @@ export function AiSearchWorkspace({
       abortControllerRef.current?.abort();
       const controller = new AbortController();
       abortControllerRef.current = controller;
+      autoTriggeredRef.current = true;
 
       setSynthesis({
         ...INITIAL_SYNTHESIS_STATE,
@@ -372,9 +378,22 @@ export function AiSearchWorkspace({
     }
 
     e.preventDefault();
-    if (!profile) {
+    if (!profile || synthesis.isStreaming) {
       return;
     }
+
+    const trimmed = query.trim();
+    if (trimmed.length >= AI_QUERY_MIN_LENGTH) {
+      autoTriggeredRef.current = true;
+      const nextUrl = buildAskAiReturnPath({
+        query: trimmed,
+        studyDesign,
+        minDurationWeeks,
+        trainedOnly,
+      });
+      router.replace(nextUrl, { scroll: false });
+    }
+
     void runAiSynthesis(query);
   }
 
@@ -406,7 +425,7 @@ export function AiSearchWorkspace({
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                maxLength={aiActive ? AI_QUERY_MAX_LENGTH : 200}
+                maxLength={AI_QUERY_MAX_LENGTH}
                 placeholder={
                   aiActive
                     ? 'Ask a multi-study question (e.g., "Do lengthened partials build more muscle than full ROM?")'
@@ -419,6 +438,7 @@ export function AiSearchWorkspace({
               <Button
                 type="submit"
                 variant={aiActive ? "secondary" : "primary"}
+                disabled={aiActive && synthesis.isStreaming}
                 className="gap-1.5"
               >
                 {aiActive ? (
@@ -546,6 +566,7 @@ export function AiSearchWorkspace({
         <AskAiOAuthPrompt
           query={query}
           studyDesign={studyDesign}
+          minDurationWeeks={minDurationWeeks}
           trainedOnly={trainedOnly}
           onDismiss={() => setAiActive(false)}
         />

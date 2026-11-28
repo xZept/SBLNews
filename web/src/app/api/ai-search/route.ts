@@ -14,7 +14,7 @@ import {
   refundAiQuota,
 } from "@/lib/ai-search/quota-and-cache";
 import { getAiCitationStudies } from "@/lib/queries/studies";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { AiSearchRequestSchema } from "@/lib/validations/ai-search";
 
 export const dynamic = "force-dynamic";
@@ -129,9 +129,11 @@ export async function POST(request: Request) {
     });
   }
 
-  // 2. Atomic daily quota check & reservation on cache miss
+  // 2. Atomic daily quota check & reservation on cache miss (server-only service_role)
+  const serviceSupabase = createServiceRoleClient();
   const quota = await checkAndIncrementAiQuota(
-    supabase,
+    serviceSupabase,
+    user.id,
     config.dailyQuotaLimit
   );
   if (!quota.allowed) {
@@ -149,7 +151,11 @@ export async function POST(request: Request) {
   // 3. Deterministic hybrid retrieval (refund quota if 0 studies match)
   const citedStudies = await getAiCitationStudies(parsed.data, 5);
   if (citedStudies.length === 0) {
-    const refundedQuota = await refundAiQuota(supabase, config.dailyQuotaLimit);
+    const refundedQuota = await refundAiQuota(
+      serviceSupabase,
+      user.id,
+      config.dailyQuotaLimit
+    );
     return NextResponse.json({
       mode: "no_matching_studies",
       cached: false,
@@ -172,7 +178,11 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     console.error("AI synthesis tier error:", err);
-    const refundedQuota = await refundAiQuota(supabase, config.dailyQuotaLimit);
+    const refundedQuota = await refundAiQuota(
+      serviceSupabase,
+      user.id,
+      config.dailyQuotaLimit
+    );
     return NextResponse.json(
       {
         error: "ALL_TIERS_FAILED",
@@ -210,7 +220,7 @@ export async function POST(request: Request) {
 
         const finalMarkdown = fullText.trim();
         if (finalMarkdown.length > 0 && builtContext.includedStudies.length > 0) {
-          await putCachedAiSynthesis(supabase, {
+          await putCachedAiSynthesis(serviceSupabase, {
             cacheKey,
             normalizedQuery,
             filterSignature,
@@ -234,7 +244,11 @@ export async function POST(request: Request) {
         console.error("AI synthesis stream interrupted:", err);
         let refundedQuota = quota;
         try {
-          refundedQuota = await refundAiQuota(supabase, config.dailyQuotaLimit);
+          refundedQuota = await refundAiQuota(
+            serviceSupabase,
+            user.id,
+            config.dailyQuotaLimit
+          );
         } catch (refundErr) {
           console.error("Failed to refund AI quota after stream error:", refundErr);
         }

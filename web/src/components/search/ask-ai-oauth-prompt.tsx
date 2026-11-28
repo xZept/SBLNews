@@ -10,6 +10,8 @@ interface AskAiOAuthPromptProps {
   query?: string;
   /** Optional active study_design filter to preserve in the return URL. */
   studyDesign?: string;
+  /** Optional min_duration_weeks filter to preserve in the return URL. */
+  minDurationWeeks?: string | number;
   /** Optional trained_only filter to preserve in the return URL. */
   trainedOnly?: boolean;
   /** Optional callback to dismiss the inline prompt. */
@@ -19,6 +21,7 @@ interface AskAiOAuthPromptProps {
 export function buildAskAiReturnPath(params: {
   query?: string;
   studyDesign?: string;
+  minDurationWeeks?: string | number;
   trainedOnly?: boolean;
 }): string {
   const sp = new URLSearchParams();
@@ -30,6 +33,15 @@ export function buildAskAiReturnPath(params: {
   if (params.studyDesign && params.studyDesign !== "all") {
     sp.set("study_design", params.studyDesign);
   }
+  if (params.minDurationWeeks !== undefined && params.minDurationWeeks !== "") {
+    const parsedWeeks =
+      typeof params.minDurationWeeks === "number"
+        ? params.minDurationWeeks
+        : Number.parseInt(params.minDurationWeeks, 10);
+    if (Number.isFinite(parsedWeeks) && parsedWeeks >= 0) {
+      sp.set("min_duration_weeks", String(parsedWeeks));
+    }
+  }
   if (params.trainedOnly) {
     sp.set("trained_only", "true");
   }
@@ -39,6 +51,7 @@ export function buildAskAiReturnPath(params: {
 export function AskAiOAuthPrompt({
   query,
   studyDesign,
+  minDurationWeeks,
   trainedOnly,
   onDismiss,
 }: AskAiOAuthPromptProps) {
@@ -53,6 +66,7 @@ export function AskAiOAuthPrompt({
       const nextPath = buildAskAiReturnPath({
         query,
         studyDesign,
+        minDurationWeeks,
         trainedOnly,
       });
       const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(
