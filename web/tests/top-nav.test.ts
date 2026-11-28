@@ -245,3 +245,30 @@ describe("TopNav Friends & Chat drawer trigger", () => {
     expect(topNavSrc).toContain('onClick={() => openDrawer("friends")}');
   });
 });
+
+describe("TopNav navigation links (006-relocate-search-ask-ai)", () => {
+  it("renders Feed, Guidelines, and Methodology and omits /search in both desktop and mobile navbars", () => {
+    const html = renderToStaticMarkup(React.createElement(TopNav));
+
+    const desktopNavMatch = html.match(
+      /<nav aria-label="Primary navigation"[^>]*>([\s\S]*?)<\/nav>/
+    );
+    const mobileNavMatch = html.match(
+      /<nav aria-label="Mobile navigation"[^>]*>([\s\S]*?)<\/nav>/
+    );
+
+    expect(desktopNavMatch).not.toBeNull();
+    expect(mobileNavMatch).not.toBeNull();
+
+    for (const navHtml of [desktopNavMatch![1], mobileNavMatch![1]]) {
+      expect(navHtml).toContain('href="/"');
+      expect(navHtml).toContain("Feed");
+      expect(navHtml).toContain('href="/guidelines"');
+      expect(navHtml).toContain("Guidelines");
+      expect(navHtml).toContain('href="/methodology"');
+      expect(navHtml).toContain("Methodology");
+      expect(navHtml).not.toContain('href="/search"');
+      expect(navHtml).not.toContain(">Search<");
+    }
+  });
+});

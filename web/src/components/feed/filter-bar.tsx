@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
 import {
   AskAiOAuthPrompt,
@@ -99,21 +100,6 @@ export function FilterBar({
               {trainedOnly ? "✓ Trained Lifters Only" : "Trained Lifters Only"}
             </span>
           </button>
-
-          <button
-            type="button"
-            onClick={() => setAskAiOpen((prev) => !prev)}
-            aria-pressed={askAiOpen}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-md border-2 border-border px-3 py-1.5 font-mono text-xs font-bold shadow-control transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer",
-              askAiOpen
-                ? "bg-accent text-accent-ink"
-                : "bg-canvas text-ink hover:bg-surface"
-            )}
-          >
-            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>Ask AI</span>
-          </button>
         </div>
 
         <span className="font-mono text-xs font-semibold text-muted">
@@ -145,6 +131,30 @@ export function FilterBar({
             </button>
           );
         })}
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 gap-3 border-t-2 border-border/15 pt-3 sm:grid-cols-4">
+        <Link
+          href="/search"
+          className="sm:col-span-3 inline-flex min-h-[44px] w-full items-center justify-start gap-2 rounded-md border-2 border-border bg-surface px-3.5 py-2 font-mono text-xs font-bold text-ink shadow-card transition-transform hover:bg-canvas active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+        >
+          <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>Search literature...</span>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setAskAiOpen((prev) => !prev)}
+          aria-pressed={askAiOpen}
+          className={cn(
+            "sm:col-span-1 inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-md border-2 border-border px-3.5 py-2 font-mono text-xs font-bold shadow-card transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer",
+            askAiOpen
+              ? "bg-accent text-accent-ink"
+              : "bg-surface text-ink hover:bg-canvas"
+          )}
+        >
+          <Sparkles className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>Ask AI</span>
+        </button>
       </div>
 
       {askAiOpen && !authLoading && (

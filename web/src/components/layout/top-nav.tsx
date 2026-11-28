@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageSquare, Search } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AccountBubble } from "@/components/layout/account-bubble";
 import { useAccountProfile } from "@/components/layout/account-profile-provider";
@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 const NAV_LINKS = [
   { href: "/", label: "Feed" },
   { href: "/guidelines", label: "Guidelines" },
-  { href: "/search", label: "Search" },
   { href: "/methodology", label: "Methodology" },
 ] as const;
 
@@ -85,7 +84,6 @@ export function TopNav() {
                       : "border-transparent text-ink hover:border-border hover:bg-canvas"
                   )}
                 >
-                  {link.href === "/search" && <Search className="h-3.5 w-3.5" />}
                   {link.label}
                 </Link>
               );
